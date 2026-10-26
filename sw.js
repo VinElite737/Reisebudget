@@ -1,4 +1,4 @@
-const CACHE_NAME = 'urlaubsbudget-pwa-v1';
+const CACHE_NAME = 'urlaubsbudget-pwa-v2';
 const APP_FILES = [
   './',
   './index.html',
