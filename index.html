@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#12171A">
+<title>Urlaubsbudget</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/png" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Urlaub">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap">
+<style>
+:root{
+  --bg:#12171A;--surface:#1A2124;--raised:#222B2F;--line:#2C373B;
+  --ink:#D5DEDC;--muted:#8A9997;--accent:#7DB8AB;--accent-ink:#0F1C19;--warn:#E39A84;--ok:#7DB8AB;
+  color-scheme:dark;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.45}
+main{max-width:600px;margin:0 auto;padding:18px 14px 56px}
+input,button{font:inherit;color:inherit}
+input{background:transparent;border:0;outline:0;width:100%;padding:2px 0;min-width:0}
+input::placeholder{color:var(--muted);opacity:.7}
+input[type=date]{color-scheme:dark;-webkit-appearance:none;appearance:none;min-width:0;max-width:100%;height:1.7em;font-size:.95rem;text-align:left;display:block}
+input[type=date]::-webkit-date-and-time-value{text-align:left}
+
+.overview{background:var(--surface);border:1px solid var(--line);border-radius:26px;padding:22px 20px}
+.lbl{font-size:.85rem;color:var(--muted)}
+.big{font-size:clamp(2.8rem,15vw,4.2rem);font-weight:800;letter-spacing:-.03em;line-height:1.05;font-variant-numeric:tabular-nums;margin:2px 0 10px}
+.big.neg{color:var(--warn)}
+.bar{height:8px;background:var(--raised);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .35s}
+.bar i.over{background:var(--warn)}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:16px}
+.cell{background:var(--raised);border-radius:16px;padding:10px 12px;min-width:0;overflow:hidden}
+.cell b{overflow-wrap:anywhere}
+.cell b{display:block;font-size:1.15rem;font-variant-numeric:tabular-nums}
+.cell:focus-within{outline:2px solid var(--accent)}
+.cell input{font-weight:600;font-size:1.05rem}
+
+.trip{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:26px;padding:16px 20px}
+.dates{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-bottom:14px}
+.dayline{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:end}
+.dayline>div{padding:0 12px;min-width:0}
+.dayline b{font-size:1.9rem;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums;display:block}
+.dayline .r{text-align:left}
+.hint{margin:12px 0 0;font-size:.88rem;color:var(--warn)}
+
+h2{font-size:1.1rem;font-weight:600;margin:26px 4px 10px}
+.person{background:var(--surface);border:1px solid var(--line);border-radius:22px;margin-bottom:10px;overflow:hidden}
+.head{display:flex;align-items:center;gap:12px;width:100%;background:transparent;border:0;padding:16px 18px;text-align:left;cursor:pointer;min-height:64px}
+.head:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.head .nm{flex:1;font-weight:800;font-size:1.1rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.head .lf{font-weight:800;font-variant-numeric:tabular-nums;text-align:right}
+.head .lf small{display:block;font-weight:400;font-size:.75rem;color:var(--muted)}
+.head .lf.neg{color:var(--warn)}
+.chev{width:10px;height:10px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .2s;margin:0 4px 4px 2px;flex:none}
+.open .chev{transform:rotate(-135deg);margin-bottom:-2px}
+.body{padding:0 18px 18px;border-top:1px solid var(--line)}
+.field{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--raised);border-radius:14px;padding:10px 14px;margin-top:14px}
+.field input{text-align:right;font-weight:700;font-size:1.05rem;width:100%;max-width:9em}
+.field:focus-within,.addrow:focus-within{outline:2px solid var(--accent)}
+.stats{display:flex;justify-content:space-between;gap:8px;font-size:.85rem;color:var(--muted);margin:10px 2px 0;flex-wrap:wrap}
+.meter{height:6px;background:var(--raised);border-radius:99px;margin-top:10px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.meter i.over{background:var(--warn)}
+.sub{font-size:.85rem;color:var(--muted);margin:18px 2px 4px}
+ul{list-style:none;margin:0;padding:0}
+li{display:flex;align-items:center;gap:8px;padding:10px 2px;border-bottom:1px solid var(--line)}
+li .w{flex:1;overflow-wrap:anywhere}
+li .amt{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.x{border:0;background:transparent;color:var(--muted);cursor:pointer;min-width:40px;min-height:40px;border-radius:12px;font-size:1.3rem;line-height:1}
+.x:focus-visible,.x:active{color:var(--warn);background:var(--raised);outline:none}
+.addrow{display:grid;grid-template-columns:minmax(0,1fr) 5.5em;gap:8px;background:var(--raised);border-radius:14px;padding:6px 10px;margin-top:10px}
+.addrow input.a{text-align:right;border-left:1px solid var(--line);padding-left:8px}
+.btn{border:0;background:var(--accent);color:var(--accent-ink);font-weight:600;border-radius:14px;padding:12px 16px;cursor:pointer;min-height:44px}
+.btn.full{width:100%;margin-top:8px}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.del{display:block;margin:16px 0 0 auto;background:transparent;border:0;color:var(--muted);cursor:pointer;padding:10px 4px;min-height:44px}
+.del.sure{color:var(--warn);font-weight:600}
+.add{display:grid;grid-template-columns:minmax(0,1fr) 6.5em;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:10px}
+.add .in{background:var(--raised);border-radius:14px;padding:10px 14px}
+.add .in:focus-within{outline:2px solid var(--accent)}
+.add .in.b input{text-align:right}
+.add .btn{grid-column:1/-1}
+.empty{color:var(--muted);text-align:center;padding:22px 12px;border:1.5px dashed var(--line);border-radius:22px;margin-bottom:10px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <section class="overview" aria-live="polite">
+    <div class="lbl">Übrig auf dem Konto</div>
+    <div class="big" id="left">0,00 €</div>
+    <div class="bar"><i id="oBar" style="width:0"></i></div>
+    <div class="pair">
+      <div class="cell"><span class="lbl">Gesamtes Geld</span><b id="total">0,00 €</b></div>
+      <div class="cell"><span class="lbl">Ausgegeben</span><b id="spent">0,00 €</b></div>
+    </div>
+  </section>
+
+  <section class="trip" aria-live="polite">
+    <div class="dates">
+      <label class="cell"><span class="lbl">Anreise</span><input id="from" type="date"></label>
+      <label class="cell"><span class="lbl">Abreise</span><input id="to" type="date"></label>
+    </div>
+    <div class="dayline">
+      <div><span class="lbl">Verbleibend</span><b id="dLeft">–</b></div>
+      <div class="r"><span class="lbl">Pro Tag noch</span><b id="perDay">–</b></div>
+    </div>
+    <p class="hint" id="hint" hidden></p>
+  </section>
+
+  <h2>Konten</h2>
+  <div id="people"></div>
+
+  <form class="add" id="addForm">
+    <label class="in"><input id="pName" placeholder="Kontoname, z. B. Anna" aria-label="Kontoname" required></label>
+    <label class="in b"><input id="pBudget" type="number" inputmode="decimal" step="any" min="0" placeholder="Budget €" aria-label="Budget"></label>
+    <button class="btn" type="submit">Konto hinzufügen</button>
+  </form>
+</main>
+
+<script>
+(function(){
+  var KEY="urlaubsbudget-v2";
+  var S={total:"",from:"",to:"",people:[]};
+  try{
+    var raw=localStorage.getItem(KEY)||localStorage.getItem("urlaubsbudget-v1");
+    if(raw){var p=JSON.parse(raw);if(p&&Array.isArray(p.people)){S.total=p.total||"";S.from=p.from||"";S.to=p.to||"";S.people=p.people;}}
+  }catch(e){}
+  var openIds={},pending=null;
+  var $=function(id){return document.getElementById(id)};
+  var fmt=new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR"});
+  var money=function(n){return fmt.format(n)};
+  var num=function(v){var n=parseFloat(String(v).replace(",","."));return isFinite(n)?n:0};
+  var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})};
+  var save=function(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+  var uid=function(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)};
+  var spentOf=function(p){return p.exp.reduce(function(a,e){return a+e.amt},0)};
+  var DAY=86400000;
+  function parse(s){if(!s)return null;var a=s.split("-");return new Date(+a[0],+a[1]-1,+a[2]).getTime()}
+
+  function dayInfo(){
+    var f=parse(S.from),t=parse(S.to);
+    if(f===null||t===null||t<f)return null;
+    var d=new Date();var today=new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime();
+    var total=Math.round((t-f)/DAY)+1;
+    var left=today<=f?total:(today>t?0:Math.round((t-today)/DAY)+1);
+    return{total:total,left:left,before:today<f,after:today>t};
+  }
+
+  function summary(){
+    var sumP=S.people.reduce(function(a,p){return a+p.budget},0);
+    var total=sumP;
+    var spent=S.people.reduce(function(a,p){return a+spentOf(p)},0);
+    var left=total-spent;
+    var big=$("left");big.textContent=money(left);big.className="big"+(left<0?" neg":"");
+    $("spent").textContent=money(spent);$("total").textContent=money(total);
+    var bar=$("oBar");bar.style.width=total>0?Math.min(100,spent/total*100)+"%":(spent>0?"100%":"0");
+    bar.className=left<0?"over":"";
+    var di=dayInfo(),h=$("hint"),msg="";
+    if(!di){
+      $("dLeft").textContent="–";$("perDay").textContent="–";
+      msg=(S.from||S.to)?"Wähle Anreise und Abreise – die Abreise muss nach der Anreise liegen.":"Wähle Anreise und Abreise, dann siehst du die Tage und dein Tagesbudget.";
+    }else{
+      $("dLeft").textContent=di.left+(di.left===1?" Tag":" Tage");
+      if(di.left>0)$("perDay").textContent=money(Math.max(left,0)/di.left);
+      else{$("perDay").textContent="–";msg="Der Urlaub ist vorbei.";}
+      if(di.before)msg="Der Urlaub beginnt noch – alle "+di.total+" Tage sind eingerechnet.";
+    }
+    if(!S.people.length)msg=msg||"Füge Konten mit Budget hinzu – daraus ergibt sich das gesamte Geld.";
+    h.hidden=!msg;h.textContent=msg;
+    return di;
+  }
+
+  function render(focusId){
+    var box=$("people"),di=summary();
+    if(!S.people.length){box.innerHTML='<div class="empty">Noch kein Konto angelegt. Füge unten das erste Konto mit Budget hinzu.</div>';return;}
+    box.innerHTML=S.people.map(function(p){
+      var sp=spentOf(p),left=p.budget-sp,pct=p.budget>0?Math.min(100,sp/p.budget*100):(sp>0?100:0);
+      var isOpen=!!openIds[p.id];
+      var pd=di&&di.left>0?money(Math.max(left,0)/di.left)+" pro Tag":"";
+      var items=p.exp.length?'<ul>'+p.exp.map(function(e){
+        return '<li><span class="w">'+esc(e.what)+'</span><span class="amt">'+money(e.amt)+'</span><button class="x" data-del="'+p.id+'|'+e.id+'" aria-label="Ausgabe löschen">×</button></li>';
+      }).join("")+'</ul>':'';
+      return '<article class="person'+(isOpen?' open':'')+'">'+
+        '<button class="head" data-toggle="'+p.id+'" aria-expanded="'+isOpen+'"><span class="nm">'+esc(p.name)+'</span>'+
+        '<span class="lf'+(left<0?' neg':'')+'">'+money(left)+'<small>übrig</small></span><span class="chev"></span></button>'+
+        (isOpen?'<div class="body">'+
+          '<label class="field"><span>Budget (€)</span><input type="number" inputmode="decimal" step="any" min="0" value="'+p.budget+'" data-budget="'+p.id+'" aria-label="Budget von '+esc(p.name)+'"></label>'+
+          '<div class="meter"><i class="'+(left<0?'over':'')+'" style="width:'+pct+'%"></i></div>'+
+          '<div class="stats"><span>Ausgegeben: '+money(sp)+'</span><span>'+pd+'</span></div>'+
+          '<div class="sub">Ausgaben</div>'+items+
+          '<form data-exp="'+p.id+'"><div class="addrow"><input class="w" placeholder="Wofür?" aria-label="Wofür" required><input class="a" type="number" inputmode="decimal" step="any" min="0" placeholder="€" aria-label="Kosten" required></div>'+
+          '<button class="btn full" type="submit">Ausgabe eintragen</button></form>'+
+          '<button class="del'+(pending===p.id?' sure':'')+'" data-rm="'+p.id+'">'+(pending===p.id?'Wirklich löschen? Nochmal tippen':'Konto löschen')+'</button>'+
+        '</div>':'')+'</article>';
+    }).join("");
+    if(focusId){var f=box.querySelector('form[data-exp="'+focusId+'"] .w');if(f)f.focus();}
+  }
+
+  $("from").value=S.from;$("to").value=S.to;
+  
+  $("from").addEventListener("change",function(e){S.from=e.target.value;if(S.to&&S.to<S.from){S.to=S.from;$("to").value=S.to;}save();render();});
+  $("to").addEventListener("change",function(e){S.to=e.target.value;save();render();});
+
+  $("addForm").addEventListener("submit",function(e){
+    e.preventDefault();
+    var n=$("pName").value.trim();if(!n)return;
+    var id=uid();S.people.push({id:id,name:n,budget:num($("pBudget").value),exp:[]});
+    openIds[id]=true;$("pName").value="";$("pBudget").value="";save();render();
+  });
+
+  var box=$("people");
+  var find=function(id){return S.people.filter(function(x){return x.id===id})[0]};
+  box.addEventListener("submit",function(e){
+    var id=e.target.getAttribute("data-exp");if(!id)return;
+    e.preventDefault();var p=find(id);if(!p)return;
+    var w=e.target.querySelector(".w").value.trim(),a=num(e.target.querySelector(".a").value);
+    if(!w||!a)return;
+    p.exp.push({id:uid(),what:w,amt:a});save();render(id);
+  });
+  box.addEventListener("change",function(e){
+    var id=e.target.getAttribute("data-budget");if(!id)return;
+    var p=find(id);if(!p)return;p.budget=num(e.target.value);save();render();
+  });
+  box.addEventListener("click",function(e){
+    var t=e.target.closest("button");if(!t)return;
+    var tg=t.getAttribute("data-toggle"),d=t.getAttribute("data-del"),r=t.getAttribute("data-rm");
+    if(tg){openIds[tg]=!openIds[tg];pending=null;render();}
+    else if(d){var a=d.split("|"),p=find(a[0]);if(p){p.exp=p.exp.filter(function(x){return x.id!==a[1]});save();render();}}
+    else if(r){
+      if(pending===r){S.people=S.people.filter(function(x){return x.id!==r});pending=null;save();render();}
+      else{pending=r;render();}
+    }
+  });
+
+  render();
+})();
+</script>
+<script>
+if("serviceWorker" in navigator){
+  window.addEventListener("load",function(){
+    navigator.serviceWorker.register("./sw.js").catch(function(){});
+  });
+}
+</script>
+</body>
+</html>
