@@ -1,4 +1,4 @@
-const CACHE_NAME = 'urlaubsbudget-pwa-v3';
+const CACHE_NAME = 'urlaubsbudget-pwa-v4';
 const APP_FILES = [
   './',
   './index.html',
@@ -21,11 +21,12 @@ self.addEventListener('activate', event => {
         keys.filter(key => key !== CACHE_NAME)
           .map(key => caches.delete(key))
       )
-    )
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
+// Network first: always load the latest version when online,
+// fall back to the cache when offline.
 self.addEventListener('fetch', event => {
   if (
     event.request.method !== 'GET' ||
@@ -33,8 +34,8 @@ self.addEventListener('fetch', event => {
   ) return;
 
   event.respondWith(
-    caches.match(event.request).then(cached =>
-      cached || fetch(event.request).then(response => {
+    fetch(event.request)
+      .then(response => {
         if (response.ok) {
           const copy = response.clone();
           caches.open(CACHE_NAME).then(cache =>
@@ -42,7 +43,11 @@ self.addEventListener('fetch', event => {
           );
         }
         return response;
-      }).catch(() => caches.match('./index.html'))
-    )
+      })
+      .catch(() =>
+        caches.match(event.request).then(cached =>
+          cached || caches.match('./index.html')
+        )
+      )
   );
 });
