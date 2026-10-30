@@ -17,6 +17,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="icon.svg" type="image/svg+xml">
     <title>Tripwisely</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             color-scheme: light;
@@ -1946,7 +1947,20 @@
                         </div><button class="btn danger" onclick="clearAll()">Löschen</button>
                     </div>
                 </div>
-                <div class="note"><strong>Synchronisierung:</strong> Diese Version funktioniert offline und speichert lokal im Browser. Eine echte Live-Zusammenarbeit zwischen mehreren Geräten ist noch nicht verbunden. Bis dahin können Backups zwischen Mitreisenden ausgetauscht und importiert werden.</div>
+                <div class="card" id="cloudCard" style="margin-top:16px">
+                    <h2>☁️ Cloud & gemeinsamer Zugriff</h2>
+                    <p class="small muted">Verbinde dein Supabase-Projekt. Deine bisherigen Reisen bleiben lokal erhalten, bis du den Erstimport ausdrücklich startest.</p>
+                    <div class="field"><label for="sbUrl">Supabase Project URL</label><input id="sbUrl" type="url" placeholder="https://deinprojekt.supabase.co" autocomplete="url"></div>
+                    <div class="field"><label for="sbKey">Publishable Key (anon/public)</label><input id="sbKey" type="password" placeholder="sb_publishable_…" autocomplete="off"></div>
+                    <div class="toolbar"><button class="btn primary" onclick="cloudConnect()">Verbinden</button><button class="btn plain" onclick="cloudDisconnect()">Trennen</button></div>
+                    <div class="field"><label for="sbEmail">E-Mail-Adresse</label><input id="sbEmail" type="email" placeholder="name@beispiel.de" autocomplete="email"></div>
+                    <div class="field"><label for="sbPassword">Passwort</label><input id="sbPassword" type="password" placeholder="Mindestens 6 Zeichen" autocomplete="current-password"></div>
+                    <div class="toolbar"><button class="btn primary" onclick="cloudSignUp()">Registrieren</button><button class="btn soft" onclick="cloudSignIn()">Anmelden</button><button class="btn plain" onclick="cloudSignOut()">Abmelden</button></div>
+                    <div class="note" id="cloudStatus" aria-live="polite">Noch nicht mit der Cloud verbunden.</div>
+                    <div class="toolbar" style="margin-top:14px"><button class="btn primary" onclick="cloudUploadLocal()">Meine lokalen Reisen hochladen</button><button class="btn soft" onclick="cloudLoadRemote()">Cloud-Reisen laden</button></div>
+                    <p class="small muted">Erstimport: Lädt alle vorhandenen Reisen sowie zugehörige Ausgaben, Planung, Wallet, Checkliste und Konten hoch. Es werden keine lokalen Daten gelöscht. Die automatische Live-Synchronisierung und Einladungslinks werden im nächsten Schritt ergänzt.</p>
+                </div>
+                <div class="note"><strong>Datenschutz:</strong> Die Publishable Key darf im Browser verwendet werden. Verwende niemals den geheimen service_role-Schlüssel in dieser HTML-Datei.</div>
                 <div class="card" style="margin-top:16px">
                     <h2>Installieren</h2>
                     <p class="muted">Öffne Tripwisely über deine GitHub-Pages-Adresse in Chrome und wähle im Browsermenü „App installieren“ oder „Zum Startbildschirm hinzufügen“.</p><button class="btn soft" id="installBtn" style="display:none" onclick="installApp()">App installieren</button>
@@ -3244,6 +3258,135 @@
                 }), 'tripwisely-ausgaben-' + today() + '.csv');
                 toast('CSV exportiert.')
             }
+
+            // Supabase: bewusst zunächst manueller Erstimport/Download, damit kein lokaler Bestand überschrieben wird.
+            let sbClient = null;
+            const SB_URL_KEY = 'tripwisely-supabase-url-v1';
+            const SB_PUB_KEY = 'tripwisely-supabase-publishable-v1';
+            const cloudStatus = msg => { const el = $('cloudStatus'); if (el) el.textContent = msg; };
+            function cloudClient() {
+                if (!sbClient) throw new Error('Bitte zuerst Supabase verbinden.');
+                return sbClient;
+            }
+            async function cloudConnect() {
+                try {
+                    if (!window.supabase?.createClient) throw new Error('Supabase-Bibliothek konnte nicht geladen werden. Bitte Internetverbindung prüfen.');
+                    const url = $('sbUrl').value.trim().replace(/\/$/, '');
+                    const key = $('sbKey').value.trim();
+                    if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(url) || !key) throw new Error('Bitte Project URL und Publishable Key korrekt eintragen.');
+                    storage.setItem(SB_URL_KEY, url); storage.setItem(SB_PUB_KEY, key);
+                    sbClient = window.supabase.createClient(url, key, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+                    const { data: { session }, error } = await sbClient.auth.getSession();
+                    if (error) throw error;
+                    cloudStatus(session ? `Verbunden als ${session.user.email}.` : 'Mit Supabase verbunden. Bitte registrieren oder anmelden.');
+                    toast('Supabase verbunden.');
+                } catch (e) { cloudStatus('Fehler: ' + (e.message || e)); }
+            }
+            async function cloudSignUp() {
+                try {
+                    const c = cloudClient(), email = $('sbEmail').value.trim(), password = $('sbPassword').value;
+                    if (!email || password.length < 6) throw new Error('Bitte E-Mail und ein Passwort mit mindestens 6 Zeichen eingeben.');
+                    const { data: d, error } = await c.auth.signUp({ email, password });
+                    if (error) throw error;
+                    cloudStatus(d.session ? `Registriert und angemeldet als ${email}.` : `Registrierung gestartet. Bitte bestätige die E-Mail-Adresse ${email}, falls E-Mail-Bestätigung aktiviert ist.`);
+                } catch (e) { cloudStatus('Fehler: ' + (e.message || e)); }
+            }
+            async function cloudSignIn() {
+                try {
+                    const c = cloudClient(), email = $('sbEmail').value.trim(), password = $('sbPassword').value;
+                    const { data: d, error } = await c.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+                    cloudStatus(`Angemeldet als ${d.user.email}. Deine lokalen Daten sind noch unverändert.`);
+                    toast('Anmeldung erfolgreich.');
+                } catch (e) { cloudStatus('Fehler: ' + (e.message || e)); }
+            }
+            async function cloudSignOut() {
+                try { const c = cloudClient(); const { error } = await c.auth.signOut(); if (error) throw error; cloudStatus('Abgemeldet.'); }
+                catch (e) { cloudStatus('Fehler: ' + (e.message || e)); }
+            }
+            function cloudDisconnect() {
+                sbClient = null; storage.removeItem(SB_URL_KEY); storage.removeItem(SB_PUB_KEY);
+                if ($('sbKey')) $('sbKey').value = '';
+                cloudStatus('Supabase-Verbindung auf diesem Gerät getrennt. Lokale Daten bleiben erhalten.');
+            }
+            async function cloudUser() {
+                const c = cloudClient();
+                const { data: { user }, error } = await c.auth.getUser();
+                if (error) throw error;
+                if (!user) throw new Error('Bitte zuerst anmelden.');
+                return user;
+            }
+            async function cloudUploadLocal() {
+                try {
+                    const c = cloudClient(), user = await cloudUser();
+                    if (!data.trips.length) throw new Error('Es sind keine lokalen Reisen zum Hochladen vorhanden.');
+                    if (!confirm(`Es werden ${data.trips.length} lokale Reise(n) und alle zugehörigen Einträge in dein Supabase-Konto hochgeladen. Deine lokalen Daten bleiben erhalten. Fortfahren?`)) return;
+                    cloudStatus('Upload läuft …');
+                    const collections = ['expenses','plans','wallet','tasks','accounts'];
+                    let tripCount = 0, recordCount = 0;
+                    for (const trip of data.trips) {
+                        const tripRow = { id: String(trip.id), owner_id: user.id, workspace_id: null, data: trip };
+                        const { error: te } = await c.from('trips').upsert(tripRow, { onConflict: 'id' });
+                        if (te) throw te;
+                        tripCount++;
+                        for (const collection of collections) {
+                            const records = (data[collection] || []).filter(r => String(r.tripId || '') === String(trip.id));
+                            if (!records.length) continue;
+                            const rows = records.map(r => ({ trip_id: String(trip.id), collection, record_id: String(r.id), data: r }));
+                            const { error: re } = await c.from('trip_data').upsert(rows, { onConflict: 'trip_id,collection,record_id' });
+                            if (re) throw re;
+                            recordCount += rows.length;
+                        }
+                    }
+                    cloudStatus(`Upload erfolgreich: ${tripCount} Reise(n), ${recordCount} Einträge. Lokale Daten wurden nicht gelöscht.`);
+                    toast('Daten in die Cloud hochgeladen.');
+                } catch (e) { cloudStatus('Upload fehlgeschlagen: ' + (e.message || e)); }
+            }
+            async function cloudLoadRemote() {
+                try {
+                    const c = cloudClient(); await cloudUser(); cloudStatus('Cloud-Daten werden geladen …');
+                    const { data: trips, error: te } = await c.from('trips').select('id,data,owner_id,created_at,updated_at');
+                    if (te) throw te;
+                    const collections = ['expenses','plans','wallet','tasks','accounts'];
+                    const remote = { trips: [], expenses: [], plans: [], wallet: [], tasks: [], accounts: [] };
+                    for (const row of (trips || [])) {
+                        const trip = row.data && typeof row.data === 'object' ? { ...row.data, id: row.id } : { id: row.id, name: 'Reise' };
+                        remote.trips.push(trip);
+                        const { data: records, error: de } = await c.from('trip_data').select('collection,record_id,data').eq('trip_id', row.id);
+                        if (de) throw de;
+                        for (const rec of (records || [])) if (collections.includes(rec.collection) && rec.data) remote[rec.collection].push(rec.data);
+                    }
+                    const merge = (local, incoming) => {
+                        const m = new Map((local || []).map(x => [String(x.id), x]));
+                        for (const x of incoming || []) if (!m.has(String(x.id))) m.set(String(x.id), x);
+                        return [...m.values()];
+                    };
+                    for (const k of ['trips', ...collections]) data[k] = merge(data[k], remote[k]);
+                    migrate(); save();
+                    const total = remote.trips.length;
+                    cloudStatus(`${total} Cloud-Reise(n) geladen und mit deinen lokalen Daten zusammengeführt. Bei gleichen IDs blieb der lokale Eintrag erhalten.`);
+                    toast('Cloud-Daten geladen.');
+                } catch (e) { cloudStatus('Laden fehlgeschlagen: ' + (e.message || e)); }
+            }
+            function initCloudFields() {
+                const u = storage.getItem(SB_URL_KEY), k = storage.getItem(SB_PUB_KEY);
+                if (u) $('sbUrl').value = u;
+                if (k) $('sbKey').value = k;
+                if (u && k && window.supabase?.createClient) {
+                    try {
+                        sbClient = window.supabase.createClient(u, k, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+                        sbClient.auth.getSession().then(({data,error}) => { if (!error) cloudStatus(data.session ? `Verbunden als ${data.session.user.email}.` : 'Supabase verbunden. Bitte anmelden.'); });
+                    } catch (_) {}
+                }
+            }
+            window.cloudConnect = cloudConnect;
+            window.cloudDisconnect = cloudDisconnect;
+            window.cloudSignUp = cloudSignUp;
+            window.cloudSignIn = cloudSignIn;
+            window.cloudSignOut = cloudSignOut;
+            window.cloudUploadLocal = cloudUploadLocal;
+            window.cloudLoadRemote = cloudLoadRemote;
+
             window.navigate = navigate;
             window.rowMenu = rowMenu;
             window.closeRowMenu = closeRowMenu;
@@ -3303,6 +3446,7 @@
             if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(() => {});
             initCal();
             load();
+            initCloudFields();
             setTheme(storage.getItem('budgora-theme') || 'light');
             if (!data.trips.length && !data.expenses.length) {
                 /* Clean first-run state; no fabricated travel data. */ }
