@@ -1670,9 +1670,6 @@
         html[data-theme="dark"] .auth-card input { border-color:#4b4238;background:#292621;color:#f8efe2; }
         .auth-card input:focus { border-color:#b96f3d;box-shadow:0 0 0 3px #b96f3d22; }
         .auth-submit { width:100%;justify-content:center;margin-top:18px;min-height:46px; }
-        .auth-google { width:100%;justify-content:center;margin-top:10px;min-height:45px;background:transparent;border:1px solid #eadcc8;color:inherit; }
-        html[data-theme="dark"] .auth-google { border-color:#4b4238; }
-        .google-g { display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#fff;color:#4285f4;font-weight:900;font-size:14px; }
         .auth-link { display:block;width:100%;margin-top:14px;padding:2px;border:0;background:none;color:#a7653c;font:inherit;font-size:13px;font-weight:750;cursor:pointer; }
         .auth-message { min-height:18px;margin-top:13px;font-size:13px;line-height:1.45;color:#a34f3c; }
         .auth-message.success { color:#34815b; }
@@ -1716,11 +1713,10 @@
                 <input id="authPassword" type="password" autocomplete="current-password" minlength="6" placeholder="Mindestens 6 Zeichen" required>
                 <button id="authSubmitBtn" class="btn primary auth-submit" type="submit">Anmelden</button>
             </form>
-            <button class="btn auth-google" type="button" onclick="authGoogle()"><span class="google-g">G</span> Mit Google fortfahren</button>
             <button id="authModeBtn" class="auth-link" type="button" onclick="toggleAuthMode()">Noch kein Konto? Jetzt registrieren</button>
             <button id="authResetBtn" class="auth-link" type="button" onclick="authResetPassword()">Passwort vergessen?</button>
             <div id="authMessage" class="auth-message" role="status"></div>
-            <div class="auth-foot">Deine Daten werden sicher in deinem persönlichen Tripwisely-Konto gespeichert.</div>
+            <div class="auth-foot">Dein Tripwisely-Konto startet ohne Import lokaler Browserdaten. Nur Reisen, die du in diesem Konto neu erstellst oder zu denen du eingeladen wirst, erscheinen hier.</div>
         </div>
     </div>
     <div class="shell" id="appShell">
@@ -1995,23 +1991,8 @@
                             <div class="small muted">Alle Reisen, Ausgaben und Listen als JSON-Datei exportieren.</div>
                         </div><button class="btn primary" onclick="exportBackup()">Backup</button>
                     </div>
-                    <div class="settingsrow">
-                        <div><strong>Backup wiederherstellen</strong>
-                            <div class="small muted">Eine zuvor exportierte Tripwisely-Datei importieren.</div>
-                        </div><button class="btn plain" onclick="document.getElementById('importFile').click()">Importieren</button><input class="file" id="importFile" type="file" accept=".json,application/json" onchange="importBackup(event)">
-                    </div>
-                    <div class="settingsrow">
-                        <div><strong>Reisedaten teilen</strong>
-                            <div class="small muted">Exportiere ein Backup und sende es an Mitreisende. Für gleichzeitige Live-Synchronisierung wird später ein gemeinsamer Cloud-Dienst benötigt.</div>
-                        </div><button class="btn soft" onclick="exportBackup()">Teilen</button>
-                    </div>
-                    <div class="settingsrow">
-                        <div><strong>Alle lokalen Daten löschen</strong>
-                            <div class="small muted">Kann nicht rückgängig gemacht werden. Erstelle vorher ein Backup.</div>
-                        </div><button class="btn danger" onclick="clearAll()">Löschen</button>
-                    </div>
                 </div>
-                <div class="note"><strong>Synchronisierung:</strong> Diese Version funktioniert offline und speichert lokal im Browser. Eine echte Live-Zusammenarbeit zwischen mehreren Geräten ist noch nicht verbunden. Bis dahin können Backups zwischen Mitreisenden ausgetauscht und importiert werden.</div>
+                <div class="note"><strong>Cloud-Synchronisierung:</strong> Deine Reisen werden in deinem Tripwisely-Konto gespeichert und mit deinen angemeldeten Geräten synchronisiert. Lokale Browserdaten oder alte Reisen auf diesem Gerät werden nicht abgefragt und nicht übernommen.</div>
                 <div class="card" style="margin-top:16px">
                     <h2>Installieren</h2>
                     <p class="muted">Öffne Tripwisely über deine GitHub-Pages-Adresse in Chrome und wähle im Browsermenü „App installieren“ oder „Zum Startbildschirm hinzufügen“.</p><button class="btn soft" id="installBtn" style="display:none" onclick="installApp()">App installieren</button>
@@ -2063,7 +2044,6 @@
                     catch (e) { delete memoryStorage[key]; }
                 }
             };
-            const KEY = 'budgora-data-v1';
             const categories = ['Transport', 'Unterkunft', 'Essen & Trinken', 'Aktivitäten', 'Shopping', 'Versicherung', 'Sonstiges'];
             const catIcon = {'Transport':'🚆','Unterkunft':'🏨','Essen & Trinken':'🍽️','Aktivitäten':'📍','Shopping':'🛍️','Versicherung':'🛡️','Sonstiges':'📌'};
             const CAT_SVG = {
@@ -2125,7 +2105,6 @@
             let cloudKnown = new Map(), cloudSnapshots = new Map(), tripRoles = {}, tripMembers = {}, tripInvitations = {};
             let cloudRefreshBusy = false;
             const emptyData = () => ({trips:[],expenses:[],plans:[],wallet:[],tasks:[],accounts:[],users:[],activeTripId:'',deviceId:storage.getItem('budgora-device-id')});
-            const localUserKey = () => KEY + ':user:' + (authUser?.id || '');
             const isoD = (y, m, d) => y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
 
             function calPaint() {
@@ -2310,14 +2289,6 @@
                 return m;
             }
 
-            async function authGoogle() {
-                if (!supabaseClient || authBusy) return;
-                authBusy = true;
-                authMessage('Weiterleitung zu Google …', true);
-                const {error} = await supabaseClient.auth.signInWithOAuth({provider:'google', options:{redirectTo:location.origin + location.pathname}});
-                if (error) { authMessage(authErrorText(error)); authBusy = false; }
-            }
-
             async function authResetPassword() {
                 if (!supabaseClient) return;
                 const email = $('authEmail').value.trim().toLowerCase();
@@ -2415,7 +2386,6 @@
                     applyWorkspaceRows(rows, members);
                     await fetchInvitations();
                     renderAll();
-                    storage.setItem(localUserKey(), JSON.stringify(data));
                 } catch (e) {
                     if (showError) toast('Cloud-Daten konnten nicht aktualisiert werden: ' + authErrorText(e));
                 } finally { cloudRefreshBusy = false; }
@@ -2458,24 +2428,11 @@
                             cloudKnown.delete(id); cloudSnapshots.delete(id); delete tripRoles[id];
                         }
                     }
-                    storage.setItem(localUserKey(), JSON.stringify(data));
                 } catch (e) {
                     toast('Cloud-Synchronisierung fehlgeschlagen: ' + authErrorText(e));
                 } finally {
                     cloudSaving = false;
                     if (cloudSaveAgain) { cloudSaveAgain = false; clearTimeout(cloudSaveTimer); cloudSaveTimer = setTimeout(syncCloud, 300); }
-                }
-            }
-
-            async function importLocalWorkspaces(localData, remoteIds) {
-                for (const trip of (localData.trips || [])) {
-                    if (remoteIds.has(trip.id)) continue;
-                    const oldData = data;
-                    data = localData;
-                    const payload = makeWorkspacePayload(trip);
-                    data = oldData;
-                    const {error} = await supabaseClient.from('tripwisely_workspaces').insert({id:trip.id,owner_id:authUser.id,title:trip.name || 'Reise',payload});
-                    if (error) throw error;
                 }
             }
 
@@ -2485,30 +2442,23 @@
                 authUser = session.user;
                 cloudReady = false;
                 cloudKnown.clear(); cloudSnapshots.clear(); tripRoles = {}; tripMembers = {}; tripInvitations = {};
-                load();
-                const localData = JSON.parse(JSON.stringify(data));
-                $('authMessage').textContent = 'Deine Reisen werden geladen …';
+
+                // Absichtlich mit einem leeren Zustand starten. Es werden keine alten
+                // lokalen Reisen oder Browser-Backups in das Konto übernommen.
+                data = emptyData();
+                $('authMessage').textContent = 'Deine Cloud-Reisen werden geladen …';
                 try {
-                    const {rows:initialRows} = await fetchWorkspaceRows();
-                    const remoteIds = new Set(initialRows.map(r => r.id));
-                    const localOnly = (localData.trips || []).filter(t => !remoteIds.has(t.id));
-                    if (localOnly.length) {
-                        const ok = confirm(`${localOnly.length} lokale ${localOnly.length === 1 ? 'Reise wurde' : 'Reisen wurden'} auf diesem Gerät gefunden. Möchtest du ${localOnly.length === 1 ? 'sie' : 'sie'} in dein angemeldetes Tripwisely-Konto übertragen? Bereits vorhandene Cloud-Reisen werden nicht überschrieben.`);
-                        if (ok) await importLocalWorkspaces(localData, remoteIds);
-                        else storage.setItem(KEY + ':local-backup:' + authUser.id, JSON.stringify(localData));
-                    }
                     const {rows, members} = await fetchWorkspaceRows();
                     applyWorkspaceRows(rows, members);
                     await fetchInvitations();
                     cloudReady = true;
                     $('authGate').style.display = 'none';
                     $('appShell').style.display = '';
-                    if ($('signedInEmail')) $('signedInEmail').textContent = authUser.email || 'Google-Konto';
+                    if ($('signedInEmail')) $('signedInEmail').textContent = authUser.email || 'E-Mail-Konto';
                     setTheme(storage.getItem('budgora-theme') || 'light');
                     renderAll();
-                    storage.setItem(localUserKey(), JSON.stringify(data));
-                    if (rows.length || localOnly.length) toast('Cloud-Synchronisierung ist aktiv.');
-                    else toast('Willkommen bei Tripwisely!');
+                    if (rows.length) toast('Cloud-Synchronisierung ist aktiv.');
+                    else toast('Willkommen bei Tripwisely! Erstelle deine erste Reise.');
                 } catch (e) {
                     cloudReady = false;
                     showAuthGate('Anmeldung erfolgreich, aber die Datenbank ist noch nicht vollständig eingerichtet: ' + authErrorText(e));
@@ -2639,38 +2589,8 @@
                 return false
             }
 
-            function load() {
-                try {
-                    let saved = authUser ? storage.getItem(localUserKey()) : null;
-                    // The old unscoped cache is assigned only once, to the first account that signs in.
-                    if (!saved && authUser) {
-                        saved = storage.getItem(KEY);
-                        if (saved) {
-                            storage.setItem(localUserKey(), saved);
-                            storage.removeItem(KEY);
-                        }
-                    }
-                    if (saved) {
-                        const p = JSON.parse(saved);
-                        data = {...emptyData(), ...p};
-                    } else data = emptyData();
-                    data.accounts = data.accounts || [];
-                    data.users = data.users || [];
-                    migrate();
-                    autoDeactivate();
-                    data.deviceId = storage.getItem('budgora-device-id');
-                } catch (e) {
-                    data = emptyData();
-                    toast('Lokale Daten konnten nicht geladen werden.');
-                }
-            }
 
             function save() {
-                try {
-                    storage.setItem(authUser ? localUserKey() : KEY, JSON.stringify(data));
-                } catch (e) {
-                    toast('Lokales Zwischenspeichern fehlgeschlagen.');
-                }
                 renderAll();
                 if (authUser && cloudReady) {
                     clearTimeout(cloudSaveTimer);
@@ -3657,56 +3577,6 @@
                 setTimeout(() => URL.revokeObjectURL(url), 1000)
             }
 
-            function importBackup(event) {
-                const file = event.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = () => {
-                    try {
-                        const p = JSON.parse(reader.result);
-                        if (!Array.isArray(p.trips) || !Array.isArray(p.expenses)) throw new Error('invalid');
-                        if (!confirm('Import ersetzt deine aktuellen Daten. Vorher ein Backup erstellen?')) {
-                            event.target.value = '';
-                            return
-                        }
-                        data = {
-                            trips: p.trips || [],
-                            expenses: p.expenses || [],
-                            plans: p.plans || [],
-                            wallet: p.wallet || [],
-                            tasks: p.tasks || [],
-                            accounts: p.accounts || [],
-                            users: p.users || [],
-                            activeTripId: p.activeTripId || '',
-                            deviceId: storage.getItem('budgora-device-id')
-                        };
-                        migrate();
-                        save();
-                        toast('Backup importiert.');
-                    } catch (e) {
-                        alert('Die Datei ist kein gültiges Budgora-Backup.')
-                    }
-                    event.target.value = ''
-                };
-                reader.readAsText(file)
-            }
-
-            function clearAll() {
-                if (!confirm('Wirklich alle Budgora-Daten auf diesem Gerät unwiderruflich löschen?')) return;
-                data = {
-                    trips: [],
-                    expenses: [],
-                    plans: [],
-                    wallet: [],
-                    tasks: [],
-                    accounts: [],
-                    users: [],
-                    activeTripId: '',
-                    deviceId: storage.getItem('budgora-device-id')
-                };
-                save();
-                toast('Lokale Daten gelöscht.')
-            }
 
             function exportCSV() {
                 const rows = [
@@ -3719,7 +3589,6 @@
                 toast('CSV exportiert.')
             }
             window.authSubmit = authSubmit;
-            window.authGoogle = authGoogle;
             window.authResetPassword = authResetPassword;
             window.toggleAuthMode = toggleAuthMode;
             window.signOutTripwisely = signOutTripwisely;
@@ -3758,8 +3627,6 @@
             window.deleteItem = deleteItem;
             window.toggleTask = toggleTask;
             window.exportBackup = exportBackup;
-            window.importBackup = importBackup;
-            window.clearAll = clearAll;
             window.exportCSV = exportCSV;
             window.closeModal = closeModal;
             window.closeCal = closeCal;
