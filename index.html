@@ -1,258 +1,3326 @@
-<!DOCTYPE html>
+<!doctype html>
+<!--
+  FlightDeck – Pilot Toolkit
+  Copyright © 2026 Ufuk Tezerdi. All rights reserved.
+
+  This software, including its source code, design and content, is the
+  exclusive property of Ufuk Tezerdi. No part of it may be copied, modified,
+  redistributed or used without prior written permission of the owner.
+-->
 <html lang="de">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#12171A">
-<title>Urlaubsbudget</title>
-<link rel="manifest" href="./manifest.json">
-<link rel="icon" type="image/png" href="./icon-192.png">
-<link rel="apple-touch-icon" href="./apple-touch-icon.png">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Urlaub">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <meta name="theme-color" content="#091321">
+    <meta name="description" content="Tripwisely – dein Reisebegleiter für Reiseplanung, Budget und Ausgaben.">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
+    <title>Tripwisely</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #f3f6f2;
+            --card: #fff;
+            --ink: #1d2c25;
+            --muted: #738078;
+            --line: #e2e9e1;
+            --green: #1e5b49;
+            --deep: #173f35;
+            --pale: #e5f0e8;
+            --lime: #d9f36a;
+            --red: #c65e50;
+            --field: #fff;
+            --soft: #f0f5f0;
+            --radius: 19px
+        }
 
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap">
-<style>
-:root{
-  --bg:#12171A;--surface:#1A2124;--raised:#222B2F;--line:#2C373B;
-  --ink:#D5DEDC;--muted:#8A9997;--accent:#7DB8AB;--accent-ink:#0F1C19;--warn:#E39A84;--ok:#7DB8AB;
-  color-scheme:dark;box-sizing:border-box;
-  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
-}
-html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.45}
-main{max-width:600px;margin:0 auto;padding:18px 14px 56px}
-input,button{font:inherit;color:inherit}
-input{background:transparent;border:0;outline:0;width:100%;padding:2px 0;min-width:0}
-input::placeholder{color:var(--muted);opacity:.7}
-input[type=date]{color-scheme:dark;-webkit-appearance:none;appearance:none;min-width:0;max-width:100%;height:1.7em;font-size:.95rem;text-align:left;display:block}
-input[type=date]::-webkit-date-and-time-value{text-align:left}
+        html[data-theme="dark"] {
+            color-scheme: dark;
+            --bg: #091321;
+            --card: #111f32;
+            --ink: #f1f5fb;
+            --muted: #9aabc0;
+            --line: #293b51;
+            --green: #d7b638;
+            --deep: #08111f;
+            --pale: #26354a;
+            --lime: #f0cf4c;
+            --red: #ff8d83;
+            --field: #0b1727;
+            --soft: #1b2b40
+        }
 
-.overview{background:var(--surface);border:1px solid var(--line);border-radius:26px;padding:22px 20px}
-.lbl{font-size:.85rem;color:var(--muted)}
-.big{font-size:clamp(2.8rem,15vw,4.2rem);font-weight:800;letter-spacing:-.03em;line-height:1.05;font-variant-numeric:tabular-nums;margin:2px 0 10px}
-.big.neg{color:var(--warn)}
-.bar{height:8px;background:var(--raised);border-radius:99px;overflow:hidden}
-.bar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .35s}
-.bar i.over{background:var(--warn)}
-.pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:16px}
-.cell{background:var(--raised);border-radius:16px;padding:10px 12px;min-width:0;overflow:hidden}
-.cell b{overflow-wrap:anywhere}
-.cell b{display:block;font-size:1.15rem;font-variant-numeric:tabular-nums}
-.cell:focus-within{outline:2px solid var(--accent)}
-.cell input{font-weight:600;font-size:1.05rem}
+        html[data-theme="dark"] .plain,
+        html[data-theme="dark"] .trip,
+        html[data-theme="dark"] .field input,
+        html[data-theme="dark"] .field select,
+        html[data-theme="dark"] .field textarea,
+        html[data-theme="dark"] .toolbar input,
+        html[data-theme="dark"] .toolbar select,
+        html[data-theme="dark"] .modal {
+            background: var(--card);
+            color: var(--ink);
+            border-color: var(--line)
+        }
 
-.trip{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:26px;padding:16px 20px}
-.dates{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-bottom:14px}
-.dayline{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:end}
-.dayline>div{padding:0 12px;min-width:0}
-.dayline b{font-size:1.9rem;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums;display:block}
-.dayline .r{text-align:left}
-.hint{margin:12px 0 0;font-size:.88rem;color:var(--warn)}
+        html[data-theme="dark"] .bottomnav {
+            background: #0b1727f2
+        }
 
-h2{font-size:1.1rem;font-weight:600;margin:26px 4px 10px}
-.person{background:var(--surface);border:1px solid var(--line);border-radius:22px;margin-bottom:10px;overflow:hidden}
-.head{display:flex;align-items:center;gap:12px;width:100%;background:transparent;border:0;padding:16px 18px;text-align:left;cursor:pointer;min-height:64px}
-.head:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
-.head .nm{flex:1;font-weight:800;font-size:1.1rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.head .lf{font-weight:800;font-variant-numeric:tabular-nums;text-align:right}
-.head .lf small{display:block;font-weight:400;font-size:.75rem;color:var(--muted)}
-.head .lf.neg{color:var(--warn)}
-.chev{width:10px;height:10px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .2s;margin:0 4px 4px 2px;flex:none}
-.open .chev{transform:rotate(-135deg);margin-bottom:-2px}
-.body{padding:0 18px 18px;border-top:1px solid var(--line)}
-.field{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--raised);border-radius:14px;padding:10px 14px;margin-top:14px}
-.field input{text-align:right;font-weight:700;font-size:1.05rem;width:100%;max-width:9em}
-.field:focus-within,.addrow:focus-within{outline:2px solid var(--accent)}
-.stats{display:flex;justify-content:space-between;gap:8px;font-size:.85rem;color:var(--muted);margin:10px 2px 0;flex-wrap:wrap}
-.meter{height:6px;background:var(--raised);border-radius:99px;margin-top:10px;overflow:hidden}
-.meter i{display:block;height:100%;background:var(--accent);border-radius:99px}
-.meter i.over{background:var(--warn)}
-.sub{font-size:.85rem;color:var(--muted);margin:18px 2px 4px}
-ul{list-style:none;margin:0;padding:0}
-li{display:flex;align-items:center;gap:8px;padding:10px 2px;border-bottom:1px solid var(--line)}
-li .w{flex:1;overflow-wrap:anywhere}
-li .amt{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
-.x{border:0;background:transparent;color:var(--muted);cursor:pointer;min-width:40px;min-height:40px;border-radius:12px;font-size:1.3rem;line-height:1}
-.x:focus-visible,.x:active{color:var(--warn);background:var(--raised);outline:none}
-.addrow{display:grid;grid-template-columns:minmax(0,1fr) 5.5em;gap:8px;background:var(--raised);border-radius:14px;padding:6px 10px;margin-top:10px}
-.addrow input.a{text-align:right;border-left:1px solid var(--line);padding-left:8px}
-.btn{border:0;background:var(--accent);color:var(--accent-ink);font-weight:600;border-radius:14px;padding:12px 16px;cursor:pointer;min-height:44px}
-.btn.full{width:100%;margin-top:8px}
-.btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
-.del{display:block;margin:16px 0 0 auto;background:transparent;border:0;color:var(--muted);cursor:pointer;padding:10px 4px;min-height:44px}
-.del.sure{color:var(--warn);font-weight:600}
-.add{display:grid;grid-template-columns:minmax(0,1fr) 6.5em;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:10px}
-.add .in{background:var(--raised);border-radius:14px;padding:10px 14px}
-.add .in:focus-within{outline:2px solid var(--accent)}
-.add .in.b input{text-align:right}
-.add .btn{grid-column:1/-1}
-.empty{color:var(--muted);text-align:center;padding:22px 12px;border:1.5px dashed var(--line);border-radius:22px;margin-bottom:10px}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
-</style>
+        html[data-theme="dark"] .rowicon,
+        html[data-theme="dark"] .tripemoji,
+        html[data-theme="dark"] .staticon,
+        html[data-theme="dark"] .iconbtn,
+        html[data-theme="dark"] .close {
+            background: #223249;
+            color: var(--ink)
+        }
+
+        html[data-theme="dark"] .field label {
+            color: #c5d2e3
+        }
+
+        html[data-theme="dark"] .note {
+            background: #1d3040;
+            color: #d0dfeb
+        }
+
+        html[data-theme="dark"] .empty {
+            border-color: #34465b
+        }
+
+        html[data-theme="dark"] .pill {
+            background: #263b4b;
+            color: #e3edfa
+        }
+
+        html[data-theme="dark"] .bottomnav button.active {
+            background: #2b3a4a;
+            color: #f0cf4c
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--ink);
+            font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit
+        }
+
+        button {
+            cursor: pointer
+        }
+
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        textarea:focus-visible {
+            outline: 3px solid #b5d9c3;
+            outline-offset: 2px
+        }
+
+        .shell {
+            max-width: 760px;
+            margin: auto;
+            min-height: 100vh;
+            display: block
+        }
+
+        .side {
+            display: none;
+            background: var(--deep);
+            color: #fff;
+            padding: 25px 14px;
+            flex-direction: column;
+            gap: 26px
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 850;
+            font-size: 21px;
+            padding: 0 8px;
+            letter-spacing: -.6px
+        }
+
+        .logo {
+            width: 37px;
+            height: 37px;
+            background: var(--lime);
+            color: var(--deep);
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            font-weight: 950
+        }
+
+        .nav {
+            display: grid;
+            gap: 5px
+        }
+
+        .nav button {
+            border: 0;
+            background: transparent;
+            color: #c7d9d0;
+            text-align: left;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 700;
+            display: flex;
+            gap: 12px;
+            align-items: center
+        }
+
+        .nav button.active,
+        .nav button:hover {
+            background: #2a594b;
+            color: #fff
+        }
+
+        .nav .ic {
+            width: 22px;
+            min-width: 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 18px
+        }
+        .home-icon { display: inline-flex; align-items: center; justify-content: center; }
+
+        .sidefoot {
+            margin-top: auto;
+            background: #214c40;
+            border-radius: 15px;
+            padding: 14px;
+            color: #c7d9d0;
+            font-size: 12px
+        }
+
+        .sidefoot strong {
+            display: block;
+            color: white;
+            font-size: 14px;
+            margin-bottom: 4px
+        }
+
+        .main {
+            padding: 18px 13px calc(100px + env(safe-area-inset-bottom));
+            min-width: 0
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            gap: 10px
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            letter-spacing: 1.4px;
+            font-weight: 850;
+            color: var(--muted)
+        }
+
+        h1 {
+            font-size: clamp(24px, 3vw, 32px);
+            letter-spacing: -1.1px;
+            margin: 3px 0 0
+        }
+
+        h2 {
+            font-size: 18px;
+            letter-spacing: -.35px;
+            margin: 0
+        }
+
+        .avatar {
+            height: 40px;
+            width: 40px;
+            border-radius: 50%;
+            background: var(--pale);
+            color: var(--green);
+            display: grid;
+            place-items: center
+        }
+
+        .page {
+            display: none
+        }
+
+        .page.active {
+            display: block
+        }
+
+        .sectionhead {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin: 22px 0 14px
+        }
+
+        .muted {
+            color: var(--muted)
+        }
+
+        .small {
+            font-size: 12px
+        }
+
+        .btn {
+            border: 0;
+            border-radius: 11px;
+            padding: 11px 14px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px
+        }
+
+        .primary {
+            background: var(--green);
+            color: #fff
+        }
+
+        .primary:hover {
+            background: #164837
+        }
+
+        .soft {
+            background: var(--pale);
+            color: var(--green)
+        }
+
+        .plain {
+            background: #fff;
+            border: 1px solid var(--line);
+            color: var(--ink)
+        }
+
+        .danger {
+            background: #fff0ed;
+            color: var(--red)
+        }
+
+        .grid {
+            display: grid;
+            gap: 15px
+        }
+
+        .stats {
+            grid-template-columns: repeat(4, minmax(0, 1fr))
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid #e6ebe5;
+            border-radius: var(--radius);
+            padding: 19px;
+            min-width: 0;
+            box-shadow: 0 7px 25px #1a302608
+        }
+
+        .statlabel {
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 750
+        }
+
+        .statval {
+            font-size: clamp(21px, 2.4vw, 29px);
+            font-weight: 900;
+            letter-spacing: -1px;
+            margin: 8px 0 4px;
+            overflow-wrap: anywhere
+        }
+
+        .staticon {
+            float: right;
+            background: #f0f5f0;
+            border-radius: 11px;
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center
+        }
+
+        .hero {
+            background: var(--deep);
+            color: white;
+            border-radius: 23px;
+            padding: 23px;
+            display: grid;
+            grid-template-columns: 1.35fr .8fr;
+            gap: 18px;
+            overflow: hidden
+        }
+
+        .hero .eyebrow {
+            color: #c0d7cb
+        }
+
+        .hero h2 {
+            font-size: 27px;
+            margin: 7px 0
+        }
+
+        .hero p {
+            color: #c6d9d0;
+            margin: 0 0 17px
+        }
+
+        .hero .primary {
+            background: var(--lime);
+            color: var(--deep)
+        }
+
+        .herobox {
+            background: #ffffff12;
+            border-radius: 17px;
+            padding: 16px;
+            align-self: center;
+            position: relative
+        }
+
+        .big {
+            font-size: 29px;
+            font-weight: 900;
+            letter-spacing: -1px
+        }
+
+        .progress {
+            height: 8px;
+            background: #e8eee8;
+            border-radius: 99px;
+            overflow: hidden;
+            margin: 10px 0
+        }
+
+        .progress span {
+            display: block;
+            height: 100%;
+            width: 0;
+            background: var(--green);
+            border-radius: 99px
+        }
+
+        .hero .progress {
+            background: #ffffff2c
+        }
+
+        .hero .progress span {
+            background: var(--lime)
+        }
+
+        .cols {
+            grid-template-columns: 1.15fr .85fr;
+            margin-top: 17px
+        }
+
+        .triplist {
+            display: grid;
+            gap: 10px
+        }
+
+        .trip {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid var(--line);
+            border-radius: 15px;
+            padding: 13px;
+            background: white
+        }
+
+        .tripemoji {
+            height: 48px;
+            width: 48px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            background: #edf4ef;
+            font-size: 24px;
+            flex-shrink: 0
+        }
+
+        .tripmain {
+            flex: 1;
+            min-width: 0
+        }
+
+        .tripmain strong {
+            display: block
+        }
+
+        .tripmain small {
+            color: var(--muted)
+        }
+
+        .right {
+            text-align: right;
+            white-space: nowrap;
+            font-weight: 850
+        }
+
+        .pill {
+            display: inline-block;
+            border-radius: 99px;
+            background: #edf3ef;
+            color: var(--green);
+            font-size: 10px;
+            font-weight: 850;
+            padding: 4px 8px
+        }
+
+        .pill.orange {
+            background: #fff0e3;
+            color: #9e5b28
+        }
+
+        .listrow {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--line)
+        }
+
+        .listrow:last-child {
+            border: 0
+        }
+
+        .rowicon {
+            height: 39px;
+            width: 39px;
+            border-radius: 12px;
+            background: #f0f4ef;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0
+        }
+
+        .rowmain {
+            flex: 1;
+            min-width: 0
+        }
+
+        .rowmain strong {
+            display: block;
+            font-size: 14px
+        }
+
+        .rowmain small {
+            color: var(--muted)
+        }
+
+        .amount {
+            font-weight: 850;
+            white-space: nowrap
+        }
+
+        .empty {
+            padding: 24px 12px;
+            text-align: center;
+            color: var(--muted);
+            border: 1px dashed #d5dfd6;
+            border-radius: 15px
+        }
+
+        .empty strong {
+            display: block;
+            color: var(--ink);
+            margin-bottom: 5px
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+            margin-bottom: 15px
+        }
+
+        .toolbar>* {
+            flex: 1;
+            min-width: 140px
+        }
+
+        .field {
+            display: grid;
+            gap: 6px;
+            margin-bottom: 13px
+        }
+
+        .field label {
+            font-size: 12px;
+            font-weight: 800;
+            color: #53635a
+        }
+
+        .field input,
+        .field select,
+        .field textarea,
+        .toolbar input,
+        .toolbar select {
+            width: 100%;
+            border: 1px solid #dce5dc;
+            background: white;
+            border-radius: 10px;
+            padding: 11px 12px;
+            color: var(--ink);
+            min-width: 0
+        }
+
+        .field textarea {
+            min-height: 75px;
+            resize: vertical
+        }
+
+        .formgrid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0 13px
+        }
+
+        .full {
+            grid-column: 1/-1
+        }
+
+        .tablewrap {
+            overflow: auto
+        }
+
+        .table {
+            border-collapse: collapse;
+            width: 100%;
+            min-width: 570px
+        }
+
+        .table th,
+        .table td {
+            text-align: left;
+            padding: 12px 9px;
+            border-bottom: 1px solid var(--line);
+            font-size: 13px
+        }
+
+        .table th {
+            font-size: 10px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .6px
+        }
+
+        .iconbtn {
+            border: 0;
+            background: #eff3ef;
+            border-radius: 8px;
+            width: 31px;
+            height: 31px
+        }
+
+        .iconbtn.del {
+            background: #fff0ed;
+            color: var(--red)
+        }
+
+        .checkrow {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--line)
+        }
+
+        .checkrow input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--green)
+        }
+
+        .checkrow.done span {
+            text-decoration: line-through;
+            color: var(--muted)
+        }
+
+        .barline {
+            display: grid;
+            grid-template-columns: 100px 1fr 70px;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            margin: 14px 0
+        }
+
+        .barline .progress {
+            margin: 0;
+            height: 7px
+        }
+
+        .barline .progress span {
+            background: var(--green)
+        }
+
+        .barline strong {
+            text-align: right
+        }
+
+        .note {
+            background: #f0f5ef;
+            color: #4d6658;
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-top: 14px
+        }
+
+        .modalback {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #10271f88;
+            z-index: 30;
+            align-items: center;
+            justify-content: center;
+            padding: 15px
+        }
+
+        .modalback.show {
+            display: flex
+        }
+
+        .modal {
+            background: white;
+            width: min(620px, 100%);
+            max-height: 90vh;
+            overflow: auto;
+            border-radius: 21px;
+            padding: 21px
+        }
+
+        .modalhead {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 17px;
+            gap: 10px
+        }
+
+        .modalhead h2 {
+            font-size: 21px
+        }
+
+        .close {
+            border: 0;
+            background: #eef2ed;
+            border-radius: 9px;
+            width: 37px;
+            height: 37px;
+            font-size: 20px
+        }
+
+        .modalactions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 15px
+        }
+
+        .bottomnav {
+            display: flex;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            pointer-events: auto;
+            justify-content: space-between;
+            background: #fffffff2;
+            backdrop-filter: blur(12px);
+            border-top: 1px solid var(--line);
+            padding: 7px 2px calc(7px + env(safe-area-inset-bottom))
+        }
+
+        .bottomnav button {
+            border: 0;
+            background: transparent;
+            color: var(--muted);
+            display: grid;
+            justify-items: center;
+            gap: 2px;
+            padding: 5px 6px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 800;
+            min-width: 0
+        }
+
+        .bottomnav button span {
+            font-size: 19px
+        }
+
+        .bottomnav button.active {
+            color: var(--green);
+            background: var(--pale)
+        }
+
+        .toast {
+            position: fixed;
+            z-index: 50;
+            bottom: 22px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--deep);
+            color: white;
+            border-radius: 11px;
+            padding: 12px 17px;
+            display: none;
+            max-width: 90%;
+            text-align: center
+        }
+
+        .toast.show {
+            display: block
+        }
+
+        .settingsrow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--line)
+        }
+
+        .settingsrow:last-child {
+            border: 0
+        }
+
+        .file {
+            display: none
+        }
+
+        .trip-card {
+            flex-wrap: wrap
+        }
+
+        .trip-shortcuts {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+            padding-left: 60px
+        }
+
+        .trip-shortcuts .btn {
+            font-size: 12px;
+            padding: 8px 10px
+        }
+
+        .budget-link {
+            width: 100%;
+            border: 0;
+            color: inherit;
+            text-align: left;
+            font: inherit;
+            cursor: pointer;
+            transition: transform .12s, background .12s
+        }
+
+        .budget-link:active {
+            transform: scale(.99)
+        }
+
+        /* Touch-safe navigation and responsive browser layout */
+        .bottomnav {
+            z-index: 1000;
+            pointer-events: auto;
+            isolation: isolate;
+            touch-action: manipulation;
+            overflow-x: auto;
+            overflow-y: hidden;
+            gap: 3px;
+            justify-content: space-between;
+            padding-left: 5px;
+            padding-right: 5px;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .bottomnav button {
+            min-width: 0;
+            flex: initial;
+            position: relative;
+            z-index: 1001;
+            pointer-events: auto;
+            touch-action: manipulation;
+            min-height: 48px;
+            white-space: normal;
+            padding: 5px 1px;
+            font-size: 9px
+        }
+
+        @media(min-width:900px) {
+            .shell {
+                max-width: 1200px;
+                display: grid;
+                grid-template-columns: 225px minmax(0, 1fr);
+                min-height: 100vh
+            }
+
+            .side {
+                display: flex;
+                position: sticky;
+                top: 0;
+                height: 100vh
+            }
+
+            .main {
+                padding: 28px 30px 50px
+            }
+
+            .bottomnav {
+                display: none
+            }
+
+            .hero {
+                grid-template-columns: 1.2fr .8fr
+            }
+
+            .cols {
+                grid-template-columns: 1.15fr .85fr
+            }
+        }
+
+        @media(max-width:900px) {
+            .shell {
+                grid-template-columns: 190px 1fr
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr))
+            }
+
+            .cols {
+                grid-template-columns: 1fr
+            }
+
+            .side {
+                padding: 20px 9px
+            }
+
+            .brand {
+                padding: 0 5px
+            }
+
+            .hero {
+                grid-template-columns: 1fr
+            }
+
+            .herobox {
+                max-width: 360px
+            }
+        }
+
+        @media(max-width:650px) {
+            .shell {
+                display: block
+            }
+
+            .side {
+                display: none
+            }
+
+            .main {
+                padding: 18px 13px 90px
+            }
+
+            .top {
+                margin-bottom: 18px
+            }
+
+            .top h1 {
+                font-size: 25px
+            }
+
+            .hero {
+                padding: 19px;
+                border-radius: 20px
+            }
+
+            .hero h2 {
+                font-size: 24px
+            }
+
+            .card {
+                padding: 15px;
+                border-radius: 16px
+            }
+
+            .stats {
+                gap: 9px
+            }
+
+            .statval {
+                font-size: 22px
+            }
+
+            .sectionhead {
+                margin-top: 21px
+            }
+
+            .bottomnav {
+                display: grid;
+                grid-template-columns: repeat(5, minmax(0, 1fr));
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+                pointer-events: auto;
+                justify-content: stretch;
+                background: #fffffff2;
+                backdrop-filter: blur(12px);
+                border-top: 1px solid var(--line);
+                padding: 7px 4px calc(7px + env(safe-area-inset-bottom));
+                gap: 2px
+            }
+
+            .bottomnav button {
+                border: 0;
+                background: transparent;
+                color: var(--muted);
+                display: grid;
+                justify-items: center;
+                gap: 2px;
+                padding: 5px 1px;
+                border-radius: 10px;
+                font-size: 9px;
+                font-weight: 800;
+                flex: initial;
+                min-width: 0;
+                min-height: 48px;
+                pointer-events: auto;
+                touch-action: manipulation;
+                white-space: normal
+            }
+
+            .bottomnav button span {
+                font-size: 19px
+            }
+
+            .bottomnav button.active {
+                color: var(--green);
+                background: var(--pale)
+            }
+
+            .formgrid {
+                grid-template-columns: 1fr
+            }
+
+            .full {
+                grid-column: auto
+            }
+
+            .trip {
+                padding: 11px;
+                gap: 9px
+            }
+
+            .trip-shortcuts {
+                padding-left: 0
+            }
+
+            .trip-shortcuts .btn {
+                flex: 1
+            }
+
+            .tripemoji {
+                width: 42px;
+                height: 42px
+            }
+
+            .right {
+                font-size: 12px
+            }
+
+            .barline {
+                grid-template-columns: 80px 1fr 60px
+            }
+
+            .modal {
+                padding: 16px
+            }
+
+            .modalactions .btn {
+                flex: 1
+            }
+        }
+
+        .seg {
+            display: flex;
+            gap: 6px;
+            margin: 14px 0
+        }
+
+        .seg button {
+            flex: 1;
+            border: 1px solid var(--line);
+            background: var(--card);
+            color: var(--ink);
+            border-radius: 11px;
+            padding: 10px 4px;
+            font-weight: 800;
+            font-size: 13px
+        }
+
+        .seg button.active {
+            background: var(--green) !important;
+            color: #fff !important;
+            border-color: var(--green) !important;
+            box-shadow: 0 0 0 2px color-mix(in srgb, var(--green) 24%, transparent), 0 3px 10px #00000018;
+            transform: translateY(-1px);
+        }
+
+        .diff-pos { color: #24764f; font-weight: 850 }
+        .diff-neg { color: #c34f49; font-weight: 850 }
+        #detailTabs button.completed { background:#e5f3e9; color:#24764f; border-color:#c6e5d0; }
+        #detailTabs button.pending { background:#fff5d9; color:#946b13; border-color:#f0dfaa; }
+        html[data-theme="dark"] #detailTabs button.completed { background:#193b2b;color:#a6e3bb;border-color:#2d6044; }
+        html[data-theme="dark"] #detailTabs button.pending { background:#44391e;color:#f0d68a;border-color:#65552a; }
+        #detailTabs button.active { background:var(--green) !important; color:#fff !important; border-color:var(--green) !important; box-shadow:0 0 0 2px color-mix(in srgb, var(--green) 24%, transparent), 0 3px 10px #00000018; }
+
+        .mobonly {
+            display: none
+        }
+
+        /* Vollbild-Formulare statt Pop-up: Speichern-Leiste immer sichtbar */
+        .modalback {
+            z-index: 3000
+        }
+
+        .toast {
+            z-index: 3100
+        }
+
+        .modalback {
+            align-items: stretch;
+            justify-content: stretch;
+            padding: 0;
+            background: var(--bg)
+        }
+
+        .modal {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            max-height: none;
+            border-radius: 0;
+            padding: 0;
+            overflow: hidden;
+            background: var(--card)
+        }
+
+        .modalhead {
+            margin: 0;
+            padding: calc(14px + env(safe-area-inset-top)) 16px 12px;
+            border-bottom: 1px solid var(--line);
+            flex: 0 0 auto
+        }
+
+        #modalForm {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            margin: 0
+        }
+
+        #modalFields,
+        #qrBody {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 16px
+        }
+
+        .modalactions {
+            flex: 0 0 auto;
+            margin: 0;
+            padding: 12px 16px calc(14px + env(safe-area-inset-bottom));
+            border-top: 1px solid var(--line);
+            background: var(--card)
+        }
+
+        .modalactions .btn {
+            flex: 1;
+            min-height: 48px
+        }
+
+        .toast {
+            bottom: auto;
+            top: calc(14px + env(safe-area-inset-top))
+        }
+
+        body:has(.modalback.show) {
+            overflow: hidden
+        }
+
+        @media(max-width:650px) {
+            .btn {
+                min-height: 44px
+            }
+
+            .iconbtn {
+                min-width: 40px;
+                min-height: 40px
+            }
+        }
+
+        @media(min-width:900px) {
+            .modalback {
+                align-items: center;
+                justify-content: center;
+                padding: 15px;
+                background: #10271f88
+            }
+
+            .modal {
+                width: min(620px, 100%);
+                height: auto;
+                max-height: 90vh;
+                border-radius: 21px
+            }
+        }
+
+        .tc {
+            display: block
+        }
+
+        .tc-top {
+            display: flex;
+            gap: 11px;
+            align-items: center
+        }
+
+        .tc-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 11px;
+            align-items: center
+        }
+
+        .tc-actions .btn {
+            flex: 1
+        }
+
+        .tc .trip-shortcuts {
+            padding-left: 0;
+            margin-top: 9px
+        }
+
+        .tc .trip-shortcuts .btn {
+            flex: 1;
+            padding: 9px 4px
+        }
+
+        @media(max-width:650px) {
+            .formgrid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0 8px
+            }
+
+            .full {
+                grid-column: 1/-1
+            }
+
+            .modal .field {
+                margin-bottom: 8px;
+                gap: 3px
+            }
+
+            .modal .field label {
+                font-size: 11px
+            }
+
+            .modal .field input,
+            .modal .field select,
+            .modal .field textarea {
+                padding: 8px 10px;
+                font-size: 14px;
+                min-height: 38px
+            }
+
+            .modal .field textarea {
+                min-height: 44px
+            }
+
+            .modalhead {
+                padding-top: calc(10px + env(safe-area-inset-top));
+                padding-bottom: 8px
+            }
+
+            .modalhead h2 {
+                font-size: 18px
+            }
+
+            #modalFields {
+                padding: 12px 14px
+            }
+
+            .modalactions {
+                padding: 10px 14px calc(10px + env(safe-area-inset-bottom))
+            }
+
+            .modalactions .btn {
+                min-height: 44px
+            }
+
+            .exptable {
+                min-width: 0
+            }
+
+            .exptable th:nth-child(2),
+            .exptable td:nth-child(2),
+            .exptable th:nth-child(3),
+            .exptable td:nth-child(3),
+            .exptable th:nth-child(4),
+            .exptable td:nth-child(4) {
+                display: none
+            }
+
+            .mobonly { display: block }
+            #page-stats .tablewrap { overflow: visible; }
+            #page-stats table { min-width: 0 !important; width: 100%; }
+            #page-stats table thead { display: none; }
+            #page-stats #statsTripTable tr { display:flex; flex-direction:column; gap:7px; padding:13px 0; border-bottom:1px solid var(--line); }
+            #page-stats #statsTripTable td { display:block; border:0; padding:0 4px; font-size:13px; text-align:left; }
+            #page-stats #statsTripTable td:nth-child(2)::before { content:'Zeitraum: '; color:var(--muted); }
+            #page-stats #statsTripTable td:nth-child(3)::before { content:'Dauer: '; color:var(--muted); }
+            #page-stats #statsTripTable td:nth-child(4)::before { content:'Budget: '; color:var(--muted); }
+            #page-stats #statsTripTable td:nth-child(5)::before { content:'Kosten: '; color:var(--muted); }
+            #page-stats #statsTripTable td:nth-child(6)::before { content:'Restbudget: '; color:var(--muted); }
+        }
+
+        .toast {
+            pointer-events: none
+        }
+
+        button,
+        .btn,
+        .iconbtn,
+        select,
+        input {
+            touch-action: manipulation
+        }
+
+        .accrow {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 10px 10px 8px;
+            margin-bottom: 9px
+        }
+
+        .accsec {
+            margin-top: 6px;
+            padding-top: 12px;
+            border-top: 1px solid var(--line)
+        }
+
+        .seg button {
+            font-size: 12px;
+            padding: 10px 2px
+        }
+
+        .sectionhead .btn {
+            white-space: nowrap;
+            flex-shrink: 0
+        }
+
+        .calback {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 3500;
+            background: #10271f88;
+            align-items: flex-end;
+            justify-content: center
+        }
+
+        .calback.show {
+            display: flex
+        }
+
+        .calsheet {
+            background: var(--card);
+            color: var(--ink);
+            width: min(520px, 100%);
+            height: min(90vh, 760px);
+            height: min(90dvh, 760px);
+            border-radius: 22px 22px 0 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden
+        }
+
+        .calhead {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px 6px
+        }
+
+        .calsum {
+            padding: 0 16px 8px;
+            font-weight: 800;
+            color: var(--green);
+            min-height: 26px
+        }
+
+        .calwd {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            padding: 0 12px 6px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--muted);
+            border-bottom: 1px solid var(--line)
+        }
+
+        .calbody {
+            flex: 1;
+            overflow-y: auto;
+            position: relative;
+            padding: 0 12px 12px;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .cal-month h3 {
+            font-size: 15px;
+            margin: 16px 0 6px
+        }
+
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr)
+        }
+
+        .cal-day {
+            height: 44px;
+            border: 0;
+            background: transparent;
+            padding: 0;
+            color: var(--ink);
+            font-weight: 700;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation
+        }
+
+        .cal-day {
+            -webkit-tap-highlight-color: transparent
+        }
+
+        .cal-day:focus,
+        .cal-day:focus-visible {
+            outline: none
+        }
+
+        .cal-day .dot {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center
+        }
+
+        .cal-day.in {
+            background: var(--pale)
+        }
+
+        .cal-day.hasend {
+            background: linear-gradient(90deg, transparent 50%, var(--pale) 50%)
+        }
+
+        .cal-day.end:not(.start) {
+            background: linear-gradient(90deg, var(--pale) 50%, transparent 50%)
+        }
+
+        .cal-day.start .dot,
+        .cal-day.end .dot {
+            background: var(--green);
+            color: #fff
+        }
+
+        html[data-theme="dark"] .cal-day.start .dot,
+        html[data-theme="dark"] .cal-day.end .dot {
+            color: #08111f
+        }
+
+        .cal-day.today .dot {
+            box-shadow: inset 0 0 0 2px var(--green)
+        }
+
+        .calfoot {
+            display: flex;
+            gap: 8px;
+            padding: 10px 16px calc(12px + env(safe-area-inset-bottom));
+            border-top: 1px solid var(--line)
+        }
+
+        .calfoot .btn {
+            flex: 1;
+            min-height: 46px
+        }
+
+        .datebtn {
+            width: 100%;
+            text-align: left;
+            border: 1px solid #dce5dc;
+            background: #fff;
+            border-radius: 10px;
+            padding: 8px 10px;
+            color: var(--ink);
+            font-size: 14px;
+            min-height: 38px
+        }
+
+        html[data-theme="dark"] .datebtn {
+            background: var(--card);
+            border-color: var(--line)
+        }
+
+        @media(min-width:900px) {
+            .calback {
+                align-items: center
+            }
+
+            .calsheet {
+                border-radius: 22px
+            }
+        }
+
+
+        .home-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+        /* Einheitliche, markengerechte Dropdowns */
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            color: var(--ink);
+            background-color: var(--field);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding-right: 42px !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23a7653c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 13px center;
+            background-size: 17px;
+            box-shadow: 0 1px 2px #55391a0a;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        select:focus { border-color: var(--green); box-shadow: 0 0 0 3px color-mix(in srgb,var(--green) 16%,transparent); outline: none; }
+        select option { background: var(--card); color: var(--ink); }
+        html[data-theme="dark"] select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23e6b45b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); }
+        .action-buttons { display:flex; align-items:center; justify-content:flex-end; gap:5px; flex-shrink:0; }
+        .iconbtn { display:inline-grid; place-items:center; width:34px; height:34px; min-width:34px; padding:0; color:var(--deep); background:var(--soft); border:1px solid var(--line); border-radius:10px; transition:transform .12s, background .12s; }
+        .iconbtn:active { transform:scale(.94); }
+        .iconbtn svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+        .iconbtn.del { background:color-mix(in srgb,var(--red) 10%,var(--card)); color:var(--red); border-color:color-mix(in srgb,var(--red) 24%,var(--line)); }
+        html[data-theme="dark"] .iconbtn.del { background:color-mix(in srgb,var(--red) 13%,var(--card)); color:var(--red); border-color:color-mix(in srgb,var(--red) 32%,var(--line)); }
+        .account-card { align-items:center; }
+        .account-card .tripmain { min-width:0; }
+        .account-card .account-spent { display:block; margin-top:7px; white-space:nowrap; font-size:12px; font-weight:750; color:var(--muted); letter-spacing:-.15px; }
+        .account-card .progress { margin-top:8px; }
+        .exptable td:last-child { white-space:nowrap; width:1%; }
+        .pay-label { margin-top:3px; font-size:12px; }
+        @media(max-width:650px) {
+            .account-card { gap:7px; padding:11px 9px; }
+            .account-card .tripemoji { width:34px; min-width:34px; height:34px; }
+            .account-card .account-spent { font-size:11px; }
+            .account-card .right { font-size:13px; }
+            .account-card .action-buttons { gap:3px; }
+            .account-card .iconbtn { width:32px; height:34px; min-width:32px; }
+            .exptable td:last-child { padding-left:4px; padding-right:2px; }
+            .exptable .action-buttons { gap:3px; }
+            .exptable .iconbtn { width:32px; height:34px; min-width:32px; }
+        }
+
+        /* Tripwisely: warme Sand-, Sonnen- und Terrakottafarben */
+        :root {
+            --bg:#fbf5e9; --card:#fffdf8; --ink:#3d3025; --muted:#887968;
+            --line:#eadcc8; --green:#b96f3d; --deep:#70442f; --pale:#f6e4c7;
+            --lime:#f3c96b; --red:#bd5b4b; --field:#fffdf8; --soft:#f8ecd9;
+        }
+        html[data-theme="dark"] {
+            --bg:#24221f; --card:#302c27; --ink:#f8efe2; --muted:#c0b09c;
+            --line:#4b4238; --green:#e6b45b; --deep:#3b3028; --pale:#493c2e;
+            --lime:#f3c96b; --red:#f08b79; --field:#292621; --soft:#3a332b;
+        }
+        .logo { background:var(--lime); color:var(--deep); }
+        .hero { background:linear-gradient(125deg,#70442f,#a7653c 70%,#c18b4c); }
+        html[data-theme="dark"] .hero { background:linear-gradient(125deg,#3b3028,#51402f 70%,#675033); }
+        .hero .eyebrow { color:#f8dfb5; }
+        .hero p { color:#f5e5d2; }
+        .hero .primary { background:var(--lime); color:#4b3322; }
+        .nav button.active,.nav button:hover { background:#8c5b3d; }
+        .sidefoot { background:#5d3c2d; }
+        .tripemoji,.rowicon,.staticon { background:var(--soft); }
+        .bottomnav { background:color-mix(in srgb,var(--card) 94%,transparent); }
+        html[data-theme="dark"] .bottomnav { background:#302c27f2; }
+        .primary:hover { background:#a45d32; }
+        html[data-theme="dark"] .primary:hover { background:#d8a64e; }
+
+
+        /* Kompakte, einheitliche Darstellung für Smartphones */
+        body { font-size:14px; } h1 { font-size:clamp(21px,2.7vw,28px); } h2 { font-size:16px; }
+        .btn { padding:9px 11px; font-size:13px; border-radius:10px; } .card { padding:15px; }
+        .statval { font-size:clamp(18px,2vw,25px); letter-spacing:-.5px; } .hero { padding:20px; }
+        .hero h2 { font-size:23px; } .big { font-size:25px; }
+        .field input,.field select,.field textarea,.toolbar input,.toolbar select { font-size:14px; padding:9px 10px; }
+        select { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%232f8061' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); }
+        .trip { width:100%; min-width:0; max-width:100%; } .trip-card { overflow:hidden; }
+        .account-card { width:100%; max-width:100%; min-width:0; display:flex; flex-wrap:wrap; gap:8px; }
+        .account-card .tripmain { flex:1 1 90px; min-width:0; } .account-card .right { flex:0 1 auto; font-size:12px; }
+        .account-card .action-buttons { margin-left:auto; }
+        .active-trip { border:1.5px solid #4c9b75 !important; background:linear-gradient(120deg,#f1faf4,#e5f4ea) !important; box-shadow:0 3px 12px #2d795016; }
+        .active-trip .pill { background:#d6efdf; color:#246744; border:1px solid #b8dfc6; } .active-trip .tripemoji { background:#d9efdf; }
+        .active-trip .tripmain { overflow-wrap:anywhere; } .active-trip .right { white-space:normal; }
+        html[data-theme="dark"] .active-trip { background:linear-gradient(120deg,#20382c,#1b3026) !important; border-color:#5eb889 !important; }
+        html[data-theme="dark"] .active-trip .pill { background:#294a37; color:#b8ebc8; border-color:#3d7653; }
+        @media(max-width:650px) {
+          body { font-size:13px; } .main { padding-left:11px; padding-right:11px; } .card { padding:12px; }
+          .hero { padding:15px; gap:12px; } .hero h2 { font-size:20px; } .statval { font-size:19px; } .statlabel { font-size:11px; }
+          .btn { font-size:12px; padding:8px 9px; min-height:38px; } .account-card { padding:10px 8px; gap:6px; }
+          .account-card .tripemoji { width:32px; min-width:32px; height:32px; } .account-card .right { max-width:75px; overflow-wrap:anywhere; }
+          .account-card .action-buttons .iconbtn { width:29px; min-width:29px; height:31px; } .trip-shortcuts .btn { font-size:11px; }
+        }
+
+
+        .tc-links{display:flex;gap:6px;margin-top:11px}
+        .tc-links button{flex:1;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:9px 2px;font-weight:800;font-size:12px;white-space:nowrap;cursor:pointer}
+        .tc-links button:active{transform:translateY(1px)}
+        .catgroup{border-bottom:1px solid var(--line)}
+        .catgroup:last-child{border-bottom:0}
+        .cathead{display:flex;align-items:center;gap:8px;width:100%;background:none;border:0;padding:12px 2px;font-weight:850;font-size:14px;color:var(--ink);text-align:left;cursor:pointer}
+        .cathead .arrow{display:inline-block;width:16px;text-align:center;transition:transform .15s}
+        .cathead small{font-weight:600;color:var(--muted)}
+        .cathead .cattotal{margin-left:auto}
+        .catgroup.closed .arrow{transform:rotate(-90deg)}
+        .catgroup.closed .catbody{display:none}
+        .catbody .listrow .action-buttons{display:flex;gap:6px;flex-shrink:0}
+        .catbody .listrow{gap:8px}
+        .allhead{display:flex;align-items:center;gap:12px;width:100%;background:none;border:0;padding:6px 2px;color:var(--ink);text-align:left;cursor:pointer}
+        .allhead .chev{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex-shrink:0;background:linear-gradient(145deg,#c47a4a,#a85f33);box-shadow:0 3px 8px #a85f3344;transition:transform .2s}
+        .allhead .chev svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+        .allhead .alltitle{display:flex;flex-direction:column;font-weight:850;font-size:16px}
+        .allhead .alltitle small{font-weight:600;font-size:12px;color:var(--muted)}
+        .allhead .cattotal{margin-left:auto;font-weight:850;font-size:16px}
+        .allgroups.closed .chev{transform:rotate(-90deg)}
+        .allgroups.closed .allbody{display:none}
+        .allbody{margin-top:6px}
+        .cathead{cursor:default}
+        .catbody .rowmain small{display:block}
+        .cico{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+        .rowicon,.tripemoji{color:#a85f33}
+        .cathead .catico{width:32px;height:32px;border-radius:10px;background:var(--soft);color:#a85f33;display:grid;place-items:center;flex-shrink:0}
+        .cathead .catico .cico{width:18px;height:18px}
+        .tc-actions .btn.tc-wide{display:inline-flex;align-items:center;justify-content:center;gap:7px}
+        .tc-actions .btn.tc-wide svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+        .rowmenu{position:fixed;z-index:2000;min-width:170px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(60,40,20,.22);padding:6px;display:flex;flex-direction:column;gap:2px}
+        .rowmenu button{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;color:var(--ink);font:inherit;font-weight:700;font-size:14px;padding:11px 12px;border-radius:9px;text-align:left;cursor:pointer}
+        .rowmenu button:active{background:var(--soft)}
+        .rowmenu button.del{color:var(--red)}
+        .rowmenu svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+    </style>
+
 </head>
+
 <body>
-<main>
-  <section class="overview" aria-live="polite">
-    <div class="lbl">Übrig auf dem Konto</div>
-    <div class="big" id="left">0,00 €</div>
-    <div class="bar"><i id="oBar" style="width:0"></i></div>
-    <div class="pair">
-      <div class="cell"><span class="lbl">Gesamtes Geld</span><b id="total">0,00 €</b></div>
-      <div class="cell"><span class="lbl">Ausgegeben</span><b id="spent">0,00 €</b></div>
+    <div class="shell">
+        <aside class="side">
+            <div class="brand">
+                <div class="logo" aria-hidden="true">✈</div><span>tripwisely</span>
+            </div>
+            <nav class="nav" id="sideNav">
+                <button class="active" data-page="home"><span class="ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v12h14V9"/><path d="M9 21v-7h6v7"/></svg></span>Übersicht</button><button data-page="trips"><span class="ic">✈</span>Meine Reisen</button><button data-page="budget"><span class="ic">◉</span>Budget & Ausgaben</button><button data-page="currency"><span class="ic">⇄</span>Währungsrechner</button><button data-page="checklist"><span class="ic">✓</span>Checkliste</button><button data-page="stats"><span class="ic">▥</span>Statistiken</button><button data-page="settings"><span class="ic">⚙</span>Einstellungen</button>
+            </nav>
+            <div class="sidefoot"><strong>Deine Reise. Dein Budget.</strong>Planen, teilen und Ausgaben im Blick behalten.</div>
+        </aside>
+        <main class="main">
+            <header class="top">
+                <div>
+                    <div class="eyebrow" id="todayLabel">DEIN REISEBEGLEITER</div>
+                    <h1 id="pageTitle">Deine Reisen im Überblick</h1>
+                </div>
+            </header>
+            <section class="page active" id="page-home">
+                <div class="hero">
+                    <div>
+                        <div class="eyebrow">YOUR NEXT ADVENTURE</div>
+                        <h2 id="heroTitle">Wohin geht deine nächste Reise?</h2>
+                        <p id="heroSubtitle">Plane deinen Urlaub und behalte alles an einem Ort.</p>
+                    </div><button type="button" class="herobox budget-link" onclick="navigate('budget')" aria-label="Budget und Ausgaben der aktiven Reise öffnen">
+                        <div class="small" style="color:#f8dfb5">Verfügbar · tippen für Details</div>
+                        <div class="big" id="heroRemaining">0,00 €</div>
+                        <div class="progress"><span id="heroProgress"></span></div>
+                        <div class="small" id="heroProgressLabel" style="color:#c7ddd1">Erstelle deine erste Reise</div>
+                    </button>
+                </div>
+                <div class="sectionhead">
+                    <h2>Mein Überblick</h2><button class="btn soft" onclick="navigate('budget')">Ausgaben →</button>
+                </div>
+                <div class="grid stats home-stats">
+                    <div class="card"><span class="staticon">↗</span>
+                        <div class="statlabel">Ausgegeben</div>
+                        <div class="statval" id="statSpent">0 €</div>
+                        <div class="small muted">Aktive Reise</div>
+                    </div>
+                    <div class="card"><span class="staticon">◷</span>
+                        <div class="statlabel">Gesamter Betrag</div>
+                        <div class="statval" id="statLeft">0 €</div>
+                        <div class="small muted">Aktive Reise</div>
+                    </div>
+                </div>
+                <div class="grid cols">
+                    <div class="card">
+                        <div class="sectionhead" style="margin-top:0">
+                            <h2>Meine Reisen</h2><button class="btn soft" onclick="navigate('trips')">Alle ansehen</button>
+                        </div>
+                        <div id="homeTrips" class="triplist"></div>
+                    </div>
+                    <div class="card">
+                        <div class="sectionhead" style="margin-top:0">
+                            <h2>Letzte Ausgaben</h2><button class="btn soft" onclick="openExpenseModal()">＋</button>
+                        </div>
+                        <div id="homeExpenses"></div>
+                    </div>
+                </div>
+            </section>
+            <section class="page" id="page-trips">
+                <div class="sectionhead" style="margin-top:0">
+                    <div>
+                        <div class="small muted">Deine Reisepläne an einem Ort.</div>
+                    </div><button class="btn primary" onclick="openTripModal()">＋ Neue Reise</button>
+                </div>
+                <div class="toolbar"><input id="tripSearch" placeholder="Reise suchen…" oninput="renderTrips()"><select id="tripFilter" onchange="renderTrips()">
+                        <option value="all">Alle Reisen</option>
+                        <option value="upcoming">Bevorstehend</option>
+                        <option value="active">Aktuell</option>
+                        <option value="past">Vergangen</option>
+                    </select></div>
+                <div id="tripList" class="triplist"></div>
+            </section>
+            <section class="page" id="page-budget">
+                <div class="sectionhead" style="margin-top:0">
+                    <div>
+                        <div class="small muted">Geplante und tatsächliche Kosten im Blick.</div>
+                    </div><button class="btn primary" onclick="openExpenseModal()">＋ Ausgabe</button>
+                </div>
+                <div class="grid stats" style="margin-bottom:16px">
+                    <div class="card">
+                        <div class="statlabel">Budget</div>
+                        <div class="statval" id="budgetTotal">0 €</div>
+                    </div>
+                    <div class="card">
+                        <div class="statlabel">Ausgegeben</div>
+                        <div class="statval" id="budgetSpent">0 €</div>
+                    </div>
+                    <div class="card">
+                        <div class="statlabel">Verbleibend</div>
+                        <div class="statval" id="budgetLeft">0 €</div>
+                    </div>
+                    <div class="card">
+                        <div class="statlabel">Geplant</div>
+                        <div class="statval" id="budgetPlanned">0 €</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div id="expenseGroups"></div>
+                    <div id="expenseEmpty" class="empty" style="display:none">Noch keine Ausgaben erfasst.<br>Füge deine erste Ausgabe hinzu.</div>
+                </div>
+                <div class="sectionhead">
+                    <div>
+                        <h2>Konten</h2>
+                        <div class="small muted">Die Summe deiner Konten ergibt das Reisebudget.</div>
+                    </div><button class="btn primary" onclick="openAccountModal()">＋ Konto</button>
+                </div>
+                <div id="accountList" class="triplist"></div>
+            </section>
+            <section class="page" id="page-tripdetail">
+                <div class="sectionhead" style="margin-top:0"><button class="btn plain" onclick="navigate('trips')">← Reisen</button><button class="btn primary" id="detailAdd" onclick="detailAdd()">＋ Eintrag</button></div>
+                <div class="card">
+                    <h2 id="detailTitle"></h2>
+                    <div class="small muted" id="detailSub"></div>
+                </div>
+                <div class="seg" id="detailTabs"><button data-tab="pots" onclick="setDetailTab('pots')"></button><button data-tab="plan" onclick="setDetailTab('plan')"></button><button data-tab="exp" onclick="setDetailTab('exp')"></button><button data-tab="wallet" onclick="setDetailTab('wallet')"></button></div>
+                <div id="detailSummary"></div>
+                <div id="detailList" class="triplist"></div>
+                <div id="detailStats"></div>
+            </section>
+            <section class="page" id="page-checklist">
+                <div class="sectionhead" style="margin-top:0">
+                    <div>
+                        <div class="small muted">Nichts Wichtiges vor der Abreise vergessen.</div>
+                    </div><button class="btn primary" onclick="openTaskModal()">＋ Aufgabe</button>
+                </div>
+                <div class="card">
+                    <div id="taskList"></div>
+                </div>
+            </section>
+            <section class="page" id="page-stats">
+                <div class="sectionhead" style="margin-top:0">
+                    <div>
+                        <div class="small muted">Alle Reisen, Budgets, Kosten und Reisedauer.</div>
+                    </div><button class="btn plain" onclick="exportCSV()">CSV exportieren</button>
+                </div>
+                <div class="toolbar"><select id="statsWindow" onchange="renderStats()">
+                        <option value="all">Gesamter Zeitraum</option>
+                        <option value="12m">Letzte 12 Monate</option>
+                        <option value="year">Bestimmtes Jahr</option>
+                    </select><select id="statsYear" onchange="renderStats()">
+                        <option value="all">Alle Jahre</option>
+                    </select></div>
+                <div class="grid stats">
+                    <div class="card">
+                        <div class="statlabel">Gesamt ausgegeben</div>
+                        <div class="statval" id="statsSpent">0 €</div>
+                    </div>
+                    <div class="card">
+                        <div class="statlabel">Ø Ausgabe</div>
+                        <div class="statval" id="statsAvg">0 €</div>
+                    </div>
+                    <div class="card">
+                        <div class="statlabel">Größte Kategorie</div>
+                        <div class="statval" id="statsTop">–</div>
+                    </div>
+                    <div class="card">
+                        <div class="statlabel">Erfasste Ausgaben</div>
+                        <div class="statval" id="statsCount">0</div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top:16px">
+                    <h2>Reiseübersicht</h2>
+                    <div class="small muted" style="margin:5px 0 12px">Eine Zeile pro Reise. Kosten zählen bezahlte Ausgaben.</div>
+                    <div class="tablewrap">
+                        <table class="table" style="min-width:680px">
+                            <thead>
+                                <tr>
+                                    <th>Reise</th>
+                                    <th>Zeitraum</th>
+                                    <th>Dauer</th>
+                                    <th>Gesamtbudget</th>
+                                    <th>Gesamtkosten</th>
+                                    <th>Restbudget</th>
+                                </tr>
+                            </thead>
+                            <tbody id="statsTripTable"></tbody>
+                        </table>
+                    </div>
+                    <div id="statsTripEmpty" class="empty" style="display:none">Für diesen Zeitraum gibt es keine Reisen.</div>
+                </div>
+                <div class="card" style="margin-top:16px">
+                    <h2>Ausgaben nach Kategorie</h2>
+                    <div id="categoryBars" style="margin-top:15px"></div>
+                </div>
+                <div class="note">Die Auswertung basiert auf Ausgaben mit Status „Bezahlt“ und Beträgen in Euro. Andere Währungen werden in dieser ersten Version nicht automatisch umgerechnet.</div>
+            </section>
+            <section class="page" id="page-currency">
+                <div class="card">
+                    <div class="sectionhead" style="margin-top:0">
+                        <div>
+                            <div class="small muted">Umrechnung mit selbst eingegebenem Kurs.</div>
+                        </div>
+                    </div>
+                    <div class="field"><label>Betrag</label><div style="display:flex;gap:8px;align-items:stretch"><input id="fxAmount" type="number" min="0" step="0.01" value="100" oninput="calcFx()" style="flex:1;min-width:0"><button class="btn soft" id="fxRefreshBtn" type="button" onclick="loadFxRate(true)" style="white-space:nowrap;flex-shrink:0">↻ Aktualisieren</button></div></div>
+                    <div class="formgrid">
+                        <div class="field"><label>Von</label><select id="fxFrom" onchange="onFxCurrencyChange('from')">
+                                <option>EUR</option>
+                                <option>USD</option>
+                                <option>GBP</option>
+                                <option>CHF</option>
+                                <option>TRY</option>
+                                <option>JPY</option>
+                                <option>THB</option>
+                                <option>PLN</option>
+                                <option>CZK</option>
+                            </select></div>
+                        <div class="field"><label>Nach</label><select id="fxTo" onchange="onFxCurrencyChange('to')">
+                                <option>USD</option>
+                                <option>EUR</option>
+                                <option>GBP</option>
+                                <option>CHF</option>
+                                <option>TRY</option>
+                                <option>JPY</option>
+                                <option>THB</option>
+                                <option>PLN</option>
+                                <option>CZK</option>
+                            </select></div>
+                    </div>
+                    <div class="note" id="fxStatus">Aktueller Referenzkurs wird aus dem Internet geladen …</div>
+                    <div style="padding:20px 0 5px">
+                        <div class="small muted">Ergebnis</div>
+                        <div class="statval" id="fxResult">Wird berechnet …</div>
+                        <div class="small muted" id="fxRateLabel">Kursdatum wird geladen</div>
+                    </div>
+                    
+                    <div class="small muted">Referenzkurse werden täglich aktualisiert und können vom Karten- oder Wechselstuben-Kurs abweichen.</div>
+                </div>
+            </section>
+            <section class="page" id="page-settings">
+                <div class="sectionhead" style="margin-top:0">
+                    <div>
+                        <div class="small muted">Deine Daten bleiben zunächst auf diesem Gerät.</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="settingsrow">
+                        <div><strong>Checkliste</strong>
+                            <div class="small muted">Wichtige Aufgaben vor und während der Reise.</div>
+                        </div><button class="btn soft" onclick="navigate('checklist')">Öffnen</button>
+                    </div>
+                    <div class="settingsrow">
+                        <div><strong>Währungsrechner</strong>
+                            <div class="small muted">Beträge mit aktuellem Kurs umrechnen.</div>
+                        </div><button class="btn soft" onclick="navigate('currency')">Öffnen</button>
+                    </div>
+                    <div class="settingsrow">
+                        <div><strong>Darstellung</strong>
+                            <div class="small muted">Hell- oder Dunkelmodus</div>
+                        </div><select id="themeSelect" onchange="setTheme(this.value)" style="max-width:145px;padding:9px;border-radius:10px">
+                            <option value="light">Hell</option>
+                            <option value="dark">Dunkel</option>
+                            <option value="system">System</option>
+                        </select>
+                    </div>
+                    <div class="settingsrow">
+                        <div><strong>Dieses Handy</strong>
+                            <div class="small muted">Geräte-ID: <span id="deviceIdText"></span></div>
+                        </div><button class="btn soft" onclick="copyDeviceId()">ID kopieren</button>
+                    </div>
+                    <div class="settingsrow">
+                        <div><strong>Nutzer & Mitreisende</strong>
+                            <div class="small muted">Mitreisende per Nutzer-ID hinzufügen.</div>
+                        </div><button class="btn primary" onclick="openUserModal()">＋ Nutzer</button>
+                    </div>
+                    <div id="userList"></div>
+                    <div class="settingsrow">
+                        <div><strong>Backup erstellen</strong>
+                            <div class="small muted">Alle Reisen, Ausgaben und Listen als JSON-Datei exportieren.</div>
+                        </div><button class="btn primary" onclick="exportBackup()">Backup</button>
+                    </div>
+                    <div class="settingsrow">
+                        <div><strong>Backup wiederherstellen</strong>
+                            <div class="small muted">Eine zuvor exportierte Tripwisely-Datei importieren.</div>
+                        </div><button class="btn plain" onclick="document.getElementById('importFile').click()">Importieren</button><input class="file" id="importFile" type="file" accept=".json,application/json" onchange="importBackup(event)">
+                    </div>
+                    <div class="settingsrow">
+                        <div><strong>Reisedaten teilen</strong>
+                            <div class="small muted">Exportiere ein Backup und sende es an Mitreisende. Für gleichzeitige Live-Synchronisierung wird später ein gemeinsamer Cloud-Dienst benötigt.</div>
+                        </div><button class="btn soft" onclick="exportBackup()">Teilen</button>
+                    </div>
+                    <div class="settingsrow">
+                        <div><strong>Alle lokalen Daten löschen</strong>
+                            <div class="small muted">Kann nicht rückgängig gemacht werden. Erstelle vorher ein Backup.</div>
+                        </div><button class="btn danger" onclick="clearAll()">Löschen</button>
+                    </div>
+                </div>
+                <div class="note"><strong>Synchronisierung:</strong> Diese Version funktioniert offline und speichert lokal im Browser. Eine echte Live-Zusammenarbeit zwischen mehreren Geräten ist noch nicht verbunden. Bis dahin können Backups zwischen Mitreisenden ausgetauscht und importiert werden.</div>
+                <div class="card" style="margin-top:16px">
+                    <h2>Installieren</h2>
+                    <p class="muted">Öffne Tripwisely über deine GitHub-Pages-Adresse in Chrome und wähle im Browsermenü „App installieren“ oder „Zum Startbildschirm hinzufügen“.</p><button class="btn soft" id="installBtn" style="display:none" onclick="installApp()">App installieren</button>
+                    <p class="small muted" id="installHint">Die Installationsoption erscheint, wenn dein Browser sie unterstützt und die App über HTTPS geöffnet wurde.</p>
+                </div>
+            </section>
+        </main>
     </div>
-  </section>
-
-  <section class="trip" aria-live="polite">
-    <div class="dates">
-      <label class="cell"><span class="lbl">Anreise</span><input id="from" type="date"></label>
-      <label class="cell"><span class="lbl">Abreise</span><input id="to" type="date"></label>
+    <nav class="bottomnav" id="bottomNav"><button class="active" data-page="home"><span class="home-icon"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v12h14V9"/><path d="M9 21v-7h6v7"/></svg></span>Home</button><button data-page="trips"><span>✈</span>Reisen</button><button data-page="currency"><span>⇄</span>Währung</button><button data-page="stats"><span>▥</span>Statistik</button><button data-page="settings"><span>☰</span>Mehr</button></nav>
+    <div class="modalback" id="modalBack" role="dialog" aria-modal="true">
+        <div class="modal">
+            <div class="modalhead">
+                <h2 id="modalTitle">Eintrag hinzufügen</h2><button class="close" onclick="closeModal()" aria-label="Schließen">×</button>
+            </div>
+            <form id="modalForm">
+                <div id="modalFields"></div>
+                <div class="modalactions"><button type="button" class="btn plain" onclick="closeModal()">Abbrechen</button><button class="btn primary" type="submit">Speichern</button></div>
+            </form>
+        </div>
     </div>
-    <div class="dayline">
-      <div><span class="lbl">Verbleibend</span><b id="dLeft">–</b></div>
-      <div class="r"><span class="lbl">Pro Tag noch</span><b id="perDay">–</b></div>
+    <div class="calback" id="calBack">
+        <div class="calsheet">
+            <div class="calhead"><strong id="calTitle">Datum wählen</strong><button class="close" type="button" onclick="closeCal()" aria-label="Schließen">×</button></div>
+            <div class="calsum" id="calSum"></div>
+            <div class="calwd"><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span></div>
+            <div class="calbody" id="calBody"></div>
+            <div class="calfoot"><button type="button" class="btn plain" onclick="closeCal()">Abbrechen</button><button type="button" class="btn primary" id="calOk">Übernehmen</button></div>
+        </div>
     </div>
-    <p class="hint" id="hint" hidden></p>
-  </section>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script>
+        (function() {
+            'use strict';
+            // Manche HTML-Online-Viewer sperren localStorage in ihrer Vorschau.
+            // Dann wird ein Arbeitsspeicher-Fallback verwendet, damit die App trotzdem startet.
+            const memoryStorage = Object.create(null);
+            const storage = {
+                getItem(key) {
+                    try { return window.localStorage.getItem(key); }
+                    catch (e) { return Object.prototype.hasOwnProperty.call(memoryStorage, key) ? memoryStorage[key] : null; }
+                },
+                setItem(key, value) {
+                    try { window.localStorage.setItem(key, String(value)); }
+                    catch (e) { memoryStorage[key] = String(value); }
+                },
+                removeItem(key) {
+                    try { window.localStorage.removeItem(key); }
+                    catch (e) { delete memoryStorage[key]; }
+                }
+            };
+            const KEY = 'budgora-data-v1';
+            const categories = ['Transport', 'Unterkunft', 'Essen & Trinken', 'Aktivitäten', 'Shopping', 'Versicherung', 'Sonstiges'];
+            const catIcon = {'Transport':'🚆','Unterkunft':'🏨','Essen & Trinken':'🍽️','Aktivitäten':'📍','Shopping':'🛍️','Versicherung':'🛡️','Sonstiges':'📌'};
+            const CAT_SVG = {
+                'Transport': '<path d="M8 3.1V7a4 4 0 0 0 8 0V3.1"/><path d="m9 15-1-1"/><path d="m15 15 1-1"/><path d="M9 19c-2.8 0-5-2.2-5-5v-4a8 8 0 0 1 16 0v4c0 2.8-2.2 5-5 5Z"/><path d="m8 19-2 3"/><path d="m16 19 2 3"/>',
+                'Unterkunft': '<path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/>',
+                'Essen & Trinken': '<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>',
+                'Aktivitäten': '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
+                'Shopping': '<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>',
+                'Versicherung': '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>',
+                'Sonstiges': '<path d="M12 2H2v10l9.29 9.29a1 1 0 0 0 1.42 0l8.58-8.58a1 1 0 0 0 0-1.42Z"/><path d="M7 7h.01"/>'
+            };
+            const catSvg = c => `<svg class="cico" viewBox="0 0 24 24" aria-hidden="true">${CAT_SVG[c] || CAT_SVG['Sonstiges']}</svg>`;
+            const collapsedCats = {};
+            const emojis = ['🌴', '🏙️', '🏔️', '🏖️', '✈️', '🚗', '🎒', '🌍'];
+            let data = {
+                    trips: [],
+                    expenses: [],
+                    plans: [],
+                    wallet: [],
+                    tasks: [],
+                    accounts: [],
+                    users: [],
+                    activeTripId: '',
+                    deviceId: ''
+                },
+                currentForm = null,
+                deferredPrompt = null,
+                detailTripId = '',
+                detailTab = 'plan';
+            if (!storage.getItem('budgora-device-id')) storage.setItem('budgora-device-id', 'BG-' + Math.random().toString(36).slice(2, 6).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase());
+            const $ = id => document.getElementById(id);
+            const today = () => new Date().toISOString().slice(0, 10);
+            const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+            const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            } [c]));
+            const euro = n => new Intl.NumberFormat('de-DE', {
+                style: 'currency',
+                currency: 'EUR'
+            }).format(Number(n) || 0);
+            const dateFmt = d => d ? new Date(d + 'T12:00:00').toLocaleDateString('de-DE', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            }) : '–';
+            const tripBy = id => data.trips.find(t => t.id === id);
+            const tripName = id => tripBy(id)?.name || 'Ohne Reise';
+            const MON = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+            let cal = null;
+            const isoD = (y, m, d) => y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
 
-  <h2>Konten</h2>
-  <div id="people"></div>
+            function calPaint() {
+                if (!cal) return;
+                const s = cal.start,
+                    e = cal.end;
+                document.querySelectorAll('#calBody .cal-day').forEach(b => {
+                    const d = b.dataset.d;
+                    b.classList.toggle('start', d === s);
+                    b.classList.toggle('end', !!e && d === e);
+                    b.classList.toggle('in', !!(s && e && d > s && d < e));
+                    b.classList.toggle('hasend', !!(s && e && s !== e && d === s));
+                    b.classList.toggle('today', d === today())
+                });
+                const n = s && e ? Math.round((new Date(e + 'T12:00:00') - new Date(s + 'T12:00:00')) / 864e5) + 1 : 0;
+                $('calSum').textContent = cal.mode === 'range' ? `${s?dateFmt(s):'Abreise wählen'} → ${e?dateFmt(e):(s?'Rückreise wählen':'–')}${n?` · ${n} ${n===1?'Tag':'Tage'}`:''}` : (s ? dateFmt(s) : '')
+            }
 
-  <form class="add" id="addForm">
-    <label class="in"><input id="pName" placeholder="Kontoname, z. B. Anna" aria-label="Kontoname" required></label>
-    <label class="in b"><input id="pBudget" type="number" inputmode="decimal" step="any" min="0" placeholder="Budget €" aria-label="Budget"></label>
-    <button class="btn" type="submit">Konto hinzufügen</button>
-  </form>
-</main>
+            function openCal(o) {
+                cal = {
+                    mode: o.mode,
+                    start: o.start || '',
+                    end: o.end || '',
+                    done: o.done
+                };
+                const base = o.start ? new Date(o.start + 'T12:00:00') : new Date();
+                const first = new Date(base.getFullYear(), base.getMonth() - 6, 1);
+                let h = '';
+                for (let i = 0; i < 30; i++) {
+                    const d = new Date(first.getFullYear(), first.getMonth() + i, 1),
+                        y = d.getFullYear(),
+                        m = d.getMonth(),
+                        n = new Date(y, m + 1, 0).getDate(),
+                        off = (d.getDay() + 6) % 7;
+                    h += `<div class="cal-month" data-ym="${y}-${m}"><h3>${MON[m]} ${y}</h3><div class="cal-grid">${'<span></span>'.repeat(off)}${Array.from({length:n},(_,k)=>`<button type="button" class="cal-day" data-d="${isoD(y,m,k+1)}"><span class="dot">${k+1}</span></button>`).join('')}</div></div>`
+                }
+                $('calBody').innerHTML = h;
+                $('calTitle').textContent = o.mode === 'range' ? 'Reisezeitraum wählen' : 'Datum wählen';
+                $('calOk').style.display = o.mode === 'range' ? '' : 'none';
+                $('calBack').classList.add('show');
+                calPaint();
+                const a = $('calBody').querySelector(`[data-ym="${base.getFullYear()}-${base.getMonth()}"]`);
+                if (a) $('calBody').scrollTop = a.offsetTop
+            }
 
-<script>
-(function(){
-  var KEY="urlaubsbudget-v2";
-  var S={total:"",from:"",to:"",people:[]};
-  try{
-    var raw=localStorage.getItem(KEY)||localStorage.getItem("urlaubsbudget-v1");
-    if(raw){var p=JSON.parse(raw);if(p&&Array.isArray(p.people)){S.total=p.total||"";S.from=p.from||"";S.to=p.to||"";S.people=p.people;}}
-  }catch(e){}
-  var openIds={},pending=null;
-  var $=function(id){return document.getElementById(id)};
-  var fmt=new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR"});
-  var money=function(n){return fmt.format(n)};
-  var num=function(v){var n=parseFloat(String(v).replace(",","."));return isFinite(n)?n:0};
-  var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})};
-  var save=function(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
-  var uid=function(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)};
-  var spentOf=function(p){return p.exp.reduce(function(a,e){return a+e.amt},0)};
-  var DAY=86400000;
-  function parse(s){if(!s)return null;var a=s.split("-");return new Date(+a[0],+a[1]-1,+a[2]).getTime()}
+            function closeCal() {
+                $('calBack').classList.remove('show');
+                cal = null
+            }
 
-  function dayInfo(){
-    var f=parse(S.from),t=parse(S.to);
-    if(f===null||t===null||t<f)return null;
-    var d=new Date();var today=new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime();
-    var total=Math.round((t-f)/DAY)+1;
-    var left=today<=f?total:(today>t?0:Math.round((t-today)/DAY)+1);
-    return{total:total,left:left,before:today<f,after:today>t};
-  }
+            function initCal() {
+                $('calBody').addEventListener('click', e => {
+                    const b = e.target.closest('.cal-day');
+                    if (!b || !cal) return;
+                    const d = b.dataset.d;
+                    if (cal.mode === 'single') {
+                        const f = cal.done;
+                        closeCal();
+                        f(d);
+                        return
+                    }
+                    if (!cal.start || cal.end) {
+                        cal.start = d;
+                        cal.end = ''
+                    } else if (d < cal.start) {
+                        cal.start = d
+                    } else {
+                        cal.end = d
+                    }
+                    calPaint()
+                });
+                $('calOk').addEventListener('click', () => {
+                    if (!cal || !cal.start) return;
+                    const a = cal.start,
+                        z = cal.end || cal.start,
+                        f = cal.done;
+                    closeCal();
+                    f(a, z)
+                })
+            }
 
-  function summary(){
-    var sumP=S.people.reduce(function(a,p){return a+p.budget},0);
-    var total=sumP;
-    var spent=S.people.reduce(function(a,p){return a+spentOf(p)},0);
-    var left=total-spent;
-    var big=$("left");big.textContent=money(left);big.className="big"+(left<0?" neg":"");
-    $("spent").textContent=money(spent);$("total").textContent=money(total);
-    var bar=$("oBar");bar.style.width=total>0?Math.min(100,spent/total*100)+"%":(spent>0?"100%":"0");
-    bar.className=left<0?"over":"";
-    var di=dayInfo(),h=$("hint"),msg="";
-    if(!di){
-      $("dLeft").textContent="–";$("perDay").textContent="–";
-      msg=(S.from||S.to)?"Wähle Anreise und Abreise – die Abreise muss nach der Anreise liegen.":"Wähle Anreise und Abreise, dann siehst du die Tage und dein Tagesbudget.";
-    }else{
-      $("dLeft").textContent=di.left+(di.left===1?" Tag":" Tage");
-      if(di.left>0)$("perDay").textContent=money(Math.max(left,0)/di.left);
-      else{$("perDay").textContent="–";msg="Der Urlaub ist vorbei.";}
-      if(di.before)msg="Der Urlaub beginnt noch – alle "+di.total+" Tage sind eingerechnet.";
-    }
-    if(!S.people.length)msg=msg||"Füge Konten mit Budget hinzu – daraus ergibt sich das gesamte Geld.";
-    h.hidden=!msg;h.textContent=msg;
-    return di;
-  }
+            function enhanceDates() {
+                const root = $('modalFields');
+                const pair = !!(root.querySelector('input[type=date][name=start]') && root.querySelector('input[type=date][name=end]'));
+                root.querySelectorAll('input[type=date]').forEach(inp => {
+                    const nm = inp.name,
+                        hid = document.createElement('input');
+                    hid.type = 'hidden';
+                    hid.name = nm;
+                    hid.value = inp.value;
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'datebtn';
+                    btn.dataset.for = nm;
+                    btn.textContent = inp.value ? dateFmt(inp.value) : 'Datum wählen';
+                    inp.replaceWith(hid, btn);
+                    btn.onclick = () => {
+                        const g = n => root.querySelector('input[type=hidden][name="' + n + '"]'),
+                            bt = n => root.querySelector('.datebtn[data-for="' + n + '"]');
+                        if (pair && (nm === 'start' || nm === 'end')) {
+                            openCal({
+                                mode: 'range',
+                                start: g('start').value,
+                                end: g('end').value,
+                                done: (a, z) => {
+                                    g('start').value = a;
+                                    g('end').value = z;
+                                    bt('start').textContent = dateFmt(a);
+                                    bt('end').textContent = dateFmt(z)
+                                }
+                            })
+                        } else {
+                            openCal({
+                                mode: 'single',
+                                start: g(nm).value,
+                                done: a => {
+                                    g(nm).value = a;
+                                    bt(nm).textContent = dateFmt(a)
+                                }
+                            })
+                        }
+                    }
+                })
+            }
 
-  function render(focusId){
-    var box=$("people"),di=summary();
-    if(!S.people.length){box.innerHTML='<div class="empty">Noch kein Konto angelegt. Füge unten das erste Konto mit Budget hinzu.</div>';return;}
-    box.innerHTML=S.people.map(function(p){
-      var sp=spentOf(p),left=p.budget-sp,pct=p.budget>0?Math.min(100,sp/p.budget*100):(sp>0?100:0);
-      var isOpen=!!openIds[p.id];
-      var pd=di&&di.left>0?money(Math.max(left,0)/di.left)+" pro Tag":"";
-      var items=p.exp.length?'<ul>'+p.exp.map(function(e){
-        return '<li><span class="w">'+esc(e.what)+'</span><span class="amt">'+money(e.amt)+'</span><button class="x" data-del="'+p.id+'|'+e.id+'" aria-label="Ausgabe löschen">×</button></li>';
-      }).join("")+'</ul>':'';
-      return '<article class="person'+(isOpen?' open':'')+'">'+
-        '<button class="head" data-toggle="'+p.id+'" aria-expanded="'+isOpen+'"><span class="nm">'+esc(p.name)+'</span>'+
-        '<span class="lf'+(left<0?' neg':'')+'">'+money(left)+'<small>übrig</small></span><span class="chev"></span></button>'+
-        (isOpen?'<div class="body">'+
-          '<label class="field"><span>Budget (€)</span><input type="number" inputmode="decimal" step="any" min="0" value="'+p.budget+'" data-budget="'+p.id+'" aria-label="Budget von '+esc(p.name)+'"></label>'+
-          '<div class="meter"><i class="'+(left<0?'over':'')+'" style="width:'+pct+'%"></i></div>'+
-          '<div class="stats"><span>Ausgegeben: '+money(sp)+'</span><span>'+pd+'</span></div>'+
-          '<div class="sub">Ausgaben</div>'+items+
-          '<form data-exp="'+p.id+'"><div class="addrow"><input class="w" placeholder="Wofür?" aria-label="Wofür" required><input class="a" type="number" inputmode="decimal" step="any" min="0" placeholder="€" aria-label="Kosten" required></div>'+
-          '<button class="btn full" type="submit">Ausgabe eintragen</button></form>'+
-          '<button class="del'+(pending===p.id?' sure':'')+'" data-rm="'+p.id+'">'+(pending===p.id?'Wirklich löschen? Nochmal tippen':'Konto löschen')+'</button>'+
-        '</div>':'')+'</article>';
-    }).join("");
-    if(focusId){var f=box.querySelector('form[data-exp="'+focusId+'"] .w');if(f)f.focus();}
-  }
+            function migrate() {
+                (data.plans || []).forEach(p => { if (!p.category) p.category = p.kind === 'Transport' ? 'Transport' : (p.kind === 'Reservierung' || p.kind === 'Sonstiges') ? 'Sonstiges' : 'Aktivitäten'; });
+                data.trips.forEach(t => {
+                    if (Number(t.budget) > 0 && !data.accounts.some(a => a.tripId === t.id)) data.accounts.push({
+                        id: uid(),
+                        name: 'Gesamtbudget',
+                        kind: 'Sonstiges',
+                        owner: '',
+                        tripId: t.id,
+                        budget: Number(t.budget),
+                        notes: ''
+                    });
+                    delete t.budget;
+                });
+            }
 
-  $("from").value=S.from;$("to").value=S.to;
-  
-  $("from").addEventListener("change",function(e){S.from=e.target.value;if(S.to&&S.to<S.from){S.to=S.from;$("to").value=S.to;}save();render();});
-  $("to").addEventListener("change",function(e){S.to=e.target.value;save();render();});
+            function autoDeactivate() {
+                const a = tripBy(data.activeTripId);
+                if (a && a.end && a.end < today()) {
+                    data.activeTripId = '';
+                    return true
+                }
+                return false
+            }
 
-  $("addForm").addEventListener("submit",function(e){
-    e.preventDefault();
-    var n=$("pName").value.trim();if(!n)return;
-    var id=uid();S.people.push({id:id,name:n,budget:num($("pBudget").value),exp:[]});
-    openIds[id]=true;$("pName").value="";$("pBudget").value="";save();render();
-  });
+            function load() {
+                try {
+                    const saved = storage.getItem(KEY);
+                    if (saved) {
+                        const p = JSON.parse(saved);
+                        data = {
+                            ...data,
+                            ...p
+                        };
+                    }
+                    data.accounts = data.accounts || [];
+                    data.users = data.users || [];
+                    migrate();
+                    autoDeactivate();
+                    data.deviceId = storage.getItem('budgora-device-id');
+                } catch (e) {
+                    toast('Lokale Daten konnten nicht geladen werden.');
+                }
+            }
 
-  var box=$("people");
-  var find=function(id){return S.people.filter(function(x){return x.id===id})[0]};
-  box.addEventListener("submit",function(e){
-    var id=e.target.getAttribute("data-exp");if(!id)return;
-    e.preventDefault();var p=find(id);if(!p)return;
-    var w=e.target.querySelector(".w").value.trim(),a=num(e.target.querySelector(".a").value);
-    if(!w||!a)return;
-    p.exp.push({id:uid(),what:w,amt:a});save();render(id);
-  });
-  box.addEventListener("change",function(e){
-    var id=e.target.getAttribute("data-budget");if(!id)return;
-    var p=find(id);if(!p)return;p.budget=num(e.target.value);save();render();
-  });
-  box.addEventListener("click",function(e){
-    var t=e.target.closest("button");if(!t)return;
-    var tg=t.getAttribute("data-toggle"),d=t.getAttribute("data-del"),r=t.getAttribute("data-rm");
-    if(tg){openIds[tg]=!openIds[tg];pending=null;render();}
-    else if(d){var a=d.split("|"),p=find(a[0]);if(p){p.exp=p.exp.filter(function(x){return x.id!==a[1]});save();render();}}
-    else if(r){
-      if(pending===r){S.people=S.people.filter(function(x){return x.id!==r});pending=null;save();render();}
-      else{pending=r;render();}
-    }
-  });
+            function save() {
+                try {
+                    storage.setItem(KEY, JSON.stringify(data));
+                } catch (e) {
+                    toast('Speichern fehlgeschlagen. Bitte Speicherplatz prüfen.');
+                }
+                renderAll();
+            }
 
-  render();
-})();
-</script>
-<script>
-if("serviceWorker" in navigator){
-  window.addEventListener("load",function(){
-    navigator.serviceWorker.register("./sw.js").catch(function(){});
-  });
-}
-</script>
+            function toast(msg) {
+                const el = $('toast');
+                el.textContent = msg;
+                el.classList.add('show');
+                clearTimeout(toast.timer);
+                toast.timer = setTimeout(() => el.classList.remove('show'), 2600);
+            }
+            const titles = {
+                home: 'Meine aktive Reise',
+                trips: 'Meine Reisen',
+                budget: 'Budget & Ausgaben',
+                tripdetail: 'Reisedetails',
+                checklist: 'Checkliste',
+                stats: 'Statistiken',
+                settings: 'Mehr',
+                currency: 'Währungsrechner'
+            };
+
+            let curPage = (document.querySelector('.page.active')?.id || 'page-home').replace('page-', '');
+            const navState = () => ({ tw: 1, page: curPage, trip: detailTripId, tab: detailTab });
+            try { history.replaceState(navState(), ''); } catch (err) {}
+
+            function navigate(page, fromPop) {
+                curPage = page;
+                if (!fromPop) {
+                    const st = history.state, ns = navState();
+                    if (!st || st.page !== ns.page || (ns.page === 'tripdetail' && st.trip !== ns.trip)) {
+                        try { history.pushState(ns, ''); } catch (err) {}
+                    }
+                }
+                document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + page));
+                document.querySelectorAll('[data-page]').forEach(b => b.classList.toggle('active', b.dataset.page === (page === 'tripdetail' ? 'trips' : page)));
+                $('pageTitle').textContent = titles[page] || 'Budgora';
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+                renderAll();
+            }
+            window.addEventListener('popstate', e => {
+                const modalOpen = $('modalBack').classList.contains('show');
+                const menuOpen = !!document.getElementById('rowMenu');
+                if (modalOpen || menuOpen) {
+                    closeRowMenu();
+                    if (modalOpen) closeModal();
+                    try { history.pushState(navState(), ''); } catch (err) {}
+                    return;
+                }
+                const st = e.state;
+                if (st && st.tw) {
+                    if (st.page === 'tripdetail') {
+                        detailTripId = st.trip;
+                        detailTab = st.tab;
+                    }
+                    navigate(st.page, true);
+                }
+            });
+            document.addEventListener('click', e => {
+                const b = e.target.closest('button[data-page]');
+                if (b) {
+                    e.preventDefault();
+                    navigate(b.dataset.page);
+                }
+            });
+            document.addEventListener('pointerup', e => {
+                if (e.pointerType !== 'touch') return;
+                const b = e.target.closest('#bottomNav button[data-page]');
+                if (b) {
+                    e.preventDefault();
+                    navigate(b.dataset.page);
+                }
+            }, {
+                passive: false
+            });
+            document.querySelectorAll('button[data-page]').forEach(b => {
+                b.setAttribute('type', 'button');
+                b.style.pointerEvents = 'auto';
+                b.style.touchAction = 'manipulation'
+            });
+            $('todayLabel').textContent = new Date().toLocaleDateString('de-DE', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long'
+            }).toUpperCase();
+
+            function spentForTrip(id) {
+                return data.expenses.filter(e => e.tripId === id && e.status === 'Bezahlt').reduce((s, e) => s + Number(e.amount || 0), 0)
+            }
+            const tripBudget = t => t ? data.accounts.filter(a => a.tripId === t.id).reduce((n, a) => n + Number(a.budget || 0), 0) : 0;
+
+            function sortTrips(a) {
+                const r = t => t.id === data.activeTripId ? 0 : tripStatus(t) === 'past' ? 2 : 1;
+                return a.sort((x, y) => r(x) - r(y) || (r(x) === 2 ? (y.end || '').localeCompare(x.end || '') : (x.start || '').localeCompare(y.start || '')))
+            }
+
+            function tripStatus(t) {
+                const now = today();
+                if (t.start > now) return 'upcoming';
+                if (t.end < now) return 'past';
+                return 'active'
+            }
+
+            function tripCard(t) {
+                const spent = spentForTrip(t.id),
+                    remaining = tripBudget(t) - spent,
+                    active = data.activeTripId === t.id,
+                    past = tripStatus(t) === 'past';
+                const first = past ? 'exp' : data.accounts.some(a => a.tripId === t.id) ? 'plan' : 'pots';
+                return `<div class="trip trip-card tc ${active?'active-trip':''}" role="button" tabindex="0" onclick="openTripSection('${first}','${t.id}')" style="cursor:pointer"><div class="tc-top"><div class="tripemoji">${esc(t.emoji||'✈️')}</div><div class="tripmain"><div style="display:flex;align-items:baseline;flex-wrap:wrap;gap:6px"> <strong>${esc(t.name)}</strong> <span style="color:var(--muted)">|</span> <small style="font-size:13px;font-weight:400;color:var(--muted)">${esc(t.destination)}</small> </div><small style="display:block">${dateFmt(t.start)} – ${dateFmt(t.end)}</small><div style="margin-top:5px"><span class="pill ${past?'orange':''}">${active?'Aktive Reise':tripStatus(t)==='upcoming'?'Standby · bevorstehend':past?'Beendet':'Standby · aktuell'}</span></div></div><div class="right">${euro(remaining)}<div class="small muted">übrig</div></div></div><div class="tc-links"><button type="button" onclick="event.stopPropagation();openTripSection('pots','${t.id}')">Konten</button><button type="button" onclick="event.stopPropagation();openTripSection('plan','${t.id}')">Plan</button><button type="button" onclick="event.stopPropagation();openTripSection('exp','${t.id}')">Ausgaben</button><button type="button" onclick="event.stopPropagation();openTripSection('wallet','${t.id}')">Dokumente</button></div><div class="tc-actions">${active?`<button class="btn plain" onclick="event.stopPropagation();deactivateTrip('${t.id}')">Deaktivieren</button>`:past?'':`<button class="btn soft" onclick="event.stopPropagation();activateTrip('${t.id}')">Aktivieren</button>`}${past&&!active?`<button class="btn plain tc-wide" onclick="event.stopPropagation();editTrip('${t.id}')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>Bearbeiten</button><button class="btn danger tc-wide" onclick="event.stopPropagation();deleteTrip('${t.id}')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m-11 0 1 14h12l1-14M10 10v6m4-6v6"/></svg>Löschen</button>`:`<button class="iconbtn" title="Bearbeiten" onclick="event.stopPropagation();editTrip('${t.id}')">✎</button><button class="iconbtn del" title="Löschen" onclick="event.stopPropagation();deleteTrip('${t.id}')">×</button>`}</div></div>`
+            }
+
+            function renderHome() {
+                const active = tripBy(data.activeTripId);
+                const budget = active ? tripBudget(active) : 0,
+                    spent = active ? spentForTrip(active.id) : 0,
+                    left = budget - spent;
+                $('statSpent').textContent = euro(spent);
+                $('statLeft').textContent = euro(budget);
+                $('heroRemaining').textContent = euro(left);
+                const percent = active && tripBudget(active) > 0 ? Math.min(100, spentForTrip(active.id) / tripBudget(active) * 100) : 0;
+                $('heroProgress').style.width = percent + '%';
+                $('heroProgressLabel').textContent = active ? `${Math.round(percent)} % des Reisebudgets verbraucht` : 'Wähle unter „Reisen“ eine Reise und aktiviere sie';
+                $('heroTitle').textContent = active ? `${active.emoji||'✈️'} ${active.name}` : 'Keine aktive Reise';
+                $('heroSubtitle').textContent = active ? `${active.destination} · ${dateFmt(active.start)} – ${dateFmt(active.end)}` : 'Deine geplanten Reisen bleiben in Standby, bis du sie aktivierst.';
+                const ts = sortTrips([...data.trips]).slice(0, 4);
+                $('homeTrips').innerHTML = ts.length ? ts.map(tripCard).join('') : '<div class="empty"><strong>Noch keine Reise geplant</strong>Erstelle deine erste Reise, um loszulegen.</div>';
+                const es = [...data.expenses].filter(e => active && e.tripId === active.id).sort((a, b) => (b.date || '').localeCompare(a.date || '')).slice(0, 5);
+                $('homeExpenses').innerHTML = es.length ? es.map(e => `<div class="listrow"><div class="rowicon">${catSvg(e.category)}</div><div class="rowmain"><strong>${esc(e.title)}</strong><small>${esc(tripName(e.tripId))} · ${esc(e.category)}</small></div><div class="amount">${euro(e.amount)}</div></div>`).join('') : '<div class="empty"><strong>Noch keine Ausgaben</strong>Für die aktive Reise sind noch keine Ausgaben erfasst.</div>'
+            }
+
+            function activateTrip(id) {
+                if (!tripBy(id)) return;
+                if (tripBy(id).end < today()) {
+                    toast('Diese Reise ist schon vorbei.');
+                    return
+                }
+                data.activeTripId = id;
+                save();
+                toast('Reise ist jetzt aktiv.');
+                navigate('home')
+            }
+
+            function deactivateTrip(id) {
+                if (data.activeTripId !== id) return;
+                data.activeTripId = '';
+                save();
+                toast('Reise deaktiviert. Es ist keine Reise aktiv.');
+                navigate('home')
+            }
+
+            function openTripSection(tab, id) {
+                detailTripId = id;
+                detailTab = tab;
+                navigate('tripdetail')
+            }
+
+            function setDetailTab(t) {
+                detailTab = t;
+                renderDetail()
+            }
+
+            function detailAdd() {
+                if (detailTab === 'plan') openPlanModal();
+                else if (detailTab === 'exp') openExpenseModal({}, detailTripId);
+                else if (detailTab === 'wallet') openWalletModal();
+                else openAccountModal({}, detailTripId)
+            }
+
+            function renderTrips() {
+                const q = ($('tripSearch')?.value || '').toLowerCase(),
+                    f = $('tripFilter')?.value || 'all';
+                const list = data.trips.filter(t => (`${t.name} ${t.destination}`.toLowerCase().includes(q)) && (f === 'all' || tripStatus(t) === f));
+                sortTrips(list);
+                $('tripList').innerHTML = list.length ? list.map(tripCard).join('') : '<div class="empty"><strong>Keine passende Reise gefunden</strong>Lege eine Reise an oder ändere den Filter.</div>'
+            }
+
+            function setTripOptions(id, selected) {
+                const el = $(id);
+                if (!el) return;
+                const old = selected ?? el.value;
+                el.innerHTML = '<option value="all">Alle Reisen</option>' + data.trips.map(t => `<option value="${t.id}">${esc(t.name)} – ${esc(t.destination)}</option>`).join('');
+                if (old !== 'all' && data.trips.some(t => t.id === old)) el.value = old;
+            }
+
+            function renderBudget() {
+                const active = tripBy(data.activeTripId);
+                const cat = 'all';
+                const q = ''.toLowerCase();
+                const filtered = active ? data.expenses.filter(e => e.tripId === active.id && (cat === 'all' || e.category === cat) && (`${e.title} ${e.notes||''}`.toLowerCase().includes(q))) : [];
+                const budget = active ? tripBudget(active) : 0;
+                const spent = filtered.filter(e => e.status === 'Bezahlt').reduce((s, e) => s + Number(e.amount || 0), 0),
+                    planned = filtered.filter(e => e.status !== 'Bezahlt').reduce((s, e) => s + Number(e.amount || 0), 0);
+                $('budgetTotal').textContent = euro(budget);
+                $('budgetSpent').textContent = euro(spent);
+                $('budgetLeft').textContent = euro(budget - spent);
+                $('budgetPlanned').textContent = euro(planned);
+                const title = $('page-budget').querySelector('.sectionhead .muted');
+                if (title) title.textContent = active ? `Aktive Reise: ${active.name} · ${active.destination}` : 'Keine aktive Reise – aktiviere eine Reise unter „Reisen“.';
+                const empty = $('expenseEmpty');
+                if (!active) {
+                    $('expenseGroups').innerHTML = '';
+                    empty.style.display = 'block';
+                    empty.innerHTML = '<strong>Keine aktive Reise</strong>Aktiviere unter „Reisen“ eine Reise, um deren Budget und Ausgaben zu verwalten.'
+                } else {
+                    $('expenseGroups').innerHTML = expenseGroups(filtered, 'b');
+                    empty.style.display = filtered.length ? 'none' : 'block';
+                    empty.innerHTML = '<strong>Noch keine Ausgaben erfasst</strong>Füge deine erste Ausgabe für diese Reise hinzu.'
+                }
+                renderAccounts();
+            }
+
+            function planRow(p) {
+                const ex = data.expenses.find(e => e.planId === p.id),
+                    has = p.actualCost !== '' && p.actualCost != null,
+                    d = has ? Number(p.plannedCost || 0) - Number(p.actualCost) : 0;
+                return `<div class="trip trip-card"><div class="tripemoji">${catSvg(p.category)}</div><div class="tripmain"><strong>${esc(p.title)}</strong><small>${dateFmt(p.date)}${p.time?' · '+esc(p.time):''} · ${esc(p.category||'Sonstiges')}</small><div class="small muted">Geplant: ${euro(p.plannedCost||0)} · Tatsächlich: ${has?euro(p.actualCost):'noch offen'}</div>${has?`<div class="small">Differenz: <span class="${d>0?'diff-pos':d<0?'diff-neg':''}">${d>0?'+':''}${euro(d)}</span></div>`:''}${p.notes?`<div class="small muted">${esc(p.notes)}</div>`:''}</div><button class="iconbtn" onclick="editPlan('${p.id}')">✎</button><button class="iconbtn del" onclick="deleteItem('plans','${p.id}')">×</button><div class="trip-shortcuts full"><button class="btn ${ex?'plain':'soft'}" onclick="openTransferModal('${p.id}')">${ex?'✓ In Ausgaben · ändern':'→ In Ausgaben übernehmen'}</button></div></div>`
+            }
+
+            function accountRows(tid) {
+                const rows = data.accounts.filter(a => a.tripId === tid);
+                return rows.length ? rows.map(a => {
+                    const spent = data.expenses.filter(e => e.tripId === tid && e.accountId === a.id && e.status === 'Bezahlt').reduce((n, e) => n + Number(e.amount || 0), 0);
+                    const accountTitle = a.owner ? `${a.kind} von ${a.owner}` : (a.name || a.kind);
+                    return `<div class="trip account-card"><div class="tripemoji">${a.kind==='Bargeld'?'💵':a.kind==='Person'?'👤':a.kind==='Kreditkarte'?'💳':'💰'}</div><div class="tripmain"><strong>${esc(accountTitle)}</strong>${a.name && a.name !== a.kind && a.owner ? `<small>${esc(a.name)}</small>` : ''}<div class="progress"><span style="width:${a.budget?Math.min(100,spent/a.budget*100):0}%"></span></div><small class="account-spent">${euro(spent)} ausgegeben von ${euro(a.budget)}</small></div><div class="right">${euro(Number(a.budget||0)-spent)}<div class="small muted">übrig</div></div><div class="action-buttons"><button class="iconbtn" aria-label="Konto bearbeiten" title="Bearbeiten" onclick="editAccount('${a.id}')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></button><button class="iconbtn del" aria-label="Konto löschen" title="Löschen" onclick="deleteAccount('${a.id}')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m-11 0 1 14h12l1-14M10 10v6m4-6v6"/></svg></button></div></div>`
+                }).join('') : '<div class="empty"><strong>Noch keine Konten</strong>Lege eine Kreditkarte, Bargeld oder ein Budget pro Person an. Die Summe ergibt das Reisebudget.</div>'
+            }
+
+            function toggleCat(key) {
+                collapsedCats[key] = !collapsedCats[key];
+                renderAll()
+            }
+
+            function expPayLabel(e) {
+                const account = data.accounts.find(a => a.id === e.accountId);
+                return e.person ? `${e.person}${account ? ` (${account.kind})` : e.method ? ` (${e.method})` : ''}` : (account ? `${account.owner || account.name} (${account.kind})` : '')
+            }
+
+            function closeRowMenu() {
+                const m = document.getElementById('rowMenu');
+                if (m) m.remove();
+            }
+
+            function rowMenu(ev, id) {
+                ev.stopPropagation();
+                const had = document.getElementById('rowMenu');
+                closeRowMenu();
+                if (had && had.dataset.id === id) return;
+                const r = ev.currentTarget.getBoundingClientRect();
+                const m = document.createElement('div');
+                m.id = 'rowMenu';
+                m.className = 'rowmenu';
+                m.dataset.id = id;
+                m.setAttribute('role', 'menu');
+                m.innerHTML = `<button type="button" role="menuitem" onclick="closeRowMenu();editExpense('${id}')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>Bearbeiten</button><button type="button" role="menuitem" class="del" onclick="closeRowMenu();deleteItem('expenses','${id}')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m-11 0 1 14h12l1-14M10 10v6m4-6v6"/></svg>Löschen</button>`;
+                document.body.appendChild(m);
+                const h = m.offsetHeight, w = m.offsetWidth;
+                let top = r.bottom + 6;
+                if (top + h > window.innerHeight - 90) top = r.top - h - 6;
+                m.style.top = Math.max(8, top) + 'px';
+                m.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.right - w)) + 'px';
+            }
+            document.addEventListener('click', e => { if (!e.target.closest('#rowMenu')) closeRowMenu(); });
+            window.addEventListener('scroll', closeRowMenu, true);
+            window.addEventListener('resize', closeRowMenu);
+
+            function expenseRow(e) {
+                const pay = expPayLabel(e);
+                return `<div class="listrow"><div class="rowmain"><strong>${esc(e.title)}</strong><small>${dateFmt(e.date)} · ${esc(e.status)}${pay?' · '+esc(pay):''}</small>${e.notes?`<small>${esc(e.notes)}</small>`:''}</div><div class="amount">${euro(e.amount)}</div><div class="action-buttons"><button class="iconbtn" aria-label="Mehr Optionen" aria-haspopup="menu" title="Mehr" onclick="rowMenu(event,'${e.id}')"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:currentColor;stroke:none"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg></button></div></div>`
+            }
+
+            function expenseGroups(list, scope) {
+                const cats = [...categories, ...[...new Set(list.map(e => e.category))].filter(c => !categories.includes(c))];
+                const key = 'all:' + scope,
+                    closed = !!collapsedCats[key];
+                const total = list.reduce((n, e) => n + Number(e.amount || 0), 0);
+                const groups = cats.map(c => {
+                    const L = list.filter(e => e.category === c).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+                    if (!L.length) return '';
+                    const t = L.reduce((n, e) => n + Number(e.amount || 0), 0);
+                    return `<div class="catgroup"><div class="cathead"><span style="display:flex;align-items:center;gap:10px"><span class="catico">${catSvg(c)}</span>${esc(c)}</span><small>${L.length}</small></div><div class="catbody">${L.map(expenseRow).join('')}</div></div>`
+                }).join('');
+                return `<div class="allgroups ${closed?'closed':''}"><button type="button" class="allhead" aria-expanded="${!closed}" onclick="toggleCat('${key}')"><span class="chev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span><span class="alltitle">Alle Ausgaben<small>${list.length} ${list.length===1?'Eintrag':'Einträge'}</small></span><span class="cattotal">${euro(total)}</span></button><div class="allbody">${groups}</div></div>`
+            }
+
+            function tripStatsHtml(t) {
+                const paid = data.expenses.filter(e => e.tripId === t.id && e.status === 'Bezahlt');
+                const sum = paid.reduce((s, e) => s + Number(e.amount || 0), 0);
+                const cats = {};
+                paid.forEach(e => cats[e.category] = (cats[e.category] || 0) + Number(e.amount || 0));
+                const sorted = Object.entries(cats).sort((a, b) => b[1] - a[1]);
+                const bars = sorted.length ? sorted.map(([c, v]) => `<div class="barline"><span>${esc(c)}</span><div class="progress"><span style="width:${sum?Math.max(2,v/sum*100):0}%"></span></div><strong>${euro(v)}</strong></div>`).join('') : '<div class="empty">Sobald du bezahlte Ausgaben erfasst, erscheint hier eine Auswertung.</div>';
+                return `<div class="sectionhead"><div><h2>Statistik</h2><div class="small muted">Ausgaben nach Kategorie</div></div></div><div class="card"><div>${bars}</div></div>`
+            }
+
+            function defDate(id) {
+                const t = tripBy(id),
+                    n = today();
+                if (!t || !t.start || !t.end) return n;
+                return n > t.end ? t.end : n < t.start ? t.start : n
+            }
+
+            function renderDetail() {
+                const t = tripBy(detailTripId);
+                const none = !t;
+                $('detailTabs').style.display = none ? 'none' : '';
+                $('detailAdd').style.display = none ? 'none' : '';
+                if (none) {
+                    $('detailTitle').textContent = 'Keine Reise ausgewählt';
+                    $('detailSub').textContent = 'Öffne eine Reise unter „Meine Reisen“.';
+                    $('detailSummary').innerHTML = '';
+                    $('detailList').innerHTML = '';
+                    $('detailStats').innerHTML = '';
+                    return
+                }
+                $('detailTitle').textContent = `${t.emoji||'✈️'} ${t.name}`;
+                $('detailSub').textContent = `${t.destination} · ${dateFmt(t.start)} – ${dateFmt(t.end)}`;
+                const cnt = {
+                        pots: data.accounts.filter(a => a.tripId === t.id).length,
+                        plan: data.plans.filter(p => p.tripId === t.id).length,
+                        exp: data.expenses.filter(e => e.tripId === t.id).length,
+                        wallet: data.wallet.filter(w => w.tripId === t.id).length
+                    },
+                    nm = {
+                        pots: ['1', 'Konten'],
+                        plan: ['2', 'Plan'],
+                        exp: ['3', 'Ausgaben'],
+                        wallet: ['3', 'Dokumente']
+                    };
+                document.querySelectorAll('#detailTabs button').forEach(b => {
+                    const k = b.dataset.tab;
+                    b.classList.toggle('active', k === detailTab);
+                    b.textContent = `${nm[k][1]} (${cnt[k]})`;
+                    b.classList.toggle('completed', cnt[k] > 0);
+                    b.classList.toggle('pending', cnt[k] === 0)
+                });
+                $('detailAdd').textContent = detailTab === 'plan' ? '＋ Eintrag' : detailTab === 'exp' ? '＋ Ausgabe' : detailTab === 'wallet' ? '＋ Dokument' : '＋ Konto';
+                let sum = '',
+                    list = '';
+                if (detailTab === 'plan') {
+                    const L = data.plans.filter(p => p.tripId === t.id).sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+                    const pl = L.reduce((n, p) => n + Number(p.plannedCost || 0), 0);
+                    const done = L.filter(p => p.actualCost !== '' && p.actualCost != null);
+                    const act = done.reduce((n, p) => n + Number(p.actualCost), 0),
+                        dd = done.reduce((n, p) => n + Number(p.plannedCost || 0), 0) - act;
+                    sum = (cnt.pots ? '' : '<div class="note" style="margin-bottom:12px">Tipp: Lege zuerst unter „1 Konten“ Konten an, damit Kosten später zugeordnet werden können.</div>') + `<div class="grid stats" style="margin-bottom:14px"><div class="card"><div class="statlabel">Geplant</div><div class="statval">${euro(pl)}</div></div><div class="card"><div class="statlabel">Tatsächlich</div><div class="statval">${euro(act)}</div></div><div class="card"><div class="statlabel">Differenz</div><div class="statval ${dd>=0?'diff-pos':dd<0?'diff-neg':''}">${dd>0?'+':''}${euro(dd)}</div></div></div>`;
+                    list = L.length ? L.map(planRow).join('') : '<div class="empty"><strong>Dein Reiseplan ist noch leer</strong>Füge Aktivitäten mit geplantem und tatsächlichem Preis hinzu.</div>'
+                } else if (detailTab === 'exp') {
+                    const L = data.expenses.filter(e => e.tripId === t.id);
+                    const bud = tripBudget(t),
+                        sp = L.filter(e => e.status === 'Bezahlt').reduce((n, e) => n + Number(e.amount || 0), 0),
+                        pl = L.filter(e => e.status !== 'Bezahlt').reduce((n, e) => n + Number(e.amount || 0), 0);
+                    sum = (cnt.pots ? '' : '<div class="note" style="margin-bottom:12px">Tipp: Lege unter „Konten“ ein Budget an, damit das Reisebudget berechnet werden kann.</div>') + `<div class="grid stats" style="margin-bottom:14px"><div class="card"><div class="statlabel">Budget</div><div class="statval">${euro(bud)}</div></div><div class="card"><div class="statlabel">Ausgegeben</div><div class="statval">${euro(sp)}</div></div><div class="card"><div class="statlabel">Verbleibend</div><div class="statval">${euro(bud-sp)}</div></div><div class="card"><div class="statlabel">Geplant</div><div class="statval">${euro(pl)}</div></div></div>`;
+                    list = L.length ? `<div class="card">${expenseGroups(L,'d')}</div>` : '<div class="empty"><strong>Noch keine Ausgaben erfasst</strong>Füge Ausgaben für diese Reise hinzu – auch für vergangene Reisen.</div>'
+                } else if (detailTab === 'wallet') {
+                    const L = data.wallet.filter(w => w.tripId === t.id);
+                    list = L.length ? L.map(w => `<div class="trip"><div class="tripemoji">${({"Flug":"✈️","Hotel":"🏨","Mietwagen":"🚗","Ticket":"🎟️","Versicherung":"🛡️","Buchung":"📄","Sonstiges":"📎"}[w.kind]||"📄")}</div><div class="tripmain"><strong>${esc(w.title)}</strong><small>${esc(w.kind)}</small>${w.ref?`<div class="small muted">Referenz: ${esc(w.ref)}</div>`:''}${w.url?`<div><a href="${esc(w.url)}" target="_blank" rel="noopener noreferrer">Link öffnen ↗</a></div>`:''}${w.notes?`<div class="small muted">${esc(w.notes)}</div>`:''}</div><button class="iconbtn" onclick="editWallet('${w.id}')">✎</button><button class="iconbtn del" onclick="deleteItem('wallet','${w.id}')">×</button></div>`).join('') : '<div class="empty"><strong>Dein Wallet ist leer</strong>Füge Buchungsdetails, Bestätigungsnummern oder sichere Dokumentlinks hinzu.</div>'
+                } else {
+                    sum = `<div class="card" style="margin-bottom:14px"><div class="statlabel">Reisebudget (Summe der Konten)</div><div class="statval">${euro(tripBudget(t))}</div></div>`;
+                    list = accountRows(t.id)
+                }
+                $('detailSummary').innerHTML = sum;
+                $('detailList').innerHTML = list;
+                $('detailStats').innerHTML = tripStatsHtml(t)
+            }
+
+            function renderTasks() {
+                const a = tripBy(data.activeTripId);
+                const m = $('page-checklist').querySelector('.sectionhead .muted');
+                if (m) m.textContent = a ? `Aktive Reise: ${a.name} · ${a.destination}` : 'Keine aktive Reise – aktiviere eine Reise unter „Reisen“.';
+                const list = a ? data.tasks.filter(t => t.tripId === a.id).sort((x, y) => Number(x.done) - Number(y.done)) : [];
+                $('taskList').innerHTML = list.length ? list.map(t => `<div class="checkrow ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} onchange="toggleTask('${t.id}',this.checked)" aria-label="Aufgabe erledigt"><span style="flex:1">${esc(t.title)}</span><button class="iconbtn" onclick="editTask('${t.id}')">✎</button><button class="iconbtn del" onclick="deleteItem('tasks','${t.id}')">×</button></div>`).join('') : '<div class="empty"><strong>' + (a ? 'Alles im Griff' : 'Keine aktive Reise') + '</strong>' + (a ? 'Erstelle Aufgaben wie „Reisepass prüfen“ oder „Online-Check-in“.' : 'Aktiviere unter „Reisen“ eine Reise, um ihre Checkliste zu sehen.') + '</div>'
+            }
+
+            function renderStats() {
+                const windowMode = $('statsWindow')?.value || 'all';
+                const yearSelect = $('statsYear');
+                const tripYears = data.trips.map(t => String((t.start || '').slice(0, 4))).filter(y => /^\d{4}$/.test(y)).map(Number);
+                const minYear = Math.min(2000, ...tripYears), maxYear = Math.max(new Date().getFullYear() + 10, ...tripYears);
+                const years = Array.from({length:maxYear-minYear+1}, (_, i) => String(maxYear-i));
+                if (yearSelect) {
+                    const old = yearSelect.value;
+                    yearSelect.innerHTML = '<option value="all">Alle Jahre</option>' + years.map(y => `<option value="${y}">${y}</option>`).join('');
+                    yearSelect.value = years.includes(old) ? old : 'all';
+                    yearSelect.disabled = windowMode !== 'year';
+                }
+                const selectedYear = yearSelect?.value || 'all';
+                const now = new Date();
+                const cutoff = new Date(now);
+                cutoff.setMonth(cutoff.getMonth() - 12);
+                const filteredTrips = data.trips.filter(t => {
+                    const start = t.start || '';
+                    if (windowMode === 'year') return selectedYear === 'all' || start.startsWith(selectedYear);
+                    if (windowMode === '12m') return !!start && new Date(start + 'T12:00:00') >= cutoff && new Date(start + 'T12:00:00') <= now;
+                    return true;
+                }).sort((a, b) => (b.start || '').localeCompare(a.start || ''));
+                const tripIds = new Set(filteredTrips.map(t => t.id));
+                const paid = data.expenses.filter(e => tripIds.has(e.tripId) && e.status === 'Bezahlt');
+                const sum = paid.reduce((s, e) => s + Number(e.amount || 0), 0);
+                $('statsSpent').textContent = euro(sum);
+                $('statsAvg').textContent = euro(paid.length ? sum / paid.length : 0);
+                $('statsCount').textContent = paid.length;
+                const cats = {};
+                paid.forEach(e => cats[e.category] = (cats[e.category] || 0) + Number(e.amount || 0));
+                const sorted = Object.entries(cats).sort((a, b) => b[1] - a[1]);
+                $('statsTop').textContent = sorted[0]?.[0] || '–';
+                $('categoryBars').innerHTML = sorted.length ? sorted.map(([c, v]) => `<div class="barline"><span>${esc(c)}</span><div class="progress"><span style="width:${sum?Math.max(2,v/sum*100):0}%"></span></div><strong>${euro(v)}</strong></div>`).join('') : '<div class="empty">Sobald du bezahlte Ausgaben erfasst, erscheint hier eine Auswertung.</div>';
+                const body = $('statsTripTable'),
+                    empty = $('statsTripEmpty');
+                body.innerHTML = filteredTrips.map(t => {
+                    const costs = data.expenses.filter(e => e.tripId === t.id && e.status === 'Bezahlt').reduce((n, e) => n + Number(e.amount || 0), 0);
+                    const budget = tripBudget(t);
+                    const days = t.start && t.end ? Math.max(1, Math.round((new Date(t.end + 'T12:00:00') - new Date(t.start + 'T12:00:00')) / 86400000) + 1) : 0;
+                    return `<tr><td><strong>${esc(t.name)}</strong><div class="small muted">${esc(t.destination||'')}</div></td><td>${dateFmt(t.start)} – ${dateFmt(t.end)}</td><td>${days} ${days===1?'Tag':'Tage'}</td><td><strong>${euro(budget)}</strong></td><td><strong>${euro(costs)}</strong></td><td>${euro(budget-costs)}</td></tr>`
+                }).join('');
+                empty.style.display = filteredTrips.length ? 'none' : 'block';
+            }
+
+            function renderAll() {
+                renderHome();
+                renderTrips();
+                renderBudget();
+                renderDetail();
+                renderTasks();
+                renderStats();
+                renderAccounts();
+                renderUsers();
+                $('deviceIdText').textContent = data.deviceId || storage.getItem('budgora-device-id') || '–';
+                if ($('themeSelect')) $('themeSelect').value = storage.getItem('budgora-theme') || 'light';
+            }
+
+            function field(name, label, type = 'text', value = '', opts = null, required = false, full = false, placeholder = '') {
+                let inner = '';
+                if (type === 'select') inner = `<select name="${name}" ${required?'required':''}>${opts.map(o=>`<option value="${esc(o.value)}" ${String(o.value)===String(value)?'selected':''}>${esc(o.label)}</option>`).join('')}</select>`;
+                else if (type === 'textarea') inner = `<textarea name="${name}" placeholder="${esc(placeholder)}">${esc(value)}</textarea>`;
+                else inner = `<input name="${name}" type="${type}" value="${esc(value)}" placeholder="${esc(placeholder)}" ${required?'required':''} ${type==='number'?'min="0" step="0.01"':''}>`;
+                return `<div class="field ${full?'full':''}"><label>${label}${required?' *':''}</label>${inner}</div>`
+            }
+            const tripOpts = () => [{
+                value: '',
+                label: 'Ohne Reise'
+            }, ...data.trips.map(t => ({
+                value: t.id,
+                label: t.name + ' – ' + t.destination
+            }))];
+
+            function showModal(title, fields, handler) {
+                currentForm = handler;
+                $('modalTitle').textContent = title;
+                $('modalFields').innerHTML = fields;
+                enhanceDates();
+                $('modalBack').classList.add('show');
+                setTimeout(() => $('modalFields').querySelector('input,select,textarea')?.focus(), 50)
+            }
+
+            function closeModal() {
+                $('modalBack').classList.remove('show');
+                currentForm = null;
+                $('modalForm').reset()
+            }
+            $('modalBack').addEventListener('click', e => {
+                if (e.target === $('modalBack')) closeModal()
+            });
+            $('modalForm').addEventListener('submit', e => {
+                e.preventDefault();
+                if (!currentForm) return;
+                const fd = new FormData(e.currentTarget),
+                    obj = Object.fromEntries(fd.entries());
+                if (currentForm(obj) === false) return;
+                closeModal();
+                save();
+                toast('Gespeichert.');
+            });
+
+            function people(tid) {
+                const set = new Set();
+                data.users.forEach(u => u.name && set.add(u.name));
+                data.accounts.filter(a => a.tripId === tid && a.owner).forEach(a => set.add(a.owner));
+                return [...set]
+            }
+
+            function personOpts(tid, currentPerson = '') {
+                const names = [...new Set(data.accounts
+                    .filter(a => a.tripId === tid && String(a.owner || '').trim())
+                    .map(a => String(a.owner).trim()))];
+                if (currentPerson && !names.some(n => n.toLowerCase() === currentPerson.toLowerCase())) names.unshift(currentPerson);
+                return [{ value: '', label: 'Person auswählen' }, ...names.map(name => ({ value: name, label: name }))];
+            }
+
+            function acctOpts(tid, person) {
+                const p = String(person || '').trim().toLowerCase();
+                const l = p ? data.accounts.filter(a => a.tripId === tid && String(a.owner || '').trim().toLowerCase() === p) : [];
+                return [{ value: '', label: p ? 'Keine Zahlungsart für diese Person' : 'Zuerst Person auswählen' }, ...l.map(a => ({
+                    value: a.id,
+                    label: a.kind + (a.name && a.name !== a.kind ? ' · ' + a.name : '')
+                }))]
+            }
+
+            function payFields(tid, person, accId) {
+                const acc = data.accounts.find(a => a.id === accId && a.tripId === tid);
+                const p = person || (acc && acc.owner) || '';
+                return field('person', 'Person / Inhaber', 'select', p, personOpts(tid, p), false, true) + field('accountId', 'Zahlungsart', 'select', accId || '', acctOpts(tid, p), false, true)
+            }
+
+            function bindPay(tid) {
+                const ps = document.querySelector('#modalFields [name=person]'),
+                    as = document.querySelector('#modalFields [name=accountId]');
+                if (!ps || !as) return;
+                const updateAccounts = () => {
+                    const previous = as.value;
+                    const options = acctOpts(tid, ps.value);
+                    as.innerHTML = options.map(o => `<option value="${esc(o.value)}">${esc(o.label)}</option>`).join('');
+                    if ([...as.options].some(o => o.value === previous)) as.value = previous;
+                    else as.value = '';
+                };
+                updateAccounts();
+                ps.addEventListener('change', updateAccounts);
+            }
+            const KINDS = ['Kreditkarte', 'Bargeld', 'Bankkonto', 'Person', 'Sonstiges'];
+
+            function accRowHtml() {
+                return `<div class="accrow"><div class="formgrid"><div class="field"><label>Konto-Typ</label><select class="a-kind">${KINDS.map(k=>`<option>${k}</option>`).join('')}</select></div><div class="field"><label>Budget (€)</label><input class="a-budget" type="number" min="0" step="0.01" inputmode="decimal" oninput="updAccSum()"></div><div class="field"><label>Name</label><input class="a-name" placeholder="z. B. Visa"></div><div class="field"><label>Person</label><input class="a-owner" placeholder="Name der Person (optional)"></div></div><button type="button" class="btn danger" style="min-height:34px;padding:5px 10px;font-size:12px" onclick="this.closest('.accrow').remove();updAccSum()">Entfernen</button></div>`
+            }
+
+            function addAccRow() {
+                $('accRows').insertAdjacentHTML('beforeend', accRowHtml())
+            }
+
+            function updAccSum() {
+                let n = 0;
+                document.querySelectorAll('#accRows .a-budget').forEach(i => n += Number(i.value) || 0);
+                $('accSum').textContent = euro(n)
+            }
+
+            function openTripModal(t = {}) {
+                const editing = !!t.id;
+                const accSec = editing ? '<div class="note">Konten und Budget änderst du unter Reisen → ◉ Konto.</div>' : `<div class="accsec"><h2 style="font-size:15px">Konten & Budget</h2><div class="small muted" style="margin:3px 0 9px">Womit bezahlst du und wie viel Budget hat jedes Konto? Die Summe ist dein Reisebudget.</div><div id="accRows"></div><button type="button" class="btn soft" onclick="addAccRow()">＋ Konto hinzufügen</button><div style="margin-top:10px"><span class="statlabel">Reisebudget</span> <strong id="accSum">0,00 €</strong></div></div>`;
+                showModal(editing ? 'Reise bearbeiten' : 'Neue Reise', `<div class="formgrid">${field('name','Name der Reise','text',t.name||'',null,true,true)}${field('destination','Reiseziel','text',t.destination||'',null,true,true)}${field('start','Abreise','date',t.start||today(),null,true)}${field('end','Rückreise','date',t.end||today(),null,true)}${field('emoji','Symbol','select',t.emoji||'🌴',emojis.map(x=>({value:x,label:x})),true)}${field('travelers','Mitreisende','text',t.travelers||'','',false,false,'z. B. Alex, Sam')}${field('notes','Notizen','text',t.notes||'',null,false,true)}</div>${accSec}`, o => {
+                    if (o.end < o.start) {
+                        toast('Das Rückreisedatum muss nach der Abreise liegen.');
+                        return false
+                    }
+                    const record = {
+                        ...t,
+                        ...o,
+                        id: t.id || uid()
+                    };
+                    if (editing) {
+                        data.trips = data.trips.map(x => x.id === t.id ? record : x);
+                        return
+                    }
+                    data.trips.push(record);
+                    document.querySelectorAll('#accRows .accrow').forEach(r => {
+                        const b = Number(r.querySelector('.a-budget').value) || 0,
+                            nm = r.querySelector('.a-name').value.trim(),
+                            k = r.querySelector('.a-kind').value;
+                        if (!b && !nm) return;
+                        data.accounts.push({
+                            id: uid(),
+                            name: nm || k,
+                            kind: k,
+                            owner: r.querySelector('.a-owner').value.trim(),
+                            tripId: record.id,
+                            budget: b,
+                            notes: ''
+                        })
+                    });
+                    if (!data.activeTripId && record.end >= today()) data.activeTripId = record.id;
+                    detailTripId = record.id;
+                    detailTab = 'plan';
+                    setTimeout(() => navigate('tripdetail'), 0)
+                });
+                if (!editing) addAccRow();
+            }
+
+            function openExpenseModal(e0 = {}, forTripId = '') {
+                const editing = !!e0.id;
+                const tid = editing ? e0.tripId : (forTripId || data.activeTripId);
+                if (!tripBy(tid)) {
+                    toast('Bitte zuerst unter „Reisen“ eine Reise aktivieren.');
+                    return
+                }
+                showModal(editing ? 'Ausgabe bearbeiten' : 'Neue Ausgabe', `<div class="formgrid">${field('title','Beschreibung','text',e0.title||'',null,true,true)}${field('amount','Betrag (€)','number',e0.amount??'',null,true)}${field('date','Datum','date',e0.date||defDate(tid),null,true)}${field('category','Kategorie','select',e0.category||categories[0],categories.map(c=>({value:c,label:c})),true)}${field('status','Status','select',e0.status||'Bezahlt',[{value:'Bezahlt',label:'Bezahlt'},{value:'Geplant',label:'Geplant'}],true)}${payFields(tid,e0.person,e0.accountId)}${field('notes','Notiz','text',e0.notes||'',null,false,true)}</div>`, o => {
+                    const acc = data.accounts.find(a => a.id === o.accountId);
+                    const record = {
+                        ...e0,
+                        ...o,
+                        id: e0.id || uid(),
+                        amount: Number(o.amount || 0),
+                        tripId: tid,
+                        accountId: o.accountId || '',
+                        method: acc ? acc.kind : (e0.method || 'Sonstiges')
+                    };
+                    if (editing) data.expenses = data.expenses.map(x => x.id === e0.id ? record : x);
+                    else data.expenses.push(record);
+                });
+                bindPay(tid)
+            }
+
+            function openPlanModal(p = {}) {
+                const editing = !!p.id;
+                const trip = tripBy(editing ? p.tripId : detailTripId);
+                if (!trip) {
+                    toast('Bitte zuerst unter „Meine Reisen“ eine Reise öffnen.');
+                    return
+                }
+                showModal(editing ? 'Reiseplan bearbeiten' : 'Eintrag zum Reiseplan', `<div class="formgrid">${field('title','Titel','text',p.title||'',null,true,true)}${field('category','Kategorie','select',p.category||'Aktivitäten',categories.map(c=>({value:c,label:c})),true)}${field('date','Datum','date',p.date||today(),null,true)}${field('time','Uhrzeit','time',p.time||'')}${field('plannedCost','Geplante Kosten (€)','number',p.plannedCost??0,null,false)}${field('actualCost','Tatsächliche Kosten (€)','number',p.actualCost??'',null,false)}${field('notes','Details / Adresse','textarea',p.notes||'',null,false,true)}</div><div class="note">Reise: ${esc(trip.name)}. Mit „In Ausgaben übernehmen“ landen die Kosten samt Kategorie in deinen Ausgaben.</div>`, o => {
+                    const r = {
+                        ...p,
+                        ...o,
+                        id: p.id || uid(),
+                        tripId: trip.id,
+                        plannedCost: Number(o.plannedCost || 0),
+                        actualCost: o.actualCost === '' ? '' : Number(o.actualCost || 0)
+                    };
+                    if (editing) data.plans = data.plans.map(x => x.id === p.id ? r : x);
+                    else data.plans.push(r);
+                });
+            }
+
+            function openWalletModal(w = {}) {
+                const editing = !!w.id;
+                const trip = tripBy(editing ? w.tripId : detailTripId);
+                if (!trip) {
+                    toast('Bitte zuerst unter „Meine Reisen“ eine Reise öffnen.');
+                    return
+                }
+                showModal(editing ? 'Wallet-Eintrag bearbeiten' : 'Neuer Wallet-Eintrag', `<div class="formgrid">${field('title','Titel','text',w.title||'',null,true,true)}${field('kind','Art','select',w.kind||'Buchung',['Flug','Hotel','Mietwagen','Ticket','Versicherung','Buchung','Sonstiges'].map(x=>({value:x,label:x})),true)}${field('ref','Buchungsnummer / Referenz','text',w.ref||'')}${field('url','Weblink','url',w.url||'','',false,true,'https://…')}${field('notes','Notizen','textarea',w.notes||'',null,false,true)}</div><div class="note">Reise: ${esc(trip.name)}</div>`, o => {
+                    const r = {
+                        ...w,
+                        ...o,
+                        id: w.id || uid(),
+                        tripId: trip.id
+                    };
+                    if (editing) data.wallet = data.wallet.map(x => x.id === w.id ? r : x);
+                    else data.wallet.push(r);
+                });
+            }
+
+            function openTaskModal(t = {}) {
+                const editing = !!t.id;
+                const a = tripBy(editing ? t.tripId : data.activeTripId);
+                if (!a) {
+                    toast('Bitte zuerst unter „Reisen“ eine Reise aktivieren.');
+                    return
+                }
+                showModal(editing ? 'Aufgabe bearbeiten' : 'Neue Aufgabe', `<div class="formgrid">${field('title','Aufgabe','text',t.title||'',null,true,true)}</div><div class="note">Reise: ${esc(a.name)}</div>`, o => {
+                    const r = {
+                        ...t,
+                        ...o,
+                        id: t.id || uid(),
+                        tripId: a.id,
+                        done: t.done || false
+                    };
+                    if (editing) data.tasks = data.tasks.map(x => x.id === t.id ? r : x);
+                    else data.tasks.push(r);
+                });
+            }
+
+            function openAccountModal(a = {}, tripId) {
+                const editing = !!a.id;
+                const tid = a.tripId || tripId || data.activeTripId;
+                const trip = tripBy(tid);
+                if (!trip) {
+                    toast('Bitte zuerst eine Reise aktivieren oder öffnen.');
+                    return
+                }
+                showModal(editing ? 'Konto bearbeiten' : 'Konto anlegen', `<div class="formgrid">${field('name','Name','text',a.name||'',null,true)}${field('kind','Typ','select',a.kind||'Kreditkarte',['Kreditkarte','Bargeld','Bankkonto','Person','Sonstiges'].map(x=>({value:x,label:x})),true)}${field('owner','Person / Inhaber','text',a.owner||'',null,false,true,'Name der Person (optional)')}${field('budget','Budget (€)','number',a.budget??'',null,true)}${field('notes','Notiz','text',a.notes||'')}</div><div class="note">Reise: ${esc(trip.name)}</div>`, o => {
+                    const r = {
+                        ...a,
+                        ...o,
+                        id: a.id || uid(),
+                        budget: Number(o.budget || 0),
+                        tripId: tid
+                    };
+                    if (editing) data.accounts = data.accounts.map(x => x.id === a.id ? r : x);
+                    else data.accounts.push(r);
+                });
+
+            }
+
+            function renderAccounts() {
+                const el = $('accountList');
+                if (!el) return;
+                const active = tripBy(data.activeTripId);
+                el.innerHTML = active ? accountRows(active.id) : '<div class="empty"><strong>Keine aktive Reise</strong>Aktiviere eine Reise, um ihre Konten zu sehen.</div>'
+            }
+
+            function editAccount(id) {
+                const a = data.accounts.find(x => x.id === id);
+                if (a) openAccountModal(a)
+            }
+
+            function deleteAccount(id) {
+                if (!confirm('Konto löschen? Zugeordnete Ausgaben bleiben erhalten.')) return;
+                data.accounts = data.accounts.filter(a => a.id !== id);
+                save()
+            }
+
+            function openUserModal(u = {}) {
+                const editing = !!u.id;
+                showModal(editing ? 'Nutzer bearbeiten' : 'Nutzer per ID hinzufügen', `<div class="formgrid">${editing?'':field('id','Nutzer-ID','text','',null,true,true,'z. B. BG-AB12-CD34')}${field('name','Name / Spitzname','text',u.name||'',null,true)}${field('role','Rolle','select',u.role||'Mitreisende',['Ich','Mitreisende','Kind','Sonstiges'].map(x=>({value:x,label:x})),true)}</div><div class="note">Die ID findest du beim anderen unter Einstellungen → Geräte-ID.</div>`, o => {
+                    const nid = editing ? u.id : String(o.id || '').trim().toUpperCase();
+                    if (!editing && (data.users.some(x => x.id === nid) || nid === data.deviceId)) {
+                        toast('Diese ID ist schon vorhanden.');
+                        return
+                    }
+                    const r = {
+                        ...u,
+                        ...o,
+                        id: nid || ('USR-' + uid().toUpperCase())
+                    };
+                    if (editing) data.users = data.users.map(x => x.id === u.id ? r : x);
+                    else data.users.push(r);
+                });
+            }
+
+
+
+
+
+            function renderUsers() {
+                const el = $('userList');
+                if (!el) return;
+                el.innerHTML = data.users.map(u => `<div class="settingsrow"><div><strong>${esc(u.name)}</strong><div class="small muted">${esc(u.role)} · ${esc(u.id)}</div></div><div><button class="iconbtn" onclick="editUser('${u.id}')">✎</button> <button class="iconbtn del" onclick="deleteUser('${u.id}')">×</button></div></div>`).join('') || '<div class="small muted" style="padding:8px 0 14px">Noch keine zusätzlichen Nutzer angelegt.</div>'
+            }
+
+            function editUser(id) {
+                const u = data.users.find(x => x.id === id);
+                if (u) openUserModal(u)
+            }
+
+            function deleteUser(id) {
+                if (!confirm('Nutzerprofil löschen?')) return;
+                data.users = data.users.filter(u => u.id !== id);
+                save()
+            }
+
+            function setTheme(theme) {
+                const actual = theme === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme;
+                document.documentElement.dataset.theme = actual;
+                storage.setItem('budgora-theme', theme);
+                if ($('themeSelect')) $('themeSelect').value = theme
+            }
+            let fxRate = 0,
+                fxDate = '';
+            async function loadFxRate(showToast = false) {
+                const from = $('fxFrom').value,
+                    to = $('fxTo').value;
+                const status = $('fxStatus');
+                if (from === to) {
+                    fxRate = 1;
+                    fxDate = today();
+                    if (status) status.textContent = 'Beide Währungen sind identisch.';
+                    calcFx();
+                    return
+                }
+                if (status) status.textContent = 'Wechselkurs wird geladen …';
+                if ($('fxResult')) $('fxResult').textContent = 'Wird berechnet …';
+                if ($('fxRateLabel')) $('fxRateLabel').textContent = 'Bitte kurz warten';
+                const refreshBtn = $('fxRefreshBtn');
+                if (refreshBtn) { refreshBtn.disabled = true; refreshBtn.textContent = 'Lädt …'; }
+                let timeoutId;
+                try {
+                    const controller = new AbortController();
+                    timeoutId = setTimeout(() => controller.abort(), 7000);
+                    const res = await fetch(`https://api.frankfurter.dev/v2/rate/${encodeURIComponent(from)}/${encodeURIComponent(to)}`, {
+                        cache: 'no-store',
+                        signal: controller.signal
+                    });
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    const result = await res.json();
+                    fxRate = Number(result.rate);
+                    fxDate = result.date || '';
+                    if (!Number.isFinite(fxRate) || fxRate <= 0) throw new Error('Ungültiger Kurs');
+                    if (status) status.textContent = `Online-Kurs geladen · Quelle: Frankfurter · ${fxDate}`;
+                    calcFx();
+                    if (showToast) toast('Wechselkurs aktualisiert.')
+                } catch (err) {
+                    fxRate = 0;
+                    if (status) status.textContent = err && err.name === 'AbortError'
+                        ? 'Die Kursabfrage hat zu lange gedauert. Tippe auf „Aktualisieren“, um es erneut zu versuchen.'
+                        : 'Kurs online nicht abrufbar. Bitte Internetverbindung prüfen und erneut versuchen.';
+                    if ($('fxResult')) $('fxResult').textContent = 'Kein Kurs verfügbar';
+                    if ($('fxRateLabel')) $('fxRateLabel').textContent = 'Bitte erneut aktualisieren';
+                    if (showToast) toast('Wechselkurs konnte nicht geladen werden.');
+                } finally {
+                    if (timeoutId) clearTimeout(timeoutId);
+                    const btn = $('fxRefreshBtn');
+                    if (btn) { btn.disabled = false; btn.textContent = '↻ Aktualisieren'; }
+                }
+            }
+
+            function calcFx() {
+                const amount = Number($('fxAmount').value) || 0,
+                    from = $('fxFrom').value,
+                    to = $('fxTo').value;
+                if (from === to) {
+                    $('fxResult').textContent = new Intl.NumberFormat('de-DE', {
+                        style: 'currency',
+                        currency: to
+                    }).format(amount);
+                    $('fxRateLabel').textContent = '1 ' + from + ' = 1 ' + to;
+                    return
+                }
+                if (!fxRate) {
+                    $('fxResult').textContent = 'Kurs wird geladen …';
+                    return
+                }
+                $('fxResult').textContent = new Intl.NumberFormat('de-DE', {
+                    style: 'currency',
+                    currency: to
+                }).format(amount * fxRate);
+                $('fxRateLabel').textContent = `1 ${from} = ${new Intl.NumberFormat('de-DE',{maximumFractionDigits:6}).format(fxRate)} ${to}${fxDate?' · Kursdatum '+fxDate:''}`;
+            }
+
+            function onFxCurrencyChange(changed) {
+                const from = $('fxFrom'), to = $('fxTo');
+                // Nie dieselbe Währung in beiden Feldern zulassen.
+                if (from.value === to.value) {
+                    const other = [...(changed === 'from' ? to : from).options]
+                        .map(o => o.value)
+                        .find(v => v !== (changed === 'from' ? from.value : to.value));
+                    if (changed === 'from') to.value = other;
+                    else from.value = other;
+                }
+                updateFxCurrencyOptions();
+                fxRate = 0;
+                loadFxRate();
+            }
+
+            function updateFxCurrencyOptions() {
+                const from = $('fxFrom'), to = $('fxTo');
+                [...from.options].forEach(o => o.disabled = o.value === to.value);
+                [...to.options].forEach(o => o.disabled = o.value === from.value);
+            }
+
+            function openTransferModal(id) {
+                const p = data.plans.find(x => x.id === id);
+                const trip = p && tripBy(p.tripId);
+                if (!trip) return;
+                const ex = data.expenses.find(e => e.planId === p.id);
+                const has = p.actualCost !== '' && p.actualCost != null;
+                showModal(ex ? 'Ausgabe aktualisieren' : 'In Ausgaben übernehmen', `<div class="formgrid">${field('amount','Betrag (€)','number',ex?ex.amount:(has?p.actualCost:p.plannedCost||0),null,true)}${field('category','Kategorie','select',ex?ex.category:(p.category||'Sonstiges'),categories.map(c=>({value:c,label:c})),true)}${field('date','Datum','date',ex?ex.date:(p.date||today()),null,true)}${field('status','Status','select',ex?ex.status:(has?'Bezahlt':'Geplant'),[{value:'Bezahlt',label:'Bezahlt'},{value:'Geplant',label:'Geplant'}],true)}${payFields(trip.id,ex?ex.person:'',ex?ex.accountId||'':'')}</div><div class="note">„${esc(p.title)}“ wird für ${esc(trip.name)} in den Ausgaben gespeichert.</div>`, o => {
+                    const amount = Number(o.amount || 0);
+                    const rec = {
+                        ...(ex || {}),
+                        ...o,
+                        amount,
+                        method: (data.accounts.find(a => a.id === o.accountId) || {}).kind || 'Sonstiges',
+                        id: ex ? ex.id : uid(),
+                        planId: p.id,
+                        tripId: trip.id,
+                        title: p.title,
+                        notes: ex ? ex.notes : 'Aus dem Reiseplan übernommen.'
+                    };
+                    if (ex) data.expenses = data.expenses.map(x => x.id === ex.id ? rec : x);
+                    else data.expenses.push(rec);
+                    if (o.status === 'Bezahlt') p.actualCost = amount;
+                    p.expenseId = rec.id;
+                });
+                bindPay(trip.id);
+            }
+
+            function copyIdFallback(id) {
+                const box = document.createElement('textarea');
+                box.value = id; box.setAttribute('readonly', '');
+                box.style.position = 'fixed'; box.style.opacity = '0';
+                document.body.appendChild(box); box.select();
+                let ok = false;
+                try { ok = document.execCommand('copy'); } catch (_) {}
+                box.remove();
+                toast(ok ? 'Geräte-ID kopiert.' : 'Kopieren nicht möglich – bitte ID manuell markieren.');
+            }
+            function copyDeviceId() {
+                const id = data.deviceId || storage.getItem('budgora-device-id');
+                if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(id).then(() => toast('Geräte-ID kopiert.')).catch(() => copyIdFallback(id));
+                else copyIdFallback(id);
+            }
+
+            function editTrip(id) {
+                const t = tripBy(id);
+                if (t) openTripModal(t)
+            }
+
+            function editExpense(id) {
+                const e = data.expenses.find(x => x.id === id);
+                if (e) openExpenseModal(e)
+            }
+
+            function editPlan(id) {
+                const p = data.plans.find(x => x.id === id);
+                if (p) openPlanModal(p)
+            }
+
+            function editWallet(id) {
+                const w = data.wallet.find(x => x.id === id);
+                if (w) openWalletModal(w)
+            }
+
+            function editTask(id) {
+                const t = data.tasks.find(x => x.id === id);
+                if (t) openTaskModal(t)
+            }
+
+            function deleteTrip(id) {
+                if (!confirm('Reise wirklich löschen? Zugehörige Ausgaben, Pläne, Wallet-Einträge und Aufgaben bleiben erhalten, verlieren aber die Reisezuordnung.')) return;
+                data.trips = data.trips.filter(t => t.id !== id);
+                if (data.activeTripId === id) data.activeTripId = '';
+                if (detailTripId === id) detailTripId = '';
+                data.accounts = data.accounts.filter(a => a.tripId !== id);
+                [data.expenses, data.plans, data.wallet, data.tasks].forEach(a => a.forEach(x => {
+                    if (x.tripId === id) x.tripId = ''
+                }));
+                save();
+                toast('Reise gelöscht.')
+            }
+
+            function deleteItem(type, id) {
+                if (!confirm('Eintrag wirklich löschen?')) return;
+                data[type] = data[type].filter(x => x.id !== id);
+                save();
+                toast('Eintrag gelöscht.')
+            }
+
+            function toggleTask(id, done) {
+                const t = data.tasks.find(x => x.id === id);
+                if (t) t.done = done;
+                save()
+            }
+
+            function exportBackup() {
+                const blob = new Blob([JSON.stringify({
+                    version: 1,
+                    exportedAt: new Date().toISOString(),
+                    ...data
+                }, null, 2)], {
+                    type: 'application/json'
+                });
+                download(blob, 'tripwisely-backup-' + today() + '.json');
+                toast('Backup erstellt.')
+            }
+
+            function download(blob, name) {
+                const url = URL.createObjectURL(blob),
+                    a = document.createElement('a');
+                a.href = url;
+                a.download = name;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 1000)
+            }
+
+            function importBackup(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = () => {
+                    try {
+                        const p = JSON.parse(reader.result);
+                        if (!Array.isArray(p.trips) || !Array.isArray(p.expenses)) throw new Error('invalid');
+                        if (!confirm('Import ersetzt deine aktuellen Daten. Vorher ein Backup erstellen?')) {
+                            event.target.value = '';
+                            return
+                        }
+                        data = {
+                            trips: p.trips || [],
+                            expenses: p.expenses || [],
+                            plans: p.plans || [],
+                            wallet: p.wallet || [],
+                            tasks: p.tasks || [],
+                            accounts: p.accounts || [],
+                            users: p.users || [],
+                            activeTripId: p.activeTripId || '',
+                            deviceId: storage.getItem('budgora-device-id')
+                        };
+                        migrate();
+                        save();
+                        toast('Backup importiert.');
+                    } catch (e) {
+                        alert('Die Datei ist kein gültiges Budgora-Backup.')
+                    }
+                    event.target.value = ''
+                };
+                reader.readAsText(file)
+            }
+
+            function clearAll() {
+                if (!confirm('Wirklich alle Budgora-Daten auf diesem Gerät unwiderruflich löschen?')) return;
+                data = {
+                    trips: [],
+                    expenses: [],
+                    plans: [],
+                    wallet: [],
+                    tasks: [],
+                    accounts: [],
+                    users: [],
+                    activeTripId: '',
+                    deviceId: storage.getItem('budgora-device-id')
+                };
+                save();
+                toast('Lokale Daten gelöscht.')
+            }
+
+            function exportCSV() {
+                const rows = [
+                    ['Beschreibung', 'Reise', 'Kategorie', 'Datum', 'Status', 'Betrag EUR', 'Zahlungsart', 'Notiz'], ...data.expenses.map(e => [e.title, tripName(e.tripId), e.category, e.date, e.status, e.amount, e.method || '', e.notes || ''])
+                ];
+                const csv = rows.map(r => r.map(v => '"' + String(v ?? '').replace(/"/g, '""') + '"').join(';')).join('\r\n');
+                download(new Blob(['\ufeff' + csv], {
+                    type: 'text/csv;charset=utf-8'
+                }), 'tripwisely-ausgaben-' + today() + '.csv');
+                toast('CSV exportiert.')
+            }
+            window.navigate = navigate;
+            window.rowMenu = rowMenu;
+            window.closeRowMenu = closeRowMenu;
+            window.openTripSection = openTripSection;
+            window.activateTrip = activateTrip;
+            window.deactivateTrip = deactivateTrip;
+            window.loadFxRate = loadFxRate;
+            window.openAccountModal = openAccountModal;
+            window.editAccount = editAccount;
+            window.deleteAccount = deleteAccount;
+            window.openUserModal = openUserModal;
+            window.editUser = editUser;
+            window.deleteUser = deleteUser;
+            window.setTheme = setTheme;
+            window.calcFx = calcFx;
+            // swapFx wurde entfernt; keine Referenz auf eine nicht vorhandene Funktion.
+            window.copyDeviceId = copyDeviceId;
+            window.openTripModal = openTripModal;
+            window.openExpenseModal = openExpenseModal;
+            window.openPlanModal = openPlanModal;
+            window.openWalletModal = openWalletModal;
+            window.openTaskModal = openTaskModal;
+            window.editTrip = editTrip;
+            window.editExpense = editExpense;
+            window.editPlan = editPlan;
+            window.editWallet = editWallet;
+            window.editTask = editTask;
+            window.deleteTrip = deleteTrip;
+            window.deleteItem = deleteItem;
+            window.toggleTask = toggleTask;
+            window.exportBackup = exportBackup;
+            window.importBackup = importBackup;
+            window.clearAll = clearAll;
+            window.exportCSV = exportCSV;
+            window.closeModal = closeModal;
+            window.closeCal = closeCal;
+            window.addAccRow = addAccRow;
+            window.updAccSum = updAccSum;
+            window.setDetailTab = setDetailTab;
+            window.detailAdd = detailAdd;
+            window.toggleCat = toggleCat;
+            window.openTransferModal = openTransferModal;
+            let installEvent = null;
+            window.addEventListener('beforeinstallprompt', e => {
+                e.preventDefault();
+                installEvent = e;
+                $('installBtn').style.display = 'inline-flex';
+                $('installHint').textContent = 'Dein Browser unterstützt die Installation.'
+            });
+            window.installApp = async () => {
+                if (!installEvent) return;
+                installEvent.prompt();
+                await installEvent.userChoice;
+                installEvent = null;
+                $('installBtn').style.display = 'none'
+            };
+            if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(() => {});
+            initCal();
+            load();
+            setTheme(storage.getItem('budgora-theme') || 'light');
+            if (!data.trips.length && !data.expenses.length) {
+                /* Clean first-run state; no fabricated travel data. */ }
+            save();
+            updateFxCurrencyOptions();
+            loadFxRate();
+            const autoOff = () => {
+                if (autoDeactivate()) {
+                    save();
+                    toast('Reise ist vorbei und wurde deaktiviert.')
+                }
+            };
+            setInterval(autoOff, 60000);
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) autoOff()
+            });
+        })();
+    </script>
 </body>
+
 </html>
