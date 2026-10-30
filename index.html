@@ -2391,50 +2391,126 @@
                 } finally { cloudRefreshBusy = false; }
             }
 
-            async function syncCloud() {
-                cloudSaveTimer = null;
-                if (!authUser || !cloudReady) return;
-                if (cloudSaving) { cloudSaveAgain = true; return; }
-                cloudSaving = true;
-                try {
-                    const currentIds = new Set(data.trips.map(t => t.id));
-                    for (const trip of data.trips) {
-                        const payload = makeWorkspacePayload(trip);
-                        const snapshot = JSON.stringify(payload);
-                        const known = cloudKnown.get(trip.id);
-                        if (!known) {
-                            const {data: inserted, error} = await supabaseClient.from('tripwisely_workspaces').insert({
-                                id:trip.id, owner_id:authUser.id, title:trip.name || 'Reise', payload
-                            }).select('id,owner_id,updated_at').single();
-                            if (error) throw error;
-                            cloudKnown.set(trip.id, {owner_id:inserted.owner_id, updated_at:inserted.updated_at});
-                            cloudSnapshots.set(trip.id, snapshot);
-                            tripRoles[trip.id] = 'owner';
-                        } else if (canEditTrip(trip.id) && cloudSnapshots.get(trip.id) !== snapshot) {
-                            const {data: updated, error} = await supabaseClient.from('tripwisely_workspaces')
-                                .update({title:trip.name || 'Reise', payload, updated_at:new Date().toISOString()})
-                                .eq('id', trip.id).select('id,updated_at');
-                            if (error) throw error;
-                            if (!updated?.length) throw new Error('Für „' + (trip.name || 'Reise') + '“ besteht keine Schreibberechtigung mehr.');
-                            cloudSnapshots.set(trip.id, snapshot);
-                            const meta = cloudKnown.get(trip.id); meta.updated_at = updated[0].updated_at;
-                        }
-                    }
-                    // A workspace is physically deleted only by its owner.
-                    for (const [id] of [...cloudKnown.entries()]) {
-                        if (!currentIds.has(id) && tripRoles[id] === 'owner') {
-                            const {error} = await supabaseClient.from('tripwisely_workspaces').delete().eq('id', id);
-                            if (error) throw error;
-                            cloudKnown.delete(id); cloudSnapshots.delete(id); delete tripRoles[id];
-                        }
-                    }
-                } catch (e) {
-                    toast('Cloud-Synchronisierung fehlgeschlagen: ' + authErrorText(e));
-                } finally {
-                    cloudSaving = false;
-                    if (cloudSaveAgain) { cloudSaveAgain = false; clearTimeout(cloudSaveTimer); cloudSaveTimer = setTimeout(syncCloud, 300); }
+            
+async function syncCloud() {
+    cloudSaveTimer = null;
+
+    if (!authUser || !cloudReady) return;
+    if (cloudSaving) {
+        cloudSaveAgain = true;
+        return;
+    }
+
+    cloudSaving = true;
+
+    try {
+        // Aktuelle Supabase-Session und Benutzer überprüfen
+        const { data: sessionData, error: sessionError } =
+            await supabaseClient.auth.getSession();
+
+        if (sessionError) throw sessionError;
+
+        const currentUser = sessionData?.session?.user;
+
+        if (!currentUser?.id) {
+            throw new Error('Keine gültige Supabase-Anmeldung vorhanden.');
+        }
+
+        const currentIds = new Set(data.trips.map(t => t.id));
+
+        for (const trip of data.trips) {
+            const payload = makeWorkspacePayload(trip);
+            const snapshot = JSON.stringify(payload);
+            const known = cloudKnown.get(trip.id);
+
+            // Neuen Workspace erstellen
+            if (!known) {
+                const { data: inserted, error } = await supabaseClient
+                    .from('tripwisely_workspaces')
+                    .insert({
+                        id: trip.id,
+                        owner_id: currentUser.id,
+                        title: trip.name || 'Reise',
+                        payload: payload
+                    })
+                    .select('id,owner_id,updated_at')
+                    .single();
+
+                if (error) throw error;
+
+                cloudKnown.set(trip.id, {
+                    owner_id: inserted.owner_id,
+                    updated_at: inserted.updated_at
+                });
+
+                cloudSnapshots.set(trip.id, snapshot);
+                tripRoles[trip.id] = 'owner';
+
+            // Bestehenden Workspace aktualisieren
+            } else if (
+                canEditTrip(trip.id) &&
+                cloudSnapshots.get(trip.id) !== snapshot
+            ) {
+                const { data: updated, error } = await supabaseClient
+                    .from('tripwisely_workspaces')
+                    .update({
+                        title: trip.name || 'Reise',
+                        payload: payload,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', trip.id)
+                    .select('id,updated_at');
+
+                if (error) throw error;
+
+                if (!updated?.length) {
+                    throw new Error(
+                        'Für „' + (trip.name || 'Reise') +
+                        '“ besteht keine Schreibberechtigung mehr.'
+                    );
                 }
+
+                cloudSnapshots.set(trip.id, snapshot);
+
+                const meta = cloudKnown.get(trip.id);
+                if (meta) meta.updated_at = updated[0].updated_at;
             }
+        }
+
+        // Workspace nur durch den Owner löschen
+        for (const [id] of [...cloudKnown.entries()]) {
+            if (!currentIds.has(id) && tripRoles[id] === 'owner') {
+                const { error } = await supabaseClient
+                    .from('tripwisely_workspaces')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                cloudKnown.delete(id);
+                cloudSnapshots.delete(id);
+                delete tripRoles[id];
+            }
+        }
+
+    } catch (e) {
+        console.error('TripWisely Cloud Sync:', e);
+        toast(
+            'Cloud-Synchronisierung fehlgeschlagen: ' +
+            authErrorText(e)
+        );
+
+    } finally {
+        cloudSaving = false;
+
+        if (cloudSaveAgain) {
+            cloudSaveAgain = false;
+            clearTimeout(cloudSaveTimer);
+            cloudSaveTimer = setTimeout(syncCloud, 300);
+        }
+    }
+}
+
 
             window.addEventListener('resize', () => {
                 if (authUser && cloudReady) $('appShell').style.display = window.innerWidth >= 900 ? 'grid' : 'block';
