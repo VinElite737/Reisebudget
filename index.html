@@ -8,6 +8,7 @@
   redistributed or used without prior written permission of the owner.
 -->
 <html lang="de">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -2435,6 +2436,10 @@
                 }
             }
 
+            window.addEventListener('resize', () => {
+                if (authUser && cloudReady) $('appShell').style.display = window.innerWidth >= 900 ? 'grid' : 'block';
+            });
+
             async function handleAuthenticated(session) {
                 if (!session?.user || !supabaseClient) return;
                 if (authUser?.id === session.user.id && cloudReady) return;
@@ -2452,7 +2457,7 @@
                     await fetchInvitations();
                     cloudReady = true;
                     $('authGate').style.display = 'none';
-                    $('appShell').style.display = '';
+                    $('appShell').style.display = window.innerWidth >= 900 ? 'grid' : 'block';
                     if ($('signedInEmail')) $('signedInEmail').textContent = authUser.email || 'E-Mail-Konto';
                     setTheme(storage.getItem('budgora-theme') || 'light');
                     renderAll();
