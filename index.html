@@ -2405,16 +2405,21 @@ async function syncCloud() {
 
     try {
         // Aktuelle Supabase-Session und Benutzer überprüfen
-        const { data: sessionData, error: sessionError } =
-            await supabaseClient.auth.getSession();
+        const { data: userData, error: userError } =
+    await supabaseClient.auth.getUser();
 
-        if (sessionError) throw sessionError;
+if (userError) throw userError;
 
-        const currentUser = sessionData?.session?.user;
+const currentUser = userData?.user;
 
-        if (!currentUser?.id) {
-            throw new Error('Keine gültige Supabase-Anmeldung vorhanden.');
-        }
+console.log("=== TRIPWISELY RLS DIAGNOSE ===");
+console.log("Supabase User ID:", currentUser?.id);
+console.log("Lokaler Auth User ID:", authUser?.id);
+console.log("================================");
+
+if (!currentUser?.id) {
+    throw new Error("Supabase erkennt keinen angemeldeten Benutzer.");
+}
 
         const currentIds = new Set(data.trips.map(t => t.id));
 
@@ -2425,26 +2430,24 @@ async function syncCloud() {
 
             // Neuen Workspace erstellen
             if (!known) {
-                const { data: inserted, error } = await supabaseClient
-                    .from('tripwisely_workspaces')
-                    .insert({
-                        id: trip.id,
-                        owner_id: currentUser.id,
-                        title: trip.name || 'Reise',
-                        payload: payload
-                    })
-                    .select('id,owner_id,updated_at')
-                    .single();
+                const { error } = await supabaseClient
+    .from('tripwisely_workspaces')
+    .insert({
+        id: trip.id,
+        owner_id: currentUser.id,
+        title: trip.name || 'Reise',
+        payload: payload
+    });
 
-                if (error) throw error;
+if (error) throw error;
 
-                cloudKnown.set(trip.id, {
-                    owner_id: inserted.owner_id,
-                    updated_at: inserted.updated_at
-                });
+cloudKnown.set(trip.id, {
+    owner_id: currentUser.id,
+    updated_at: new Date().toISOString()
+});
 
-                cloudSnapshots.set(trip.id, snapshot);
-                tripRoles[trip.id] = 'owner';
+cloudSnapshots.set(trip.id, snapshot);
+tripRoles[trip.id] = 'owner';
 
             // Bestehenden Workspace aktualisieren
             } else if (
