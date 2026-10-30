@@ -17,7 +17,6 @@
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="icon.svg" type="image/svg+xml">
     <title>Tripwisely</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             color-scheme: light;
@@ -1654,12 +1653,77 @@
         .rowmenu button:active{background:var(--soft)}
         .rowmenu button.del{color:var(--red)}
         .rowmenu svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+    
+        /* Supabase-Anmeldung und Reiseteam */
+        #appShell { display:none; }
+        .auth-gate { position:fixed; inset:0; z-index:10000; display:flex; align-items:center; justify-content:center; overflow:auto; padding:24px 16px; background:radial-gradient(circle at 15% 10%,#f5dfbd 0,transparent 38%),linear-gradient(145deg,#fbf5e9,#f1e2cb); color:#3d3025; }
+        html[data-theme="dark"] .auth-gate { background:radial-gradient(circle at 15% 10%,#51402f 0,transparent 38%),linear-gradient(145deg,#24221f,#302c27); color:#f8efe2; }
+        .auth-card { width:min(100%,430px); padding:30px; border:1px solid #eadcc8; border-radius:24px; background:#fffdf8; box-shadow:0 18px 55px #55391a20; }
+        html[data-theme="dark"] .auth-card { background:#302c27; border-color:#4b4238; }
+        .auth-brand { display:flex; align-items:center; gap:10px; font-size:22px; font-weight:900; letter-spacing:-.6px; margin-bottom:32px; }
+        .auth-logo { width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:#f3c96b;color:#70442f;font-size:22px; }
+        .auth-eyebrow { font-size:11px;letter-spacing:1.3px;font-weight:850;color:#a7653c; }
+        .auth-card h1 { margin:8px 0 8px;font-size:28px;letter-spacing:-.8px; }
+        .auth-card p { margin:0 0 22px;color:var(--muted,#887968);line-height:1.5;font-size:14px; }
+        .auth-card label { display:block;margin:13px 0 6px;font-size:13px;font-weight:800; }
+        .auth-card input { width:100%;min-height:46px;padding:11px 13px;border:1px solid #eadcc8;border-radius:12px;background:#fffdf8;color:#3d3025;font:inherit;outline:none; }
+        html[data-theme="dark"] .auth-card input { border-color:#4b4238;background:#292621;color:#f8efe2; }
+        .auth-card input:focus { border-color:#b96f3d;box-shadow:0 0 0 3px #b96f3d22; }
+        .auth-submit { width:100%;justify-content:center;margin-top:18px;min-height:46px; }
+        .auth-google { width:100%;justify-content:center;margin-top:10px;min-height:45px;background:transparent;border:1px solid #eadcc8;color:inherit; }
+        html[data-theme="dark"] .auth-google { border-color:#4b4238; }
+        .google-g { display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#fff;color:#4285f4;font-weight:900;font-size:14px; }
+        .auth-link { display:block;width:100%;margin-top:14px;padding:2px;border:0;background:none;color:#a7653c;font:inherit;font-size:13px;font-weight:750;cursor:pointer; }
+        .auth-message { min-height:18px;margin-top:13px;font-size:13px;line-height:1.45;color:#a34f3c; }
+        .auth-message.success { color:#34815b; }
+        .auth-foot { margin-top:18px;padding-top:15px;border-top:1px solid #eadcc8;color:#887968;font-size:11px;line-height:1.5;text-align:center; }
+        html[data-theme="dark"] .auth-foot { border-color:#4b4238; }
+        .member-panel { margin-top:18px; }
+        .member-panel h2 { margin-bottom:4px; }
+        .member-row { display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line); }
+        .member-avatar { width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center;border-radius:11px;background:var(--soft);color:var(--deep);font-weight:900; }
+        .member-main { min-width:0;flex:1; }
+        .member-main strong { display:block;overflow-wrap:anywhere;font-size:13px; }
+        .member-main small { display:block;color:var(--muted);font-size:11px; }
+        .member-role-select { max-width:125px;min-width:95px;font-size:12px;padding:7px 28px 7px 8px !important; }
+        .member-matrix-wrap { overflow-x:auto;margin-top:14px; }
+        .member-matrix { width:100%;min-width:480px;border-collapse:collapse;font-size:12px; }
+        .member-matrix th,.member-matrix td { padding:9px 7px;border-bottom:1px solid var(--line);text-align:center; }
+        .member-matrix th:first-child,.member-matrix td:first-child { text-align:left; }
+        .member-matrix th { color:var(--muted);font-weight:850; }
+        .member-matrix td.yes { color:#34815b;font-weight:900; }
+        .member-invite { display:grid;grid-template-columns:minmax(0,1fr) 130px auto;gap:7px;margin-top:13px; }
+        .member-invite input { min-width:0;width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--field);color:var(--ink);font:inherit; }
+        .member-invite select { min-width:0;padding:8px 25px 8px 8px !important;font-size:12px; }
+        .member-note { margin-top:8px;color:var(--muted);font-size:11px;line-height:1.4; }
+        @media(max-width:560px) { .auth-card { padding:23px 19px;border-radius:20px; } .member-invite { grid-template-columns:1fr 1fr; } .member-invite input { grid-column:1 / -1; } .member-invite button { grid-column:1 / -1; } }
+
     </style>
 
 </head>
 
 <body>
-    <div class="shell">
+    <div id="authGate" class="auth-gate">
+        <div class="auth-card">
+            <div class="auth-brand"><span class="auth-logo">✈</span><span>tripwisely</span></div>
+            <div class="auth-eyebrow">DEIN REISEBEGLEITER</div>
+            <h1 id="authTitle">Willkommen zurück</h1>
+            <p id="authSubtitle">Melde dich an, um deine Reisen geräteübergreifend zu synchronisieren und gemeinsam zu planen.</p>
+            <form id="authForm" onsubmit="event.preventDefault();authSubmit()">
+                <label for="authEmail">E-Mail-Adresse</label>
+                <input id="authEmail" type="email" autocomplete="email" placeholder="name@beispiel.de" required>
+                <label for="authPassword">Passwort</label>
+                <input id="authPassword" type="password" autocomplete="current-password" minlength="6" placeholder="Mindestens 6 Zeichen" required>
+                <button id="authSubmitBtn" class="btn primary auth-submit" type="submit">Anmelden</button>
+            </form>
+            <button class="btn auth-google" type="button" onclick="authGoogle()"><span class="google-g">G</span> Mit Google fortfahren</button>
+            <button id="authModeBtn" class="auth-link" type="button" onclick="toggleAuthMode()">Noch kein Konto? Jetzt registrieren</button>
+            <button id="authResetBtn" class="auth-link" type="button" onclick="authResetPassword()">Passwort vergessen?</button>
+            <div id="authMessage" class="auth-message" role="status"></div>
+            <div class="auth-foot">Deine Daten werden sicher in deinem persönlichen Tripwisely-Konto gespeichert.</div>
+        </div>
+    </div>
+    <div class="shell" id="appShell">
         <aside class="side">
             <div class="brand">
                 <div class="logo" aria-hidden="true">✈</div><span>tripwisely</span>
@@ -1779,6 +1843,7 @@
                 <div id="detailSummary"></div>
                 <div id="detailList" class="triplist"></div>
                 <div id="detailStats"></div>
+                <div id="tripMembersPanel" class="member-panel"></div>
             </section>
             <section class="page" id="page-checklist">
                 <div class="sectionhead" style="margin-top:0">
@@ -1892,7 +1957,7 @@
             <section class="page" id="page-settings">
                 <div class="sectionhead" style="margin-top:0">
                     <div>
-                        <div class="small muted">Deine Daten bleiben zunächst auf diesem Gerät.</div>
+                        <div class="small muted">Deine Reisen werden über dein Konto geräteübergreifend synchronisiert.</div>
                     </div>
                 </div>
                 <div class="card">
@@ -1921,11 +1986,10 @@
                         </div><button class="btn soft" onclick="copyDeviceId()">ID kopieren</button>
                     </div>
                     <div class="settingsrow">
-                        <div><strong>Nutzer & Mitreisende</strong>
-                            <div class="small muted">Mitreisende per Nutzer-ID hinzufügen.</div>
-                        </div><button class="btn primary" onclick="openUserModal()">＋ Nutzer</button>
+                        <div><strong>Cloudkonto</strong>
+                            <div class="small muted" id="signedInEmail">Nicht angemeldet</div>
+                        </div><button class="btn soft" onclick="signOutTripwisely()">Abmelden</button>
                     </div>
-                    <div id="userList"></div>
                     <div class="settingsrow">
                         <div><strong>Backup erstellen</strong>
                             <div class="small muted">Alle Reisen, Ausgaben und Listen als JSON-Datei exportieren.</div>
@@ -1947,20 +2011,7 @@
                         </div><button class="btn danger" onclick="clearAll()">Löschen</button>
                     </div>
                 </div>
-                <div class="card" id="cloudCard" style="margin-top:16px">
-                    <h2>☁️ Cloud & gemeinsamer Zugriff</h2>
-                    <p class="small muted">Verbinde dein Supabase-Projekt. Deine bisherigen Reisen bleiben lokal erhalten, bis du den Erstimport ausdrücklich startest.</p>
-                    <div class="field"><label for="sbUrl">Supabase Project URL</label><input id="sbUrl" type="url" placeholder="https://deinprojekt.supabase.co" autocomplete="url"></div>
-                    <div class="field"><label for="sbKey">Publishable Key (anon/public)</label><input id="sbKey" type="password" placeholder="sb_publishable_…" autocomplete="off"></div>
-                    <div class="toolbar"><button class="btn primary" onclick="cloudConnect()">Verbinden</button><button class="btn plain" onclick="cloudDisconnect()">Trennen</button></div>
-                    <div class="field"><label for="sbEmail">E-Mail-Adresse</label><input id="sbEmail" type="email" placeholder="name@beispiel.de" autocomplete="email"></div>
-                    <div class="field"><label for="sbPassword">Passwort</label><input id="sbPassword" type="password" placeholder="Mindestens 6 Zeichen" autocomplete="current-password"></div>
-                    <div class="toolbar"><button class="btn primary" onclick="cloudSignUp()">Registrieren</button><button class="btn soft" onclick="cloudSignIn()">Anmelden</button><button class="btn plain" onclick="cloudSignOut()">Abmelden</button></div>
-                    <div class="note" id="cloudStatus" aria-live="polite">Noch nicht mit der Cloud verbunden.</div>
-                    <div class="toolbar" style="margin-top:14px"><button class="btn primary" onclick="cloudUploadLocal()">Meine lokalen Reisen hochladen</button><button class="btn soft" onclick="cloudLoadRemote()">Cloud-Reisen laden</button></div>
-                    <p class="small muted">Erstimport: Lädt alle vorhandenen Reisen sowie zugehörige Ausgaben, Planung, Wallet, Checkliste und Konten hoch. Es werden keine lokalen Daten gelöscht. Die automatische Live-Synchronisierung und Einladungslinks werden im nächsten Schritt ergänzt.</p>
-                </div>
-                <div class="note"><strong>Datenschutz:</strong> Die Publishable Key darf im Browser verwendet werden. Verwende niemals den geheimen service_role-Schlüssel in dieser HTML-Datei.</div>
+                <div class="note"><strong>Synchronisierung:</strong> Diese Version funktioniert offline und speichert lokal im Browser. Eine echte Live-Zusammenarbeit zwischen mehreren Geräten ist noch nicht verbunden. Bis dahin können Backups zwischen Mitreisenden ausgetauscht und importiert werden.</div>
                 <div class="card" style="margin-top:16px">
                     <h2>Installieren</h2>
                     <p class="muted">Öffne Tripwisely über deine GitHub-Pages-Adresse in Chrome und wähle im Browsermenü „App installieren“ oder „Zum Startbildschirm hinzufügen“.</p><button class="btn soft" id="installBtn" style="display:none" onclick="installApp()">App installieren</button>
@@ -1991,6 +2042,7 @@
         </div>
     </div>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         (function() {
             'use strict';
@@ -2065,6 +2117,15 @@
             const tripName = id => tripBy(id)?.name || 'Ohne Reise';
             const MON = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
             let cal = null;
+            // Supabase: public publishable key is intended for browser use; RLS protects all records.
+            const SUPABASE_URL = 'https://lzfkufziljanbbvhzfiu.supabase.co';
+            const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_VrhvFojE0m24veUJb6pw4g_O3sfXiEj';
+            let supabaseClient = null, authUser = null, authMode = 'login', authBusy = false;
+            let cloudReady = false, cloudSaving = false, cloudSaveTimer = null, cloudSaveAgain = false;
+            let cloudKnown = new Map(), cloudSnapshots = new Map(), tripRoles = {}, tripMembers = {}, tripInvitations = {};
+            let cloudRefreshBusy = false;
+            const emptyData = () => ({trips:[],expenses:[],plans:[],wallet:[],tasks:[],accounts:[],users:[],activeTripId:'',deviceId:storage.getItem('budgora-device-id')});
+            const localUserKey = () => KEY + ':user:' + (authUser?.id || '');
             const isoD = (y, m, d) => y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
 
             function calPaint() {
@@ -2190,6 +2251,369 @@
                 })
             }
 
+            function authMessage(message, success = false) {
+                const el = $('authMessage');
+                if (!el) return;
+                el.textContent = message || '';
+                el.classList.toggle('success', !!success);
+            }
+
+            function setAuthMode(mode) {
+                authMode = mode;
+                $('authTitle').textContent = mode === 'signup' ? 'Konto erstellen' : 'Willkommen zurück';
+                $('authSubtitle').textContent = mode === 'signup'
+                    ? 'Registriere dich kostenlos, um deine Reisen sicher zu speichern und mit anderen zu teilen.'
+                    : 'Melde dich an, um deine Reisen geräteübergreifend zu synchronisieren und gemeinsam zu planen.';
+                $('authSubmitBtn').textContent = mode === 'signup' ? 'Kostenlos registrieren' : 'Anmelden';
+                $('authModeBtn').textContent = mode === 'signup' ? 'Du hast schon ein Konto? Anmelden' : 'Noch kein Konto? Jetzt registrieren';
+                $('authResetBtn').style.display = mode === 'signup' ? 'none' : '';
+                $('authPassword').autocomplete = mode === 'signup' ? 'new-password' : 'current-password';
+                authMessage('');
+            }
+
+            function toggleAuthMode() { setAuthMode(authMode === 'login' ? 'signup' : 'login'); }
+
+            async function authSubmit() {
+                if (!supabaseClient || authBusy) return;
+                const email = $('authEmail').value.trim().toLowerCase();
+                const password = $('authPassword').value;
+                if (!email || password.length < 6) { authMessage('Bitte gib eine gültige E-Mail-Adresse und ein Passwort mit mindestens 6 Zeichen ein.'); return; }
+                authBusy = true;
+                $('authSubmitBtn').disabled = true;
+                $('authSubmitBtn').textContent = 'Bitte warten …';
+                authMessage('');
+                try {
+                    if (authMode === 'signup') {
+                        const {data: result, error} = await supabaseClient.auth.signUp({email, password, options:{emailRedirectTo:location.origin + location.pathname}});
+                        if (error) throw error;
+                        if (result.session) await handleAuthenticated(result.session);
+                        else authMessage('Fast geschafft: Bitte bestätige deine E-Mail-Adresse über den Link in deinem Postfach.', true);
+                    } else {
+                        const {data: result, error} = await supabaseClient.auth.signInWithPassword({email, password});
+                        if (error) throw error;
+                        if (result.session) await handleAuthenticated(result.session);
+                    }
+                } catch (e) { authMessage(authErrorText(e)); }
+                finally {
+                    authBusy = false;
+                    if ($('authSubmitBtn')) $('authSubmitBtn').disabled = false;
+                    if ($('authSubmitBtn')) $('authSubmitBtn').textContent = authMode === 'signup' ? 'Kostenlos registrieren' : 'Anmelden';
+                }
+            }
+
+            function authErrorText(e) {
+                const m = String(e?.message || e || 'Unbekannter Fehler');
+                if (/invalid login credentials/i.test(m)) return 'E-Mail-Adresse oder Passwort ist nicht korrekt.';
+                if (/email not confirmed/i.test(m)) return 'Bitte bestätige zuerst deine E-Mail-Adresse.';
+                if (/user already registered/i.test(m)) return 'Für diese E-Mail-Adresse besteht bereits ein Konto. Melde dich bitte an.';
+                if (/password should be at least/i.test(m)) return 'Das Passwort muss mindestens 6 Zeichen lang sein.';
+                return m;
+            }
+
+            async function authGoogle() {
+                if (!supabaseClient || authBusy) return;
+                authBusy = true;
+                authMessage('Weiterleitung zu Google …', true);
+                const {error} = await supabaseClient.auth.signInWithOAuth({provider:'google', options:{redirectTo:location.origin + location.pathname}});
+                if (error) { authMessage(authErrorText(error)); authBusy = false; }
+            }
+
+            async function authResetPassword() {
+                if (!supabaseClient) return;
+                const email = $('authEmail').value.trim().toLowerCase();
+                if (!email) { authMessage('Bitte gib zuerst deine E-Mail-Adresse ein.'); $('authEmail').focus(); return; }
+                const {error} = await supabaseClient.auth.resetPasswordForEmail(email, {redirectTo:location.origin + location.pathname});
+                authMessage(error ? authErrorText(error) : 'Wir haben dir einen Link zum Zurücksetzen des Passworts geschickt.', !error);
+            }
+
+            function showAuthGate(message = '') {
+                $('authGate').style.display = 'flex';
+                $('appShell').style.display = 'none';
+                authMessage(message);
+            }
+
+            function roleForTrip(tripId) {
+                if (tripRoles[tripId]) return tripRoles[tripId];
+                return cloudKnown.has(tripId) ? null : 'owner';
+            }
+            function canEditTrip(tripId) { return ['owner','admin','editor'].includes(roleForTrip(tripId)); }
+            function canInviteTrip(tripId) { return ['owner','admin'].includes(roleForTrip(tripId)); }
+            function canChangeTripRoles(tripId) { return ['owner','admin'].includes(roleForTrip(tripId)); }
+            function canDeleteTrip(tripId) { return roleForTrip(tripId) === 'owner'; }
+            function requireTripPermission(tripId, permission = 'edit') {
+                const ok = permission === 'delete' ? canDeleteTrip(tripId) : permission === 'invite' ? canInviteTrip(tripId) : canEditTrip(tripId);
+                if (!ok) toast(permission === 'delete' ? 'Nur der Owner darf diese Reiseumgebung löschen.' : permission === 'invite' ? 'Nur Owner und Admin dürfen Mitglieder einladen.' : 'Du hast für diese Reise nur Leserechte.');
+                return ok;
+            }
+
+            function makeWorkspacePayload(trip) {
+                const scoped = key => (data[key] || []).filter(x => x.tripId === trip.id);
+                return {trip, expenses:scoped('expenses'), plans:scoped('plans'), wallet:scoped('wallet'), tasks:scoped('tasks'), accounts:scoped('accounts')};
+            }
+
+            function applyWorkspaceRows(rows, members = []) {
+                const active = data.activeTripId;
+                const next = emptyData();
+                next.activeTripId = active;
+                const nextRoles = {}, nextMembers = {}, nextKnown = new Map(), nextSnapshots = new Map();
+                (rows || []).forEach(row => {
+                    const payload = row.payload && typeof row.payload === 'object' ? row.payload : {};
+                    const trip = payload.trip || {id:row.id, name:row.title || 'Reise', destination:'', start:today(), end:today(), emoji:'✈️'};
+                    if (!trip.id) trip.id = row.id;
+                    next.trips.push(trip);
+                    ['expenses','plans','wallet','tasks','accounts'].forEach(k => {
+                        if (Array.isArray(payload[k])) next[k].push(...payload[k]);
+                    });
+                    if (row.owner_id === authUser?.id) nextRoles[row.id] = 'owner';
+                    nextKnown.set(row.id, {owner_id:row.owner_id, updated_at:row.updated_at});
+                    nextSnapshots.set(row.id, JSON.stringify(payload));
+                });
+                (members || []).forEach(m => {
+                    if (m.user_id === authUser?.id) nextRoles[m.trip_id] = m.role;
+                    (nextMembers[m.trip_id] ||= []).push(m);
+                });
+                next.trips = next.trips.sort((a,b) => (a.start || '').localeCompare(b.start || ''));
+                next.activeTripId = next.trips.some(t => t.id === active) ? active : '';
+                next.deviceId = storage.getItem('budgora-device-id');
+                data = next;
+                tripRoles = nextRoles;
+                tripMembers = nextMembers;
+                cloudKnown = nextKnown;
+                cloudSnapshots = nextSnapshots;
+                migrate();
+            }
+
+            async function fetchWorkspaceRows() {
+                const {data: rows, error} = await supabaseClient.from('tripwisely_workspaces')
+                    .select('id,owner_id,title,payload,updated_at').order('created_at', {ascending:true});
+                if (error) throw error;
+                const ids = (rows || []).map(r => r.id);
+                let members = [];
+                if (ids.length) {
+                    const {data: ms, error: me} = await supabaseClient.from('tripwisely_members')
+                        .select('trip_id,user_id,email,role,created_at').in('trip_id', ids).order('created_at', {ascending:true});
+                    if (me) throw me;
+                    members = ms || [];
+                }
+                return {rows:rows || [], members};
+            }
+
+            async function fetchInvitations() {
+                tripInvitations = {};
+                const ids = data.trips.filter(t => canInviteTrip(t.id)).map(t => t.id);
+                if (!ids.length) return;
+                const {data: invitations, error} = await supabaseClient.from('tripwisely_invitations')
+                    .select('id,trip_id,invited_email,role,created_at,accepted_at').in('trip_id', ids).is('accepted_at', null);
+                if (!error) (invitations || []).forEach(i => (tripInvitations[i.trip_id] ||= []).push(i));
+            }
+
+            async function refreshCloudData(showError = false) {
+                if (!authUser || !cloudReady || cloudRefreshBusy || cloudSaving || cloudSaveTimer) return;
+                cloudRefreshBusy = true;
+                try {
+                    const {rows, members} = await fetchWorkspaceRows();
+                    applyWorkspaceRows(rows, members);
+                    await fetchInvitations();
+                    renderAll();
+                    storage.setItem(localUserKey(), JSON.stringify(data));
+                } catch (e) {
+                    if (showError) toast('Cloud-Daten konnten nicht aktualisiert werden: ' + authErrorText(e));
+                } finally { cloudRefreshBusy = false; }
+            }
+
+            async function syncCloud() {
+                cloudSaveTimer = null;
+                if (!authUser || !cloudReady) return;
+                if (cloudSaving) { cloudSaveAgain = true; return; }
+                cloudSaving = true;
+                try {
+                    const currentIds = new Set(data.trips.map(t => t.id));
+                    for (const trip of data.trips) {
+                        const payload = makeWorkspacePayload(trip);
+                        const snapshot = JSON.stringify(payload);
+                        const known = cloudKnown.get(trip.id);
+                        if (!known) {
+                            const {data: inserted, error} = await supabaseClient.from('tripwisely_workspaces').insert({
+                                id:trip.id, owner_id:authUser.id, title:trip.name || 'Reise', payload
+                            }).select('id,owner_id,updated_at').single();
+                            if (error) throw error;
+                            cloudKnown.set(trip.id, {owner_id:inserted.owner_id, updated_at:inserted.updated_at});
+                            cloudSnapshots.set(trip.id, snapshot);
+                            tripRoles[trip.id] = 'owner';
+                        } else if (canEditTrip(trip.id) && cloudSnapshots.get(trip.id) !== snapshot) {
+                            const {data: updated, error} = await supabaseClient.from('tripwisely_workspaces')
+                                .update({title:trip.name || 'Reise', payload, updated_at:new Date().toISOString()})
+                                .eq('id', trip.id).select('id,updated_at');
+                            if (error) throw error;
+                            if (!updated?.length) throw new Error('Für „' + (trip.name || 'Reise') + '“ besteht keine Schreibberechtigung mehr.');
+                            cloudSnapshots.set(trip.id, snapshot);
+                            const meta = cloudKnown.get(trip.id); meta.updated_at = updated[0].updated_at;
+                        }
+                    }
+                    // A workspace is physically deleted only by its owner.
+                    for (const [id] of [...cloudKnown.entries()]) {
+                        if (!currentIds.has(id) && tripRoles[id] === 'owner') {
+                            const {error} = await supabaseClient.from('tripwisely_workspaces').delete().eq('id', id);
+                            if (error) throw error;
+                            cloudKnown.delete(id); cloudSnapshots.delete(id); delete tripRoles[id];
+                        }
+                    }
+                    storage.setItem(localUserKey(), JSON.stringify(data));
+                } catch (e) {
+                    toast('Cloud-Synchronisierung fehlgeschlagen: ' + authErrorText(e));
+                } finally {
+                    cloudSaving = false;
+                    if (cloudSaveAgain) { cloudSaveAgain = false; clearTimeout(cloudSaveTimer); cloudSaveTimer = setTimeout(syncCloud, 300); }
+                }
+            }
+
+            async function importLocalWorkspaces(localData, remoteIds) {
+                for (const trip of (localData.trips || [])) {
+                    if (remoteIds.has(trip.id)) continue;
+                    const oldData = data;
+                    data = localData;
+                    const payload = makeWorkspacePayload(trip);
+                    data = oldData;
+                    const {error} = await supabaseClient.from('tripwisely_workspaces').insert({id:trip.id,owner_id:authUser.id,title:trip.name || 'Reise',payload});
+                    if (error) throw error;
+                }
+            }
+
+            async function handleAuthenticated(session) {
+                if (!session?.user || !supabaseClient) return;
+                if (authUser?.id === session.user.id && cloudReady) return;
+                authUser = session.user;
+                cloudReady = false;
+                cloudKnown.clear(); cloudSnapshots.clear(); tripRoles = {}; tripMembers = {}; tripInvitations = {};
+                load();
+                const localData = JSON.parse(JSON.stringify(data));
+                $('authMessage').textContent = 'Deine Reisen werden geladen …';
+                try {
+                    const {rows:initialRows} = await fetchWorkspaceRows();
+                    const remoteIds = new Set(initialRows.map(r => r.id));
+                    const localOnly = (localData.trips || []).filter(t => !remoteIds.has(t.id));
+                    if (localOnly.length) {
+                        const ok = confirm(`${localOnly.length} lokale ${localOnly.length === 1 ? 'Reise wurde' : 'Reisen wurden'} auf diesem Gerät gefunden. Möchtest du ${localOnly.length === 1 ? 'sie' : 'sie'} in dein angemeldetes Tripwisely-Konto übertragen? Bereits vorhandene Cloud-Reisen werden nicht überschrieben.`);
+                        if (ok) await importLocalWorkspaces(localData, remoteIds);
+                        else storage.setItem(KEY + ':local-backup:' + authUser.id, JSON.stringify(localData));
+                    }
+                    const {rows, members} = await fetchWorkspaceRows();
+                    applyWorkspaceRows(rows, members);
+                    await fetchInvitations();
+                    cloudReady = true;
+                    $('authGate').style.display = 'none';
+                    $('appShell').style.display = '';
+                    if ($('signedInEmail')) $('signedInEmail').textContent = authUser.email || 'Google-Konto';
+                    setTheme(storage.getItem('budgora-theme') || 'light');
+                    renderAll();
+                    storage.setItem(localUserKey(), JSON.stringify(data));
+                    if (rows.length || localOnly.length) toast('Cloud-Synchronisierung ist aktiv.');
+                    else toast('Willkommen bei Tripwisely!');
+                } catch (e) {
+                    cloudReady = false;
+                    showAuthGate('Anmeldung erfolgreich, aber die Datenbank ist noch nicht vollständig eingerichtet: ' + authErrorText(e));
+                }
+            }
+
+            function handleSignedOut() {
+                authUser = null; cloudReady = false; cloudSaving = false;
+                clearTimeout(cloudSaveTimer); cloudSaveTimer = null;
+                cloudKnown.clear(); cloudSnapshots.clear(); tripRoles = {}; tripMembers = {}; tripInvitations = {};
+                data = emptyData();
+                showAuthGate('');
+            }
+
+            async function initAuth() {
+                if (!window.supabase?.createClient) { showAuthGate('Die Supabase-Bibliothek konnte nicht geladen werden. Bitte prüfe deine Internetverbindung.'); return; }
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+                    auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
+                });
+                supabaseClient.auth.onAuthStateChange((event, session) => {
+                    setTimeout(() => {
+                        if (session) handleAuthenticated(session);
+                        else if (event === 'SIGNED_OUT') handleSignedOut();
+                    }, 0);
+                });
+                const {data: sessionData, error} = await supabaseClient.auth.getSession();
+                if (error) { showAuthGate(authErrorText(error)); return; }
+                if (sessionData?.session) await handleAuthenticated(sessionData.session);
+                else { setAuthMode('login'); showAuthGate(''); }
+                setInterval(() => { if (authUser && cloudReady) refreshCloudData(false); }, 18000);
+                document.addEventListener('visibilitychange', () => { if (!document.hidden && authUser && cloudReady) refreshCloudData(false); });
+            }
+
+            async function signOutTripwisely() {
+                if (!supabaseClient) return;
+                const {error} = await supabaseClient.auth.signOut();
+                if (error) toast('Abmelden fehlgeschlagen: ' + authErrorText(error));
+                else handleSignedOut();
+            }
+
+            async function inviteTripMember() {
+                const tripId = detailTripId;
+                if (!requireTripPermission(tripId, 'invite')) return;
+                const email = $('memberInviteEmail')?.value.trim().toLowerCase();
+                const role = $('memberInviteRole')?.value;
+                if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast('Bitte eine gültige E-Mail-Adresse eingeben.'); return; }
+                const {data: result, error} = await supabaseClient.rpc('tripwisely_invite_member', {p_trip_id:tripId,p_email:email,p_role:role});
+                if (error) { toast('Einladung fehlgeschlagen: ' + authErrorText(error)); return; }
+                if ($('memberInviteEmail')) $('memberInviteEmail').value = '';
+                toast(result === 'added' ? 'Mitglied wurde zur Reise hinzugefügt.' : 'Einladung gespeichert. Das Mitglied wird nach der Registrierung hinzugefügt.');
+                const {rows,members} = await fetchWorkspaceRows(); applyWorkspaceRows(rows,members); await fetchInvitations(); renderAll();
+            }
+
+            async function changeMemberRole(userId, role) {
+                const tripId = detailTripId;
+                if (!requireTripPermission(tripId, 'invite')) { renderMembers(); return; }
+                if (!['admin','editor','reader'].includes(role)) { renderMembers(); return; }
+                const {error} = await supabaseClient.from('tripwisely_members').update({role}).eq('trip_id',tripId).eq('user_id',userId);
+                if (error) { toast('Rolle konnte nicht geändert werden: ' + authErrorText(error)); }
+                else toast('Rolle wurde geändert.');
+                const {rows,members} = await fetchWorkspaceRows(); applyWorkspaceRows(rows,members); await fetchInvitations(); renderAll();
+            }
+
+            async function removeTripMember(userId) {
+                const tripId = detailTripId;
+                if (!requireTripPermission(tripId, 'invite')) return;
+                const m = (tripMembers[tripId] || []).find(x => x.user_id === userId);
+                if (!m || m.role === 'owner') { toast('Der Owner kann nicht entfernt werden.'); return; }
+                if (!confirm(`Mitglied ${m.email || ''} aus dieser Reise entfernen?`)) return;
+                const {error} = await supabaseClient.from('tripwisely_members').delete().eq('trip_id',tripId).eq('user_id',userId);
+                if (error) { toast('Mitglied konnte nicht entfernt werden: ' + authErrorText(error)); return; }
+                toast('Mitglied wurde entfernt.');
+                const {rows,members} = await fetchWorkspaceRows(); applyWorkspaceRows(rows,members); await fetchInvitations(); renderAll();
+            }
+
+            function renderMembers() {
+                const el = $('tripMembersPanel');
+                if (!el) return;
+                const trip = tripBy(detailTripId);
+                if (!trip) { el.innerHTML = ''; return; }
+                const role = roleForTrip(trip.id) || 'reader';
+                const members = tripMembers[trip.id] || [];
+                const pending = tripInvitations[trip.id] || [];
+                const manage = canInviteTrip(trip.id);
+                const order = {owner:0,admin:1,editor:2,reader:3};
+                const roleName = {owner:'Owner',admin:'Admin',editor:'Bearbeiter',reader:'Leser'};
+                const memberHtml = [...members].sort((a,b) => (order[a.role]??9)-(order[b.role]??9)).map(m => {
+                    const self = m.user_id === authUser?.id;
+                    const controls = manage && m.role !== 'owner' ? `<select class="member-role-select" aria-label="Rolle ändern" onchange="changeMemberRole('${m.user_id}',this.value)"><option value="admin" ${m.role==='admin'?'selected':''}>Admin</option><option value="editor" ${m.role==='editor'?'selected':''}>Bearbeiter</option><option value="reader" ${m.role==='reader'?'selected':''}>Leser</option></select><button class="iconbtn del" title="Mitglied entfernen" onclick="removeTripMember('${m.user_id}')">×</button>` : `<span class="pill">${roleName[m.role] || m.role}</span>`;
+                    return `<div class="member-row"><div class="member-avatar">${esc((m.email || '?').slice(0,1).toUpperCase())}</div><div class="member-main"><strong>${esc(m.email || 'Mitglied')}${self?' · Du':''}</strong><small>${m.role === 'owner' ? 'Besitzer dieser Reise' : 'Mitglied der Reise'}</small></div>${controls}</div>`;
+                }).join('');
+                const pendingHtml = manage && pending.length ? `<div class="small muted" style="margin-top:12px;font-weight:800">Offene Einladungen</div>${pending.map(i=>`<div class="member-row"><div class="member-main"><strong>${esc(i.invited_email)}</strong><small>Ausstehend · ${roleName[i.role] || i.role}</small></div><button class="iconbtn del" title="Einladung widerrufen" onclick="cancelTripInvitation('${i.id}')">×</button></div>`).join('')}` : '';
+                const inviteHtml = manage ? `<div class="member-invite"><input id="memberInviteEmail" type="email" placeholder="E-Mail-Adresse" aria-label="E-Mail-Adresse des Mitglieds"><select id="memberInviteRole" aria-label="Rolle"><option value="editor">Bearbeiter</option><option value="admin">Admin</option><option value="reader">Leser</option></select><button class="btn primary" onclick="inviteTripMember()">＋ Einladen</button></div><div class="member-note">Bestehende Konten werden direkt hinzugefügt. Neue Nutzer erhalten Zugriff, sobald sie sich mit dieser E-Mail-Adresse registrieren.</div>` : `<div class="member-note">Deine Rolle: ${roleName[role] || role}. Nur Owner und Admin können Mitglieder verwalten.</div>`;
+                el.innerHTML = `<div class="card"><h2>Reiseteam</h2><div class="small muted">Mitglieder und Zugriffsrechte für „${esc(trip.name)}“</div>${memberHtml || '<div class="small muted" style="padding:12px 0">Mitglieder werden geladen …</div>'}${pendingHtml}${inviteHtml}<div class="member-matrix-wrap"><table class="member-matrix"><thead><tr><th>Berechtigung</th><th>Owner</th><th>Admin</th><th>Bearbeiter</th><th>Leser</th></tr></thead><tbody>${[
+                    ['Reisen ansehen',[1,1,1,1]],['Reisen bearbeiten',[1,1,1,0]],['Ausgaben verwalten',[1,1,1,0]],['Mitglieder einladen',[1,1,0,0]],['Rollen ändern',[1,1,0,0]],['Umgebung löschen',[1,0,0,0]]
+                ].map(([label,vals])=>`<tr><td>${label}</td>${vals.map(v=>`<td class="${v?'yes':''}">${v?'✓':'–'}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`;
+            }
+
+            async function cancelTripInvitation(invitationId) {
+                if (!requireTripPermission(detailTripId, 'invite')) return;
+                const {error} = await supabaseClient.from('tripwisely_invitations').delete().eq('id', invitationId);
+                if (error) toast('Einladung konnte nicht widerrufen werden: ' + authErrorText(error));
+                else { toast('Einladung widerrufen.'); await fetchInvitations(); renderMembers(); }
+            }
+
             function migrate() {
                 (data.plans || []).forEach(p => { if (!p.category) p.category = p.kind === 'Transport' ? 'Transport' : (p.kind === 'Reservierung' || p.kind === 'Sonstiges') ? 'Sonstiges' : 'Aktivitäten'; });
                 data.trips.forEach(t => {
@@ -2217,31 +2641,41 @@
 
             function load() {
                 try {
-                    const saved = storage.getItem(KEY);
+                    let saved = authUser ? storage.getItem(localUserKey()) : null;
+                    // The old unscoped cache is assigned only once, to the first account that signs in.
+                    if (!saved && authUser) {
+                        saved = storage.getItem(KEY);
+                        if (saved) {
+                            storage.setItem(localUserKey(), saved);
+                            storage.removeItem(KEY);
+                        }
+                    }
                     if (saved) {
                         const p = JSON.parse(saved);
-                        data = {
-                            ...data,
-                            ...p
-                        };
-                    }
+                        data = {...emptyData(), ...p};
+                    } else data = emptyData();
                     data.accounts = data.accounts || [];
                     data.users = data.users || [];
                     migrate();
                     autoDeactivate();
                     data.deviceId = storage.getItem('budgora-device-id');
                 } catch (e) {
+                    data = emptyData();
                     toast('Lokale Daten konnten nicht geladen werden.');
                 }
             }
 
             function save() {
                 try {
-                    storage.setItem(KEY, JSON.stringify(data));
+                    storage.setItem(authUser ? localUserKey() : KEY, JSON.stringify(data));
                 } catch (e) {
-                    toast('Speichern fehlgeschlagen. Bitte Speicherplatz prüfen.');
+                    toast('Lokales Zwischenspeichern fehlgeschlagen.');
                 }
                 renderAll();
+                if (authUser && cloudReady) {
+                    clearTimeout(cloudSaveTimer);
+                    cloudSaveTimer = setTimeout(() => syncCloud(), 650);
+                }
             }
 
             function toast(msg) {
@@ -2347,12 +2781,13 @@
             }
 
             function tripCard(t) {
-                const spent = spentForTrip(t.id),
-                    remaining = tripBudget(t) - spent,
-                    active = data.activeTripId === t.id,
-                    past = tripStatus(t) === 'past';
+                const spent = spentForTrip(t.id), remaining = tripBudget(t) - spent;
+                const active = data.activeTripId === t.id, past = tripStatus(t) === 'past';
                 const first = past ? 'exp' : data.accounts.some(a => a.tripId === t.id) ? 'plan' : 'pots';
-                return `<div class="trip trip-card tc ${active?'active-trip':''}" role="button" tabindex="0" onclick="openTripSection('${first}','${t.id}')" style="cursor:pointer"><div class="tc-top"><div class="tripemoji">${esc(t.emoji||'✈️')}</div><div class="tripmain"><div style="display:flex;align-items:baseline;flex-wrap:wrap;gap:6px"> <strong>${esc(t.name)}</strong> <span style="color:var(--muted)">|</span> <small style="font-size:13px;font-weight:400;color:var(--muted)">${esc(t.destination)}</small> </div><small style="display:block">${dateFmt(t.start)} – ${dateFmt(t.end)}</small><div style="margin-top:5px"><span class="pill ${past?'orange':''}">${active?'Aktive Reise':tripStatus(t)==='upcoming'?'Standby · bevorstehend':past?'Beendet':'Standby · aktuell'}</span></div></div><div class="right">${euro(remaining)}<div class="small muted">übrig</div></div></div><div class="tc-links"><button type="button" onclick="event.stopPropagation();openTripSection('pots','${t.id}')">Konten</button><button type="button" onclick="event.stopPropagation();openTripSection('plan','${t.id}')">Plan</button><button type="button" onclick="event.stopPropagation();openTripSection('exp','${t.id}')">Ausgaben</button><button type="button" onclick="event.stopPropagation();openTripSection('wallet','${t.id}')">Dokumente</button></div><div class="tc-actions">${active?`<button class="btn plain" onclick="event.stopPropagation();deactivateTrip('${t.id}')">Deaktivieren</button>`:past?'':`<button class="btn soft" onclick="event.stopPropagation();activateTrip('${t.id}')">Aktivieren</button>`}${past&&!active?`<button class="btn plain tc-wide" onclick="event.stopPropagation();editTrip('${t.id}')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>Bearbeiten</button><button class="btn danger tc-wide" onclick="event.stopPropagation();deleteTrip('${t.id}')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m-11 0 1 14h12l1-14M10 10v6m4-6v6"/></svg>Löschen</button>`:`<button class="iconbtn" title="Bearbeiten" onclick="event.stopPropagation();editTrip('${t.id}')">✎</button><button class="iconbtn del" title="Löschen" onclick="event.stopPropagation();deleteTrip('${t.id}')">×</button>`}</div></div>`
+                const editButton = canEditTrip(t.id) ? `<button class="iconbtn" title="Bearbeiten" onclick="event.stopPropagation();editTrip('${t.id}')">✎</button>` : '';
+                const deleteButton = canDeleteTrip(t.id) ? `<button class="iconbtn del" title="Löschen" onclick="event.stopPropagation();deleteTrip('${t.id}')">×</button>` : '';
+                const activateButton = roleForTrip(t.id) !== 'reader' ? (active ? `<button class="btn plain" onclick="event.stopPropagation();deactivateTrip('${t.id}')">Deaktivieren</button>` : past ? '' : `<button class="btn soft" onclick="event.stopPropagation();activateTrip('${t.id}')">Aktivieren</button>`) : '';
+                return `<div class="trip trip-card tc ${active?'active-trip':''}" role="button" tabindex="0" onclick="openTripSection('${first}','${t.id}')" style="cursor:pointer"><div class="tc-top"><div class="tripemoji">${esc(t.emoji||'✈️')}</div><div class="tripmain"><div style="display:flex;align-items:baseline;flex-wrap:wrap;gap:6px"> <strong>${esc(t.name)}</strong> <span style="color:var(--muted)">|</span> <small style="font-size:13px;font-weight:400;color:var(--muted)">${esc(t.destination)}</small> </div><small style="display:block">${dateFmt(t.start)} – ${dateFmt(t.end)}</small><div style="margin-top:5px"><span class="pill ${past?'orange':''}">${active?'Aktive Reise':tripStatus(t)==='upcoming'?'Standby · bevorstehend':past?'Beendet':'Standby · aktuell'}</span></div></div><div class="right">${euro(remaining)}<div class="small muted">übrig</div></div></div><div class="tc-links"><button type="button" onclick="event.stopPropagation();openTripSection('pots','${t.id}')">Konten</button><button type="button" onclick="event.stopPropagation();openTripSection('plan','${t.id}')">Plan</button><button type="button" onclick="event.stopPropagation();openTripSection('exp','${t.id}')">Ausgaben</button><button type="button" onclick="event.stopPropagation();openTripSection('wallet','${t.id}')">Dokumente</button></div><div class="tc-actions">${activateButton}${editButton}${deleteButton}</div></div>`;
             }
 
             function renderHome() {
@@ -2406,6 +2841,7 @@
             }
 
             function detailAdd() {
+                if (!requireTripPermission(detailTripId)) return;
                 if (detailTab === 'plan') openPlanModal();
                 else if (detailTab === 'exp') openExpenseModal({}, detailTripId);
                 else if (detailTab === 'wallet') openWalletModal();
@@ -2459,7 +2895,9 @@
                 const ex = data.expenses.find(e => e.planId === p.id),
                     has = p.actualCost !== '' && p.actualCost != null,
                     d = has ? Number(p.plannedCost || 0) - Number(p.actualCost) : 0;
-                return `<div class="trip trip-card"><div class="tripemoji">${catSvg(p.category)}</div><div class="tripmain"><strong>${esc(p.title)}</strong><small>${dateFmt(p.date)}${p.time?' · '+esc(p.time):''} · ${esc(p.category||'Sonstiges')}</small><div class="small muted">Geplant: ${euro(p.plannedCost||0)} · Tatsächlich: ${has?euro(p.actualCost):'noch offen'}</div>${has?`<div class="small">Differenz: <span class="${d>0?'diff-pos':d<0?'diff-neg':''}">${d>0?'+':''}${euro(d)}</span></div>`:''}${p.notes?`<div class="small muted">${esc(p.notes)}</div>`:''}</div><button class="iconbtn" onclick="editPlan('${p.id}')">✎</button><button class="iconbtn del" onclick="deleteItem('plans','${p.id}')">×</button><div class="trip-shortcuts full"><button class="btn ${ex?'plain':'soft'}" onclick="openTransferModal('${p.id}')">${ex?'✓ In Ausgaben · ändern':'→ In Ausgaben übernehmen'}</button></div></div>`
+                const actions = canEditTrip(p.tripId) ? `<button class="iconbtn" onclick="editPlan('${p.id}')">✎</button><button class="iconbtn del" onclick="deleteItem('plans','${p.id}')">×</button>` : '';
+                const transfer = canEditTrip(p.tripId) ? `<div class="trip-shortcuts full"><button class="btn ${ex?'plain':'soft'}" onclick="openTransferModal('${p.id}')">${ex?'✓ In Ausgaben · ändern':'→ In Ausgaben übernehmen'}</button></div>` : '';
+                return `<div class="trip trip-card"><div class="tripemoji">${catSvg(p.category)}</div><div class="tripmain"><strong>${esc(p.title)}</strong><small>${dateFmt(p.date)}${p.time?' · '+esc(p.time):''} · ${esc(p.category||'Sonstiges')}</small><div class="small muted">Geplant: ${euro(p.plannedCost||0)} · Tatsächlich: ${has?euro(p.actualCost):'noch offen'}</div>${has?`<div class="small">Differenz: <span class="${d>0?'diff-pos':d<0?'diff-neg':''}">${d>0?'+':''}${euro(d)}</span></div>`:''}${p.notes?`<div class="small muted">${esc(p.notes)}</div>`:''}</div>${actions}${transfer}</div>`
             }
 
             function accountRows(tid) {
@@ -2467,7 +2905,8 @@
                 return rows.length ? rows.map(a => {
                     const spent = data.expenses.filter(e => e.tripId === tid && e.accountId === a.id && e.status === 'Bezahlt').reduce((n, e) => n + Number(e.amount || 0), 0);
                     const accountTitle = a.owner ? `${a.kind} von ${a.owner}` : (a.name || a.kind);
-                    return `<div class="trip account-card"><div class="tripemoji">${a.kind==='Bargeld'?'💵':a.kind==='Person'?'👤':a.kind==='Kreditkarte'?'💳':'💰'}</div><div class="tripmain"><strong>${esc(accountTitle)}</strong>${a.name && a.name !== a.kind && a.owner ? `<small>${esc(a.name)}</small>` : ''}<div class="progress"><span style="width:${a.budget?Math.min(100,spent/a.budget*100):0}%"></span></div><small class="account-spent">${euro(spent)} ausgegeben von ${euro(a.budget)}</small></div><div class="right">${euro(Number(a.budget||0)-spent)}<div class="small muted">übrig</div></div><div class="action-buttons"><button class="iconbtn" aria-label="Konto bearbeiten" title="Bearbeiten" onclick="editAccount('${a.id}')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></button><button class="iconbtn del" aria-label="Konto löschen" title="Löschen" onclick="deleteAccount('${a.id}')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m-11 0 1 14h12l1-14M10 10v6m4-6v6"/></svg></button></div></div>`
+                    const actions = canEditTrip(tid) ? `<div class="action-buttons"><button class="iconbtn" aria-label="Konto bearbeiten" title="Bearbeiten" onclick="editAccount('${a.id}')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></button><button class="iconbtn del" aria-label="Konto löschen" title="Löschen" onclick="deleteAccount('${a.id}')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m-11 0 1 14h12l1-14M10 10v6m4-6v6"/></svg></button></div>` : '';
+                    return `<div class="trip account-card"><div class="tripemoji">${a.kind==='Bargeld'?'💵':a.kind==='Person'?'👤':a.kind==='Kreditkarte'?'💳':'💰'}</div><div class="tripmain"><strong>${esc(accountTitle)}</strong>${a.name && a.name !== a.kind && a.owner ? `<small>${esc(a.name)}</small>` : ''}<div class="progress"><span style="width:${a.budget?Math.min(100,spent/a.budget*100):0}%"></span></div><small class="account-spent">${euro(spent)} ausgegeben von ${euro(a.budget)}</small></div><div class="right">${euro(Number(a.budget||0)-spent)}<div class="small muted">übrig</div></div>${actions}</div>`
                 }).join('') : '<div class="empty"><strong>Noch keine Konten</strong>Lege eine Kreditkarte, Bargeld oder ein Budget pro Person an. Die Summe ergibt das Reisebudget.</div>'
             }
 
@@ -2497,6 +2936,8 @@
                 m.className = 'rowmenu';
                 m.dataset.id = id;
                 m.setAttribute('role', 'menu');
+                const expense = data.expenses.find(x => x.id === id);
+                if (!expense || !requireTripPermission(expense.tripId)) return;
                 m.innerHTML = `<button type="button" role="menuitem" onclick="closeRowMenu();editExpense('${id}')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>Bearbeiten</button><button type="button" role="menuitem" class="del" onclick="closeRowMenu();deleteItem('expenses','${id}')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m-11 0 1 14h12l1-14M10 10v6m4-6v6"/></svg>Löschen</button>`;
                 document.body.appendChild(m);
                 const h = m.offsetHeight, w = m.offsetWidth;
@@ -2511,7 +2952,8 @@
 
             function expenseRow(e) {
                 const pay = expPayLabel(e);
-                return `<div class="listrow"><div class="rowmain"><strong>${esc(e.title)}</strong><small>${dateFmt(e.date)} · ${esc(e.status)}${pay?' · '+esc(pay):''}</small>${e.notes?`<small>${esc(e.notes)}</small>`:''}</div><div class="amount">${euro(e.amount)}</div><div class="action-buttons"><button class="iconbtn" aria-label="Mehr Optionen" aria-haspopup="menu" title="Mehr" onclick="rowMenu(event,'${e.id}')"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:currentColor;stroke:none"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg></button></div></div>`
+                const actions = canEditTrip(e.tripId) ? `<div class="action-buttons"><button class="iconbtn" aria-label="Mehr Optionen" aria-haspopup="menu" title="Mehr" onclick="rowMenu(event,'${e.id}')"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:currentColor;stroke:none"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg></button></div>` : '';
+                return `<div class="listrow"><div class="rowmain"><strong>${esc(e.title)}</strong><small>${dateFmt(e.date)} · ${esc(e.status)}${pay?' · '+esc(pay):''}</small>${e.notes?`<small>${esc(e.notes)}</small>`:''}</div><div class="amount">${euro(e.amount)}</div>${actions}</div>`
             }
 
             function expenseGroups(list, scope) {
@@ -2549,7 +2991,7 @@
                 const t = tripBy(detailTripId);
                 const none = !t;
                 $('detailTabs').style.display = none ? 'none' : '';
-                $('detailAdd').style.display = none ? 'none' : '';
+                $('detailAdd').style.display = none || !canEditTrip(t.id) ? 'none' : '';
                 if (none) {
                     $('detailTitle').textContent = 'Keine Reise ausgewählt';
                     $('detailSub').textContent = 'Öffne eine Reise unter „Meine Reisen“.';
@@ -2599,7 +3041,7 @@
                     list = L.length ? `<div class="card">${expenseGroups(L,'d')}</div>` : '<div class="empty"><strong>Noch keine Ausgaben erfasst</strong>Füge Ausgaben für diese Reise hinzu – auch für vergangene Reisen.</div>'
                 } else if (detailTab === 'wallet') {
                     const L = data.wallet.filter(w => w.tripId === t.id);
-                    list = L.length ? L.map(w => `<div class="trip"><div class="tripemoji">${({"Flug":"✈️","Hotel":"🏨","Mietwagen":"🚗","Ticket":"🎟️","Versicherung":"🛡️","Buchung":"📄","Sonstiges":"📎"}[w.kind]||"📄")}</div><div class="tripmain"><strong>${esc(w.title)}</strong><small>${esc(w.kind)}</small>${w.ref?`<div class="small muted">Referenz: ${esc(w.ref)}</div>`:''}${w.url?`<div><a href="${esc(w.url)}" target="_blank" rel="noopener noreferrer">Link öffnen ↗</a></div>`:''}${w.notes?`<div class="small muted">${esc(w.notes)}</div>`:''}</div><button class="iconbtn" onclick="editWallet('${w.id}')">✎</button><button class="iconbtn del" onclick="deleteItem('wallet','${w.id}')">×</button></div>`).join('') : '<div class="empty"><strong>Dein Wallet ist leer</strong>Füge Buchungsdetails, Bestätigungsnummern oder sichere Dokumentlinks hinzu.</div>'
+                    list = L.length ? L.map(w => `<div class="trip"><div class="tripemoji">${({"Flug":"✈️","Hotel":"🏨","Mietwagen":"🚗","Ticket":"🎟️","Versicherung":"🛡️","Buchung":"📄","Sonstiges":"📎"}[w.kind]||"📄")}</div><div class="tripmain"><strong>${esc(w.title)}</strong><small>${esc(w.kind)}</small>${w.ref?`<div class="small muted">Referenz: ${esc(w.ref)}</div>`:''}${w.url?`<div><a href="${esc(w.url)}" target="_blank" rel="noopener noreferrer">Link öffnen ↗</a></div>`:''}${w.notes?`<div class="small muted">${esc(w.notes)}</div>`:''}</div>${canEditTrip(t.id)?`<button class="iconbtn" onclick="editWallet('${w.id}')">✎</button><button class="iconbtn del" onclick="deleteItem('wallet','${w.id}')">×</button>`:''}</div>`).join('') : '<div class="empty"><strong>Dein Wallet ist leer</strong>Füge Buchungsdetails, Bestätigungsnummern oder sichere Dokumentlinks hinzu.</div>'
                 } else {
                     sum = `<div class="card" style="margin-bottom:14px"><div class="statlabel">Reisebudget (Summe der Konten)</div><div class="statval">${euro(tripBudget(t))}</div></div>`;
                     list = accountRows(t.id)
@@ -2614,7 +3056,7 @@
                 const m = $('page-checklist').querySelector('.sectionhead .muted');
                 if (m) m.textContent = a ? `Aktive Reise: ${a.name} · ${a.destination}` : 'Keine aktive Reise – aktiviere eine Reise unter „Reisen“.';
                 const list = a ? data.tasks.filter(t => t.tripId === a.id).sort((x, y) => Number(x.done) - Number(y.done)) : [];
-                $('taskList').innerHTML = list.length ? list.map(t => `<div class="checkrow ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} onchange="toggleTask('${t.id}',this.checked)" aria-label="Aufgabe erledigt"><span style="flex:1">${esc(t.title)}</span><button class="iconbtn" onclick="editTask('${t.id}')">✎</button><button class="iconbtn del" onclick="deleteItem('tasks','${t.id}')">×</button></div>`).join('') : '<div class="empty"><strong>' + (a ? 'Alles im Griff' : 'Keine aktive Reise') + '</strong>' + (a ? 'Erstelle Aufgaben wie „Reisepass prüfen“ oder „Online-Check-in“.' : 'Aktiviere unter „Reisen“ eine Reise, um ihre Checkliste zu sehen.') + '</div>'
+                $('taskList').innerHTML = list.length ? list.map(t => `<div class="checkrow ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} ${canEditTrip(t.tripId)?'':'disabled'} onchange="toggleTask('${t.id}',this.checked)" aria-label="Aufgabe erledigt"><span style="flex:1">${esc(t.title)}</span>${canEditTrip(t.tripId)?`<button class="iconbtn" onclick="editTask('${t.id}')">✎</button><button class="iconbtn del" onclick="deleteItem('tasks','${t.id}')">×</button>`:''}</div>`).join('') : '<div class="empty"><strong>' + (a ? 'Alles im Griff' : 'Keine aktive Reise') + '</strong>' + (a ? 'Erstelle Aufgaben wie „Reisepass prüfen“ oder „Online-Check-in“.' : 'Aktiviere unter „Reisen“ eine Reise, um ihre Checkliste zu sehen.') + '</div>'
             }
 
             function renderStats() {
@@ -2670,6 +3112,8 @@
                 renderStats();
                 renderAccounts();
                 renderUsers();
+                renderMembers();
+                if ($('signedInEmail')) $('signedInEmail').textContent = authUser?.email || 'Nicht angemeldet';
                 $('deviceIdText').textContent = data.deviceId || storage.getItem('budgora-device-id') || '–';
                 if ($('themeSelect')) $('themeSelect').value = storage.getItem('budgora-theme') || 'light';
             }
@@ -2779,6 +3223,7 @@
 
             function openTripModal(t = {}) {
                 const editing = !!t.id;
+                if (editing && !requireTripPermission(t.id)) return;
                 const accSec = editing ? '<div class="note">Konten und Budget änderst du unter Reisen → ◉ Konto.</div>' : `<div class="accsec"><h2 style="font-size:15px">Konten & Budget</h2><div class="small muted" style="margin:3px 0 9px">Womit bezahlst du und wie viel Budget hat jedes Konto? Die Summe ist dein Reisebudget.</div><div id="accRows"></div><button type="button" class="btn soft" onclick="addAccRow()">＋ Konto hinzufügen</button><div style="margin-top:10px"><span class="statlabel">Reisebudget</span> <strong id="accSum">0,00 €</strong></div></div>`;
                 showModal(editing ? 'Reise bearbeiten' : 'Neue Reise', `<div class="formgrid">${field('name','Name der Reise','text',t.name||'',null,true,true)}${field('destination','Reiseziel','text',t.destination||'',null,true,true)}${field('start','Abreise','date',t.start||today(),null,true)}${field('end','Rückreise','date',t.end||today(),null,true)}${field('emoji','Symbol','select',t.emoji||'🌴',emojis.map(x=>({value:x,label:x})),true)}${field('travelers','Mitreisende','text',t.travelers||'','',false,false,'z. B. Alex, Sam')}${field('notes','Notizen','text',t.notes||'',null,false,true)}</div>${accSec}`, o => {
                     if (o.end < o.start) {
@@ -2821,6 +3266,7 @@
             function openExpenseModal(e0 = {}, forTripId = '') {
                 const editing = !!e0.id;
                 const tid = editing ? e0.tripId : (forTripId || data.activeTripId);
+                if (!requireTripPermission(tid)) return;
                 if (!tripBy(tid)) {
                     toast('Bitte zuerst unter „Reisen“ eine Reise aktivieren.');
                     return
@@ -2844,7 +3290,9 @@
 
             function openPlanModal(p = {}) {
                 const editing = !!p.id;
-                const trip = tripBy(editing ? p.tripId : detailTripId);
+                const tid = editing ? p.tripId : detailTripId;
+                if (!requireTripPermission(tid)) return;
+                const trip = tripBy(tid);
                 if (!trip) {
                     toast('Bitte zuerst unter „Meine Reisen“ eine Reise öffnen.');
                     return
@@ -2865,7 +3313,9 @@
 
             function openWalletModal(w = {}) {
                 const editing = !!w.id;
-                const trip = tripBy(editing ? w.tripId : detailTripId);
+                const tid = editing ? w.tripId : detailTripId;
+                if (!requireTripPermission(tid)) return;
+                const trip = tripBy(tid);
                 if (!trip) {
                     toast('Bitte zuerst unter „Meine Reisen“ eine Reise öffnen.');
                     return
@@ -2884,7 +3334,9 @@
 
             function openTaskModal(t = {}) {
                 const editing = !!t.id;
-                const a = tripBy(editing ? t.tripId : data.activeTripId);
+                const tid = editing ? t.tripId : data.activeTripId;
+                if (!requireTripPermission(tid)) return;
+                const a = tripBy(tid);
                 if (!a) {
                     toast('Bitte zuerst unter „Reisen“ eine Reise aktivieren.');
                     return
@@ -2905,6 +3357,7 @@
             function openAccountModal(a = {}, tripId) {
                 const editing = !!a.id;
                 const tid = a.tripId || tripId || data.activeTripId;
+                if (!requireTripPermission(tid)) return;
                 const trip = tripBy(tid);
                 if (!trip) {
                     toast('Bitte zuerst eine Reise aktivieren oder öffnen.');
@@ -2937,6 +3390,8 @@
             }
 
             function deleteAccount(id) {
+                const account = data.accounts.find(a => a.id === id);
+                if (!account || !requireTripPermission(account.tripId)) return;
                 if (!confirm('Konto löschen? Zugeordnete Ausgaben bleiben erhalten.')) return;
                 data.accounts = data.accounts.filter(a => a.id !== id);
                 save()
@@ -3082,6 +3537,7 @@
 
             function openTransferModal(id) {
                 const p = data.plans.find(x => x.id === id);
+                if (!p || !requireTripPermission(p.tripId)) return;
                 const trip = p && tripBy(p.tripId);
                 if (!trip) return;
                 const ex = data.expenses.find(e => e.planId === p.id);
@@ -3149,6 +3605,7 @@
             }
 
             function deleteTrip(id) {
+                if (!requireTripPermission(id, 'delete')) return;
                 if (!confirm('Reise wirklich löschen? Zugehörige Ausgaben, Pläne, Wallet-Einträge und Aufgaben bleiben erhalten, verlieren aber die Reisezuordnung.')) return;
                 data.trips = data.trips.filter(t => t.id !== id);
                 if (data.activeTripId === id) data.activeTripId = '';
@@ -3162,6 +3619,8 @@
             }
 
             function deleteItem(type, id) {
+                const item = (data[type] || []).find(x => x.id === id);
+                if (!item || !requireTripPermission(item.tripId)) return;
                 if (!confirm('Eintrag wirklich löschen?')) return;
                 data[type] = data[type].filter(x => x.id !== id);
                 save();
@@ -3170,6 +3629,7 @@
 
             function toggleTask(id, done) {
                 const t = data.tasks.find(x => x.id === id);
+                if (!t || !requireTripPermission(t.tripId)) return;
                 if (t) t.done = done;
                 save()
             }
@@ -3258,135 +3718,15 @@
                 }), 'tripwisely-ausgaben-' + today() + '.csv');
                 toast('CSV exportiert.')
             }
-
-            // Supabase: bewusst zunächst manueller Erstimport/Download, damit kein lokaler Bestand überschrieben wird.
-            let sbClient = null;
-            const SB_URL_KEY = 'tripwisely-supabase-url-v1';
-            const SB_PUB_KEY = 'tripwisely-supabase-publishable-v1';
-            const cloudStatus = msg => { const el = $('cloudStatus'); if (el) el.textContent = msg; };
-            function cloudClient() {
-                if (!sbClient) throw new Error('Bitte zuerst Supabase verbinden.');
-                return sbClient;
-            }
-            async function cloudConnect() {
-                try {
-                    if (!window.supabase?.createClient) throw new Error('Supabase-Bibliothek konnte nicht geladen werden. Bitte Internetverbindung prüfen.');
-                    const url = $('sbUrl').value.trim().replace(/\/$/, '');
-                    const key = $('sbKey').value.trim();
-                    if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(url) || !key) throw new Error('Bitte Project URL und Publishable Key korrekt eintragen.');
-                    storage.setItem(SB_URL_KEY, url); storage.setItem(SB_PUB_KEY, key);
-                    sbClient = window.supabase.createClient(url, key, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
-                    const { data: { session }, error } = await sbClient.auth.getSession();
-                    if (error) throw error;
-                    cloudStatus(session ? `Verbunden als ${session.user.email}.` : 'Mit Supabase verbunden. Bitte registrieren oder anmelden.');
-                    toast('Supabase verbunden.');
-                } catch (e) { cloudStatus('Fehler: ' + (e.message || e)); }
-            }
-            async function cloudSignUp() {
-                try {
-                    const c = cloudClient(), email = $('sbEmail').value.trim(), password = $('sbPassword').value;
-                    if (!email || password.length < 6) throw new Error('Bitte E-Mail und ein Passwort mit mindestens 6 Zeichen eingeben.');
-                    const { data: d, error } = await c.auth.signUp({ email, password });
-                    if (error) throw error;
-                    cloudStatus(d.session ? `Registriert und angemeldet als ${email}.` : `Registrierung gestartet. Bitte bestätige die E-Mail-Adresse ${email}, falls E-Mail-Bestätigung aktiviert ist.`);
-                } catch (e) { cloudStatus('Fehler: ' + (e.message || e)); }
-            }
-            async function cloudSignIn() {
-                try {
-                    const c = cloudClient(), email = $('sbEmail').value.trim(), password = $('sbPassword').value;
-                    const { data: d, error } = await c.auth.signInWithPassword({ email, password });
-                    if (error) throw error;
-                    cloudStatus(`Angemeldet als ${d.user.email}. Deine lokalen Daten sind noch unverändert.`);
-                    toast('Anmeldung erfolgreich.');
-                } catch (e) { cloudStatus('Fehler: ' + (e.message || e)); }
-            }
-            async function cloudSignOut() {
-                try { const c = cloudClient(); const { error } = await c.auth.signOut(); if (error) throw error; cloudStatus('Abgemeldet.'); }
-                catch (e) { cloudStatus('Fehler: ' + (e.message || e)); }
-            }
-            function cloudDisconnect() {
-                sbClient = null; storage.removeItem(SB_URL_KEY); storage.removeItem(SB_PUB_KEY);
-                if ($('sbKey')) $('sbKey').value = '';
-                cloudStatus('Supabase-Verbindung auf diesem Gerät getrennt. Lokale Daten bleiben erhalten.');
-            }
-            async function cloudUser() {
-                const c = cloudClient();
-                const { data: { user }, error } = await c.auth.getUser();
-                if (error) throw error;
-                if (!user) throw new Error('Bitte zuerst anmelden.');
-                return user;
-            }
-            async function cloudUploadLocal() {
-                try {
-                    const c = cloudClient(), user = await cloudUser();
-                    if (!data.trips.length) throw new Error('Es sind keine lokalen Reisen zum Hochladen vorhanden.');
-                    if (!confirm(`Es werden ${data.trips.length} lokale Reise(n) und alle zugehörigen Einträge in dein Supabase-Konto hochgeladen. Deine lokalen Daten bleiben erhalten. Fortfahren?`)) return;
-                    cloudStatus('Upload läuft …');
-                    const collections = ['expenses','plans','wallet','tasks','accounts'];
-                    let tripCount = 0, recordCount = 0;
-                    for (const trip of data.trips) {
-                        const tripRow = { id: String(trip.id), owner_id: user.id, workspace_id: null, data: trip };
-                        const { error: te } = await c.from('trips').upsert(tripRow, { onConflict: 'id' });
-                        if (te) throw te;
-                        tripCount++;
-                        for (const collection of collections) {
-                            const records = (data[collection] || []).filter(r => String(r.tripId || '') === String(trip.id));
-                            if (!records.length) continue;
-                            const rows = records.map(r => ({ trip_id: String(trip.id), collection, record_id: String(r.id), data: r }));
-                            const { error: re } = await c.from('trip_data').upsert(rows, { onConflict: 'trip_id,collection,record_id' });
-                            if (re) throw re;
-                            recordCount += rows.length;
-                        }
-                    }
-                    cloudStatus(`Upload erfolgreich: ${tripCount} Reise(n), ${recordCount} Einträge. Lokale Daten wurden nicht gelöscht.`);
-                    toast('Daten in die Cloud hochgeladen.');
-                } catch (e) { cloudStatus('Upload fehlgeschlagen: ' + (e.message || e)); }
-            }
-            async function cloudLoadRemote() {
-                try {
-                    const c = cloudClient(); await cloudUser(); cloudStatus('Cloud-Daten werden geladen …');
-                    const { data: trips, error: te } = await c.from('trips').select('id,data,owner_id,created_at,updated_at');
-                    if (te) throw te;
-                    const collections = ['expenses','plans','wallet','tasks','accounts'];
-                    const remote = { trips: [], expenses: [], plans: [], wallet: [], tasks: [], accounts: [] };
-                    for (const row of (trips || [])) {
-                        const trip = row.data && typeof row.data === 'object' ? { ...row.data, id: row.id } : { id: row.id, name: 'Reise' };
-                        remote.trips.push(trip);
-                        const { data: records, error: de } = await c.from('trip_data').select('collection,record_id,data').eq('trip_id', row.id);
-                        if (de) throw de;
-                        for (const rec of (records || [])) if (collections.includes(rec.collection) && rec.data) remote[rec.collection].push(rec.data);
-                    }
-                    const merge = (local, incoming) => {
-                        const m = new Map((local || []).map(x => [String(x.id), x]));
-                        for (const x of incoming || []) if (!m.has(String(x.id))) m.set(String(x.id), x);
-                        return [...m.values()];
-                    };
-                    for (const k of ['trips', ...collections]) data[k] = merge(data[k], remote[k]);
-                    migrate(); save();
-                    const total = remote.trips.length;
-                    cloudStatus(`${total} Cloud-Reise(n) geladen und mit deinen lokalen Daten zusammengeführt. Bei gleichen IDs blieb der lokale Eintrag erhalten.`);
-                    toast('Cloud-Daten geladen.');
-                } catch (e) { cloudStatus('Laden fehlgeschlagen: ' + (e.message || e)); }
-            }
-            function initCloudFields() {
-                const u = storage.getItem(SB_URL_KEY), k = storage.getItem(SB_PUB_KEY);
-                if (u) $('sbUrl').value = u;
-                if (k) $('sbKey').value = k;
-                if (u && k && window.supabase?.createClient) {
-                    try {
-                        sbClient = window.supabase.createClient(u, k, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
-                        sbClient.auth.getSession().then(({data,error}) => { if (!error) cloudStatus(data.session ? `Verbunden als ${data.session.user.email}.` : 'Supabase verbunden. Bitte anmelden.'); });
-                    } catch (_) {}
-                }
-            }
-            window.cloudConnect = cloudConnect;
-            window.cloudDisconnect = cloudDisconnect;
-            window.cloudSignUp = cloudSignUp;
-            window.cloudSignIn = cloudSignIn;
-            window.cloudSignOut = cloudSignOut;
-            window.cloudUploadLocal = cloudUploadLocal;
-            window.cloudLoadRemote = cloudLoadRemote;
-
+            window.authSubmit = authSubmit;
+            window.authGoogle = authGoogle;
+            window.authResetPassword = authResetPassword;
+            window.toggleAuthMode = toggleAuthMode;
+            window.signOutTripwisely = signOutTripwisely;
+            window.inviteTripMember = inviteTripMember;
+            window.changeMemberRole = changeMemberRole;
+            window.removeTripMember = removeTripMember;
+            window.cancelTripInvitation = cancelTripInvitation;
             window.navigate = navigate;
             window.rowMenu = rowMenu;
             window.closeRowMenu = closeRowMenu;
@@ -3445,24 +3785,18 @@
             };
             if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(() => {});
             initCal();
-            load();
-            initCloudFields();
             setTheme(storage.getItem('budgora-theme') || 'light');
-            if (!data.trips.length && !data.expenses.length) {
-                /* Clean first-run state; no fabricated travel data. */ }
-            save();
             updateFxCurrencyOptions();
             loadFxRate();
+            initAuth();
             const autoOff = () => {
-                if (autoDeactivate()) {
+                if (authUser && cloudReady && autoDeactivate()) {
                     save();
                     toast('Reise ist vorbei und wurde deaktiviert.')
                 }
             };
             setInterval(autoOff, 60000);
-            document.addEventListener('visibilitychange', () => {
-                if (!document.hidden) autoOff()
-            });
+            document.addEventListener('visibilitychange', () => { if (!document.hidden) autoOff(); });
         })();
     </script>
 </body>
