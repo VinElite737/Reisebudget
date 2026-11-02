@@ -1,6 +1,6 @@
 <!doctype html>
 <!--
-  FlightDeck – Pilot Toolkit
+  Tripwisely
   Copyright © 2026 Ufuk Tezerdi. All rights reserved.
 
   This software, including its source code, design and content, is the
@@ -2643,6 +2643,70 @@
         .tc-actions .btn.tc-btn svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
         .tc-actions .btn.tc-del { background: color-mix(in srgb, var(--red) 11%, var(--card)); color: var(--red); border: 1px solid color-mix(in srgb, var(--red) 28%, var(--line)); }
         .tc-actions .btn.tc-edit { background: var(--pale); color: var(--green); }
+        /* Reisekarte: Hinweis, Aktivieren-Chip, Dreipunkt-Menü */
+        .tc-top { position: relative; }
+        .tc-more { flex-shrink: 0; align-self: flex-start; display: grid; place-items: center; background: transparent; color: var(--muted); cursor: pointer; }
+        .tc-more svg { width: 20px; height: 20px; }
+        .tc-more:active { background: var(--soft); }
+        .tc-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 11px; padding-top: 10px; border-top: 1px dashed var(--line); }
+        .tc-hint { font-size: 12px; font-weight: 700; color: var(--muted); min-width: 0; }
+        .tc-chip { flex-shrink: 0; border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 999px; padding: 4px 11px; font-size: 11px; font-weight: 800; cursor: pointer; line-height: 1.3; }
+        .tc-chip.on { color: var(--green); border-color: color-mix(in srgb, var(--green) 45%, var(--line)); background: color-mix(in srgb, var(--green) 8%, transparent); }
+        .tc-chip:active { transform: translateY(1px); }
+        /* Reise-Reiter: eine Leiste, alles auf einer Seite */
+        #detailTabs, html[data-theme="dark"] #detailTabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; margin: 14px 0 12px; padding: 4px; background: var(--soft); border: 1px solid var(--line); border-radius: 15px; overflow: visible; }
+        #detailTabs button, #detailTabs button.completed, #detailTabs button.pending,
+        html[data-theme="dark"] #detailTabs button.completed, html[data-theme="dark"] #detailTabs button.pending {
+            flex: none; min-width: 0; border: 0; background: transparent; color: var(--muted); border-radius: 11px;
+            padding: 7px 0 6px; font-size: 11px; font-weight: 800; white-space: nowrap; transform: none; box-shadow: none;
+            display: flex; flex-direction: column; align-items: center; gap: 1px; line-height: 1.2;
+        }
+        #detailTabs .tn { font-size: 10px; font-weight: 700; opacity: .65; }
+        #detailTabs button.completed .tn { opacity: 1; }
+        #detailTabs button.active, html[data-theme="dark"] #detailTabs button.active { background: var(--green) !important; color: #fff !important; box-shadow: 0 2px 8px #00000024 !important; transform: none !important; }
+        html[data-theme="dark"] #detailTabs button.active { color: #0b1727 !important; }
+        .detail-addrow { margin: 0 0 14px; }
+        .detail-add { width: 100%; min-height: 42px; border-radius: 12px; background: transparent; border: 1.5px dashed color-mix(in srgb, var(--green) 45%, var(--line)); color: var(--green); font-weight: 800; }
+        .detail-add:active { background: var(--pale); }
+        /* Kompaktere Kennzahlen, Mitglieder-Chips, kleinere Karten-Buttons */
+        #page-tripdetail .grid.stats, #page-budget .grid.stats { grid-template-columns: repeat(auto-fit, minmax(76px, 1fr)); gap: 6px; margin-bottom: 10px !important; }
+        #page-tripdetail .grid.stats .card, #page-budget .grid.stats .card { padding: 8px 10px; border-radius: 12px; box-shadow: none; }
+        #page-tripdetail .grid.stats .statlabel, #page-budget .grid.stats .statlabel { font-size: 10px; font-weight: 700; }
+        #page-tripdetail .grid.stats .statval, #page-budget .grid.stats .statval { font-size: 14px; letter-spacing: -.3px; margin: 2px 0 0; }
+        .minisum { padding: 9px 13px !important; border-radius: 12px !important; box-shadow: none !important; margin-bottom: 10px; }
+        .minisum .ms-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+        .minisum .ms-row .statlabel { font-size: 11px; }
+        .minisum .ms-row strong { font-size: 14px; letter-spacing: -.3px; }
+        .minisum .progress { height: 5px; margin-top: 7px; }
+        .tc-side { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; align-self: flex-start; }
+        .tc-side .tc-more { width: 26px; height: 26px; border-radius: 8px; }
+        .tc-side .tc-more svg { width: 16px; height: 16px; }
+        .tc-addm svg { fill: none !important; stroke: currentColor !important; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+        .tc-members { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
+        .tc-mem { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px 2px 2px; border-radius: 999px; background: var(--soft); border: 1px solid var(--line); font-size: 11px; font-weight: 700; color: var(--ink); max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .tc-mem i { font-style: normal; width: 17px; height: 17px; border-radius: 50%; background: var(--green); color: #fff; font-size: 9px; font-weight: 900; display: grid; place-items: center; flex-shrink: 0; }
+        html[data-theme="dark"] .tc-mem i { color: #0b1727; }
+        .tc-mem.more { padding: 2px 8px; color: var(--muted); }
+        /* Reisekarte: dezente Dreipunkte und "+"-Chip */
+        .tc-dots { flex-shrink: 0; align-self: flex-start; width: 22px; height: 22px; margin: -2px -4px 0 0; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--muted); display: grid; place-items: center; cursor: pointer; opacity: .8; }
+        .tc-dots svg { width: 15px; height: 15px; }
+        .tc-dots:hover, .tc-dots:active { background: var(--soft); opacity: 1; }
+        .tc-add { display: inline-grid; place-items: center; width: 21px; height: 21px; padding: 0; border-radius: 50%; border: 1.5px dashed color-mix(in srgb, var(--green) 50%, var(--line)); background: transparent; color: var(--green); cursor: pointer; }
+        .tc-add svg { width: 11px; height: 11px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; }
+        .tc-add:active { background: var(--pale); }
+        /* Zahlen nie umbrechen (€ bleibt in der Zeile), werden per Script bei Bedarf kleiner */
+        .grid.stats .statval, .minisum .ms-row strong { white-space: nowrap; overflow-wrap: normal; }
+        .minisum .ms-row strong { flex-shrink: 0; }
+        /* Aufklapp-Button bei "Alle Ausgaben" kleiner */
+        .allhead { gap: 9px; padding: 4px 2px; }
+        .allhead .chev { width: 24px; height: 24px; border-radius: 8px; box-shadow: 0 2px 5px #a85f332e; }
+        .allhead .chev svg { width: 14px; height: 14px; stroke-width: 3; }
+        .allhead .alltitle { font-size: 14px; }
+        .allhead .alltitle small { font-size: 11px; }
+        .allhead .cattotal { font-size: 14px; white-space: nowrap; }
+        .linkbtn { border: 0; background: none; padding: 0 0 0 4px; color: var(--green); font: inherit; font-size: 12px; font-weight: 800; text-decoration: underline; cursor: pointer; }
+        .legal-body { font-size: 14px; line-height: 1.55; padding: 2px 0 6px; max-height: 55vh; overflow-y: auto; }
+        .legal-body p { margin: 0 0 12px; }
     </style>
 
 </head>
@@ -2677,7 +2741,7 @@
                             <path d="m3 10 9-7 9 7" />
                             <path d="M5 9v12h14V9" />
                             <path d="M9 21v-7h6v7" />
-                        </svg></span>Übersicht</button><button data-page="trips"><span class="ic">✈</span>Meine Reisen</button><button data-page="budget"><span class="ic">◉</span>Budget & Ausgaben</button><button data-page="currency"><span class="ic">⇄</span>Währungsrechner</button><button data-page="checklist"><span class="ic">✓</span>Checkliste</button><button data-page="stats"><span class="ic">▥</span>Statistiken</button><button data-page="settings"><span class="ic">⚙</span>Einstellungen</button>
+                        </svg></span>Übersicht</button><button data-page="trips"><span class="ic">✈</span>Meine Reisen</button><button data-page="currency"><span class="ic">⇄</span>Währungsrechner</button><button data-page="rules"><span class="ic">§</span>Reisebestimmungen</button><button data-page="settings"><span class="ic">⚙</span>Einstellungen</button>
             </nav>
             <div class="sidefoot"><strong>Deine Reise. Dein Budget.</strong>Planen, teilen und Ausgaben im Blick behalten.</div>
         </aside>
@@ -2782,26 +2846,23 @@
                 <div id="accountList" class="triplist"></div>
             </section>
             <section class="page" id="page-tripdetail">
-                <div class="sectionhead" style="margin-top:0"><button class="btn plain" onclick="navigate('trips')">← Reisen</button><button class="btn primary" id="detailAdd" onclick="detailAdd()">＋ Eintrag</button></div>
+                <div class="sectionhead" style="margin-top:0"><button class="btn plain" onclick="navigate('trips')">← Reisen</button></div>
                 <div class="card">
                     <h2 id="detailTitle"></h2>
                     <div class="small muted" id="detailSub"></div>
                 </div>
-                <div class="seg" id="detailTabs"><button data-tab="pots" onclick="setDetailTab('pots')"></button><button data-tab="plan" onclick="setDetailTab('plan')"></button><button data-tab="exp" onclick="setDetailTab('exp')"></button><button data-tab="wallet" onclick="setDetailTab('wallet')"></button></div>
+                <div class="seg" id="detailTabs"><button data-tab="pots" onclick="setDetailTab('pots')"></button><button data-tab="plan" onclick="setDetailTab('plan')"></button><button data-tab="exp" onclick="setDetailTab('exp')"></button><button data-tab="tasks" onclick="setDetailTab('tasks')"></button><button data-tab="wallet" onclick="setDetailTab('wallet')"></button></div>
+                <div class="detail-addrow"><button type="button" class="btn soft detail-add" id="detailAdd" onclick="detailAdd()">＋ Eintrag</button></div>
                 <div id="detailSummary"></div>
                 <div id="detailList" class="triplist"></div>
                 <div id="detailStats"></div>
                 <div id="tripMembersPanel" class="member-panel"></div>
             </section>
-            <section class="page" id="page-checklist">
-                <div class="sectionhead" style="margin-top:0">
-                    <div>
-                        <div class="small muted">Nichts Wichtiges vor der Abreise vergessen.</div>
-                        <select id="taskTripSelect" onchange="setTaskTrip(this.value)" aria-label="Reise für die Checkliste" style="margin-top:8px;max-width:100%"></select>
-                    </div><button class="btn primary" onclick="openTaskModal()">＋ Aufgabe</button>
-                </div>
-                <div class="card">
-                    <div id="taskList"></div>
+            <section class="page" id="page-rules">
+                <div class="card" style="text-align:center;padding:34px 20px">
+                    <div style="font-size:34px;margin-bottom:6px">§</div>
+                    <h2>Reisebestimmungen</h2>
+                    <p class="muted" style="margin:6px 0 0">Hier entstehen bald Informationen zu Einreise- und Reisebestimmungen für deine Ziele.</p>
                 </div>
             </section>
             <section class="page" id="page-stats">
@@ -2926,6 +2987,7 @@
                     <div class="settingsrow">
                         <div><strong>Account</strong>
                             <div class="small muted" id="signedInEmail">Nicht angemeldet</div>
+                            <div class="small muted" id="signedInUsernameRow" style="display:none">Username: <strong id="signedInUsername" style="color:var(--ink)"></strong> <button type="button" class="linkbtn" onclick="openUsernameDialog()">ändern</button></div>
                         </div><button class="btn soft" id="accountBtn" onclick="accountAction()">Anmelden</button>
                     </div>
                     <div class="settingsrow">
@@ -2935,6 +2997,19 @@
                     </div>
                 </div>
                 <div class="note"><strong>Cloud-Synchronisierung:</strong> Deine Reisen werden in deinem Tripwisely-Konto gespeichert und mit deinen angemeldeten Geräten synchronisiert.</div>
+                <div class="card" style="margin-top:16px">
+                    <h2>Rechtliches</h2>
+                    <div class="settingsrow">
+                        <div><strong>Impressum</strong>
+                            <div class="small muted">Angaben zum Anbieter</div>
+                        </div><button class="btn soft" onclick="openLegal('impressum')">Öffnen</button>
+                    </div>
+                    <div class="settingsrow">
+                        <div><strong>Datenschutz</strong>
+                            <div class="small muted">Umgang mit deinen Daten</div>
+                        </div><button class="btn soft" onclick="openLegal('datenschutz')">Öffnen</button>
+                    </div>
+                </div>
                 <div class="card" style="margin-top:16px">
                     <h2>Installieren</h2>
                     <p class="muted">Öffne Tripwisely über deine GitHub-Pages-Adresse in Chrome und wähle im Browsermenü „App installieren“ oder „Zum Startbildschirm hinzufügen“.</p><button class="btn soft" id="installBtn" style="display:none" onclick="installApp()">App installieren</button>
@@ -2947,7 +3022,16 @@
                     <path d="m3 10 9-7 9 7" />
                     <path d="M5 9v12h14V9" />
                     <path d="M9 21v-7h6v7" />
-                </svg></span>Home</button><button data-page="trips"><span>✈</span>Reisen</button><button data-page="currency"><span>⇄</span>Währung</button><button data-page="checklist"><span>✓</span>Checkliste</button><button data-page="settings"><span>☰</span>Mehr</button></nav>
+                </svg></span>Home</button><button data-page="trips"><span>✈</span>Reisen</button><button data-page="currency"><span>⇄</span>Währung</button><button data-page="rules"><span>§</span>Bestimmungen</button><button data-page="settings"><span>☰</span>Mehr</button></nav>
+    <div class="modalback" id="legalBack" role="dialog" aria-modal="true" aria-labelledby="legalTitle" onclick="if(event.target===this)closeLegal()">
+        <div class="modal">
+            <div class="modalhead">
+                <h2 id="legalTitle">Impressum</h2><button class="close" type="button" onclick="closeLegal()" aria-label="Schließen">×</button>
+            </div>
+            <div id="legalBody" class="legal-body"></div>
+            <div class="modalactions"><button type="button" class="btn primary" onclick="closeLegal()">Schließen</button></div>
+        </div>
+    </div>
     <div class="modalback" id="modalBack" role="dialog" aria-modal="true">
         <div class="modal">
             <div class="modalhead">
@@ -3068,7 +3152,29 @@
             if (!storage.getItem('budgora-device-id')) storage.setItem('budgora-device-id', 'BG-' + Math.random().toString(36).slice(2, 6).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase());
             const $ = id => document.getElementById(id);
             const today = () => new Date().toISOString().slice(0, 10);
-            const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+            const uid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); });
+            const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+            let tripIdRemap = {};
+
+            // Ältere Reisen mit kurzer ID bekommen eine UUID (Voraussetzung für Cloud-Speicherung und Einladungen)
+            function ensureUuidTrips() {
+                let changed = false;
+                data.trips.forEach(t => {
+                    // Bereits in der Cloud gespeicherte Reisen niemals umbenennen (sonst gehen Mitglieder verloren)
+                    if (UUID_RE.test(t.id) || cloudKnown.has(t.id)) return;
+                    const old = t.id,
+                        nid = uid();
+                    t.id = nid;
+                    tripIdRemap[old] = nid;
+                    ['expenses', 'plans', 'wallet', 'tasks', 'accounts'].forEach(k => (data[k] || []).forEach(x => {
+                        if (x.tripId === old) x.tripId = nid;
+                    }));
+                    if (data.activeTripId === old) data.activeTripId = nid;
+                    if (detailTripId === old) detailTripId = nid;
+                    changed = true;
+                });
+                return changed;
+            }
             const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({
                 '&': '&amp;',
                 '<': '&lt;',
@@ -3092,6 +3198,7 @@
             // Supabase: public publishable key is intended for browser use; RLS protects all records.
             const SUPABASE_URL = 'https://lzfkufziljanbbvhzfiu.supabase.co';
             const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_VrhvFojE0m24veUJb6pw4g_O3sfXiEj';
+            let myUsername = '';
             let supabaseClient = null,
                 authUser = null,
                 authMode = 'login',
@@ -3375,6 +3482,75 @@
                 $('appShell').style.display = window.innerWidth >= 900 ? 'grid' : 'block';
             }
 
+
+            async function loadMyUsername() {
+                if (!authUser || !supabaseClient) return;
+                try {
+                    const { data: row } = await supabaseClient.from('tripwisely_profiles').select('username').eq('id', authUser.id).maybeSingle();
+                    myUsername = (row && row.username) || authUser.user_metadata?.username || '';
+                } catch (e) {
+                    myUsername = authUser.user_metadata?.username || '';
+                }
+                if (myUsername) usernameById[authUser.id] = myUsername;
+                renderAll();
+            }
+
+            function openUsernameDialog() {
+                if (!authUser || !supabaseClient) {
+                    toast('Bitte melde dich zuerst an.');
+                    requestLogin();
+                    return;
+                }
+                showModal('Username ändern', `<div class="formgrid">${field('username','Neuer Username','text',myUsername,null,true,true,'z. B. max_mustermann')}</div><div class="note">3–20 Zeichen: Buchstaben, Zahlen, Punkt und Unterstrich. Über deinen Username können dich andere zu Reisen einladen.</div>`, o => {
+                    submitUsernameChange(String(o.username || ''));
+                    return false;
+                });
+            }
+
+            async function submitUsernameChange(raw) {
+                const username = raw.trim().toLowerCase();
+                if (!/^[a-z0-9_.]{3,20}$/.test(username)) return toast('Username: 3–20 Zeichen, nur Buchstaben, Zahlen, Punkt und Unterstrich.');
+                if (username === myUsername) return closeModal();
+                try {
+                    const { data: free, error: fe } = await supabaseClient.rpc('tripwisely_username_available', { p_username: username });
+                    if (fe) throw fe;
+                    if (free === false) return toast('Dieser Username ist bereits vergeben.');
+                    const { data: upd, error: ue } = await supabaseClient.from('tripwisely_profiles').update({ username }).eq('id', authUser.id).select('id');
+                    if (ue) throw ue;
+                    if (!upd || !upd.length) return toast('Username konnte nicht gespeichert werden (fehlende Datenbank-Berechtigung).');
+                    supabaseClient.auth.updateUser({ data: { username } }).catch(() => {});
+                    authUser.user_metadata = Object.assign({}, authUser.user_metadata, { username });
+                    myUsername = username;
+                    usernameById[authUser.id] = username;
+                    closeModal();
+                    renderAll();
+                    toast('Username geändert.');
+                } catch (e) {
+                    toast(authErrorText(e));
+                }
+            }
+            window.openUsernameDialog = openUsernameDialog;
+
+
+            const LEGAL = {
+                impressum: ['Impressum', '<p class="small muted"><em>Platzhalter – wird noch ersetzt.</em></p><p><strong>Angaben gemäß § 5 DDG</strong></p><p>[Vor- und Nachname / Firma]<br>[Straße und Hausnummer]<br>[PLZ Ort]<br>[Land]</p><p><strong>Kontakt</strong><br>E-Mail: [E-Mail-Adresse]<br>Telefon: [Telefonnummer, optional]</p><p><strong>Verantwortlich für den Inhalt</strong><br>[Name und Anschrift]</p>'],
+                datenschutz: ['Datenschutz', '<p class="small muted"><em>Platzhalter – wird noch ersetzt.</em></p><p><strong>1. Verantwortlicher</strong><br>[Name und Kontaktdaten des Verantwortlichen]</p><p><strong>2. Verarbeitete Daten</strong><br>[E-Mail-Adresse, Username, Reisedaten, Ausgaben …]</p><p><strong>3. Zweck und Rechtsgrundlage</strong><br>[Bereitstellung der App, Synchronisierung zwischen Geräten …]</p><p><strong>4. Speicherung und Hosting</strong><br>[Hosting- und Datenbankanbieter]</p><p><strong>5. Deine Rechte</strong><br>[Auskunft, Berichtigung, Löschung, Widerspruch …]</p>']
+            };
+
+            function openLegal(key) {
+                const d = LEGAL[key];
+                if (!d) return;
+                $('legalTitle').textContent = d[0];
+                $('legalBody').innerHTML = d[1];
+                $('legalBack').classList.add('show');
+            }
+
+            function closeLegal() {
+                $('legalBack').classList.remove('show');
+            }
+            window.openLegal = openLegal;
+            window.closeLegal = closeLegal;
+
             function accountAction() {
                 if (authUser) signOutTripwisely();
                 else requestLogin();
@@ -3563,6 +3739,7 @@
                         throw new Error("Supabase erkennt keinen angemeldeten Benutzer.");
                     }
 
+                    if (ensureUuidTrips()) renderAll();
                     const currentIds = new Set(data.trips.map(t => t.id));
 
                     for (const trip of data.trips) {
@@ -3697,6 +3874,7 @@
                     if ($('signedInEmail')) $('signedInEmail').textContent = authUser.email || 'E-Mail-Konto';
                     setTheme(storage.getItem('budgora-theme') || 'light');
                     renderAll();
+                    loadMyUsername();
                     checkInvitePopup();
                     if (rows.length) toast('Willkommen bei Tripwisely!');
                 } catch (e) {
@@ -3707,6 +3885,7 @@
 
             function handleSignedOut() {
                 authUser = null;
+                myUsername = '';
                 cloudReady = false;
                 cloudSaving = false;
                 clearTimeout(cloudSaveTimer);
@@ -3772,16 +3951,36 @@
                 }
             }
 
-            async function inviteTripMember() {
-                const tripId = detailTripId;
+            function openInviteModal(tripId) {
                 if (!requireTripPermission(tripId, 'invite')) return;
-                let ident = ($('memberInviteEmail')?.value || '').trim().toLowerCase();
-                const role = $('memberInviteRole')?.value;
+                showModal('Mitglied hinzufügen', `<div class="formgrid">${field('ident','E-Mail oder Username','text','',null,true,true,'E-Mail oder @username')}${field('role','Rolle','select','editor',[{value:'editor',label:'Bearbeiter'},{value:'admin',label:'Admin'},{value:'reader',label:'Leser'}],true,true)}</div><div class="note">Bestehende Konten werden direkt hinzugefügt. Neue Nutzer erhalten Zugriff, sobald sie sich mit dieser E-Mail-Adresse registrieren.</div>`, o => {
+                    inviteTripMember(tripId, o.ident, o.role).then(ok => { if (ok) closeModal(); });
+                    return false;
+                });
+            }
+            window.openInviteModal = openInviteModal;
+
+            async function inviteTripMember(tripArg, identArg, roleArg) {
+                let tripId = tripArg || detailTripId;
+                if (ensureUuidTrips()) renderAll();
+                tripId = tripIdRemap[tripId] || tripId;
+                // Reise muss in der Cloud existieren, bevor eingeladen werden kann
+                for (let i = 0; i < 20 && !cloudKnown.has(tripId); i++) {
+                    if (!cloudSaving) await syncCloud();
+                    else await new Promise(r => setTimeout(r, 300));
+                }
+                if (!cloudKnown.has(tripId)) {
+                    toast('Die Reise ist noch nicht in der Cloud gespeichert. Bitte kurz warten und erneut versuchen.');
+                    return false;
+                }
+                if (!requireTripPermission(tripId, 'invite')) return false;
+                let ident = String(identArg ?? ($('memberInviteEmail')?.value || '')).trim().toLowerCase();
+                const role = roleArg || $('memberInviteRole')?.value;
                 const byEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ident);
                 if (!byEmail) ident = ident.replace(/^@/, '');
                 if (!byEmail && !/^[a-z0-9_.]{3,20}$/.test(ident)) {
                     toast('Bitte eine gültige E-Mail-Adresse oder einen Username eingeben.');
-                    return;
+                    return false;
                 }
                 const {
                     data: result,
@@ -3791,7 +3990,7 @@
                     await supabaseClient.rpc('tripwisely_invite_by_username', { p_trip_id: tripId, p_username: ident, p_role: role });
                 if (error) {
                     toast('Einladung fehlgeschlagen: ' + authErrorText(error));
-                    return;
+                    return false;
                 }
                 if ($('memberInviteEmail')) $('memberInviteEmail').value = '';
                 toast(result === 'added' ? 'Mitglied wurde zur Reise hinzugefügt.' : 'Einladung gespeichert. Das Mitglied wird nach der Registrierung hinzugefügt.');
@@ -3802,6 +4001,7 @@
                 applyWorkspaceRows(rows, members);
                 await fetchInvitations();
                 renderAll();
+                return true;
             }
 
             async function changeMemberRole(userId, role) {
@@ -3889,10 +4089,47 @@
                 }).join('');
                 const pendingHtml = manage && pending.length ? `<div class="small muted" style="margin-top:12px;font-weight:800">Offene Einladungen</div>${pending.map(i=>`<div class="member-row"><div class="member-main"><strong>${esc(i.invited_email)}</strong><small>Ausstehend · ${roleName[i.role] || i.role}</small></div><button class="iconbtn del" title="Einladung widerrufen" onclick="cancelTripInvitation('${i.id}')">×</button></div>`).join('')}` : '';
                 const inviteHtml = manage ? `<div class="member-invite"><input id="memberInviteEmail" type="text" autocapitalize="none" spellcheck="false" placeholder="E-Mail oder Username" aria-label="E-Mail-Adresse oder Username des Mitglieds"><select id="memberInviteRole" aria-label="Rolle"><option value="editor">Bearbeiter</option><option value="admin">Admin</option><option value="reader">Leser</option></select><button class="btn primary" onclick="inviteTripMember()">＋ Einladen</button></div><div class="member-note">Bestehende Konten werden direkt hinzugefügt. Neue Nutzer erhalten Zugriff, sobald sie sich mit dieser E-Mail-Adresse registrieren. Per Username geht das nur bei bestehenden Konten.</div>` : `<div class="member-note">Deine Rolle: ${roleName[role] || role}. Nur Owner und Admin können Mitglieder verwalten.</div>`;
-                el.innerHTML = `<div class="card"><h2>Reiseteam</h2><div class="small muted">Mitglieder und Zugriffsrechte für „${esc(trip.name)}“</div>${memberHtml}${pendingHtml}${inviteHtml}<div class="member-matrix-wrap"><table class="member-matrix"><thead><tr><th>Berechtigung</th><th>Owner</th><th>Admin</th><th>Bearbeiter</th><th>Leser</th></tr></thead><tbody>${[
+                const teamKey = 'team:' + trip.id,
+                    teamClosed = collapsedCats[teamKey] !== false;
+                const leaveHtml = canLeaveTrip(trip.id) ? `<div style="margin-top:12px"><button type="button" class="btn plain" style="color:var(--red)" onclick="leaveTrip('${trip.id}')">Reise verlassen</button></div>` : '';
+                el.innerHTML = `<div class="card"><div class="allgroups ${teamClosed?'closed':''}"><button type="button" class="allhead" aria-expanded="${!teamClosed}" onclick="toggleTeam('${teamKey}')"><span class="chev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span><span class="alltitle">Reiseteam<small>${members.length} ${members.length===1?'Mitglied':'Mitglieder'}</small></span></button><div class="allbody"><div class="small muted">Mitglieder und Zugriffsrechte für „${esc(trip.name)}“</div>${memberHtml}${pendingHtml}${inviteHtml}${leaveHtml}<div class="member-matrix-wrap"><table class="member-matrix"><thead><tr><th>Berechtigung</th><th>Owner</th><th>Admin</th><th>Bearbeiter</th><th>Leser</th></tr></thead><tbody>${[
                     ['Reisen ansehen',[1,1,1,1]],['Reisen bearbeiten',[1,1,1,0]],['Ausgaben verwalten',[1,1,1,0]],['Mitglieder einladen',[1,1,0,0]],['Rollen ändern',[1,1,0,0]],['Umgebung löschen',[1,0,0,0]]
-                ].map(([label,vals])=>`<tr><td>${label}</td>${vals.map(v=>`<td class="${v?'yes':''}">${v?'✓':'–'}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`;
+                ].map(([label,vals])=>`<tr><td>${label}</td>${vals.map(v=>`<td class="${v?'yes':''}">${v?'✓':'–'}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div></div></div>`;
             }
+
+            function toggleTeam(key) {
+                collapsedCats[key] = collapsedCats[key] === false ? true : false;
+                renderAll();
+            }
+            window.toggleTeam = toggleTeam;
+
+            function canLeaveTrip(tripId) {
+                const r = tripRoles[tripId];
+                return !!authUser && !!r && r !== 'owner';
+            }
+
+            async function leaveTrip(tripId) {
+                if (!canLeaveTrip(tripId)) return;
+                const t = tripBy(tripId);
+                if (!(await askConfirm('Reise verlassen?', `Möchtest du „${t ? t.name : 'diese Reise'}“ wirklich verlassen? Du verlierst sofort den Zugriff und kannst nur durch eine neue Einladung zurückkehren.`, 'Ja, verlassen'))) return;
+                const { data: del, error } = await supabaseClient.from('tripwisely_members').delete().eq('trip_id', tripId).eq('user_id', authUser.id).select('user_id');
+                if (error) {
+                    toast('Reise konnte nicht verlassen werden: ' + authErrorText(error));
+                    return;
+                }
+                if (!del || !del.length) {
+                    toast('Verlassen nicht möglich (fehlende Datenbank-Berechtigung).');
+                    return;
+                }
+                if (detailTripId === tripId) detailTripId = '';
+                if (data.activeTripId === tripId) data.activeTripId = '';
+                const { rows, members } = await fetchWorkspaceRows();
+                applyWorkspaceRows(rows, members);
+                await fetchInvitations();
+                navigate('trips');
+                toast('Du hast die Reise verlassen.');
+            }
+            window.leaveTrip = leaveTrip;
 
             async function cancelTripInvitation(invitationId) {
                 if (!requireTripPermission(detailTripId, 'invite')) return;
@@ -3956,7 +4193,7 @@
                 trips: 'Meine Reisen',
                 budget: 'Budget & Ausgaben',
                 tripdetail: 'Reisedetails',
-                checklist: 'Checkliste',
+                rules: 'Reisebestimmungen',
                 stats: 'Statistiken',
                 settings: 'Mehr',
                 currency: 'Währungsrechner'
@@ -3974,6 +4211,7 @@
             } catch (err) {}
 
             function navigate(page, fromPop) {
+                if (page === 'checklist') page = 'trips';
                 curPage = page;
                 if (!fromPop) {
                     const st = history.state,
@@ -4068,11 +4306,43 @@
                 const active = data.activeTripId === t.id,
                     past = tripStatus(t) === 'past';
                 const first = past ? 'exp' : data.accounts.some(a => a.tripId === t.id) ? 'plan' : 'pots';
-                const editButton = canEditTrip(t.id) ? `<button type="button" class="btn tc-btn tc-edit" onclick="event.stopPropagation();editTrip('${t.id}')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>Bearbeiten</button>` : '';
-                const deleteButton = canDeleteTrip(t.id) ? `<button type="button" class="btn tc-btn tc-del" onclick="event.stopPropagation();deleteTrip('${t.id}')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m-11 0 1 14h12l1-14M10 10v6m4-6v6"/></svg>Löschen</button>` : '';
-                const activateButton = roleForTrip(t.id) !== 'reader' ? (active ? `<button type="button" class="btn plain tc-btn" onclick="event.stopPropagation();deactivateTrip('${t.id}')">Deaktivieren</button>` : past ? '' : `<button type="button" class="btn soft tc-btn" onclick="event.stopPropagation();activateTrip('${t.id}')">Aktivieren</button>`) : '';
-                return `<div class="trip trip-card tc ${active?'active-trip':''}" role="button" tabindex="0" onclick="openTripSection('${first}','${t.id}')" style="cursor:pointer"><div class="tc-top"><div class="tripemoji">${esc(t.emoji||'✈️')}</div><div class="tripmain"><div style="display:flex;align-items:baseline;flex-wrap:wrap;gap:6px"> <strong>${esc(t.name)}</strong> <span style="color:var(--muted)">|</span> <small style="font-size:13px;font-weight:400;color:var(--muted)">${esc(t.destination)}</small> </div><small style="display:block">${dateFmt(t.start)} – ${dateFmt(t.end)}</small><div style="margin-top:5px"><span class="pill ${past?'orange':''}">${active?'Aktive Reise':tripStatus(t)==='upcoming'?'Standby · bevorstehend':past?'Beendet':'Standby · aktuell'}</span></div></div><div class="right">${euro(remaining)}<div class="small muted">übrig</div></div></div><div class="tc-links"><button type="button" onclick="event.stopPropagation();openTripSection('pots','${t.id}')">Konten</button><button type="button" onclick="event.stopPropagation();openTripSection('plan','${t.id}')">Plan</button><button type="button" onclick="event.stopPropagation();openTripSection('exp','${t.id}')">Ausgaben</button><button type="button" onclick="event.stopPropagation();openTripSection('wallet','${t.id}')">Wallet</button></div><div class="tc-actions">${activateButton}${editButton}${deleteButton}</div></div>`;
+                const hasMenu = canEditTrip(t.id) || canDeleteTrip(t.id) || canLeaveTrip(t.id);
+                const addMember = canInviteTrip(t.id) ? `<button type="button" class="tc-add" aria-label="Mitglied hinzufügen" title="Mitglied hinzufügen" onclick="event.stopPropagation();openInviteModal('${t.id}')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>` : '';
+                const roleLbl = { owner: 'Owner', admin: 'Admin', editor: 'Bearbeiter', reader: 'Leser' };
+                const mems = [...(tripMembers[t.id] || [])].sort((a, b) => ['owner', 'admin', 'editor', 'reader'].indexOf(a.role) - ['owner', 'admin', 'editor', 'reader'].indexOf(b.role));
+                const memChips = mems.slice(0, 4).map(m => { const nm = usernameById[m.user_id] || 'Mitglied'; return `<span class="tc-mem" title="${esc(nm)} · ${roleLbl[m.role] || ''}"><i>${esc(nm.slice(0, 1).toUpperCase())}</i>${esc(nm)}</span>`; }).join('') + (mems.length > 4 ? `<span class="tc-mem more">+${mems.length - 4}</span>` : '');
+                const memberRow = (mems.length || addMember) ? `<div class="tc-members">${memChips}${addMember}</div>` : '';
+                const menuButton = hasMenu ? `<button type="button" class="tc-dots" aria-label="Weitere Optionen" aria-haspopup="menu" title="Mehr" onclick="tripMenu(event,'${t.id}')"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:currentColor;stroke:none"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg></button>` : '';
+                const activateChip = roleForTrip(t.id) !== 'reader' ? (active ? `<button type="button" class="tc-chip" onclick="event.stopPropagation();deactivateTrip('${t.id}')">Deaktivieren</button>` : past ? '' : `<button type="button" class="tc-chip on" onclick="event.stopPropagation();activateTrip('${t.id}')">Aktivieren</button>`) : '';
+                return `<div class="trip trip-card tc ${active?'active-trip':''}" role="button" tabindex="0" onclick="openTripSection('${first}','${t.id}')" style="cursor:pointer"><div class="tc-top"><div class="tripmain"><div style="display:flex;align-items:baseline;flex-wrap:wrap;gap:6px"> <strong>${esc(t.name)}</strong> <span style="color:var(--muted)">|</span> <small style="font-size:13px;font-weight:400;color:var(--muted)">${esc(t.destination)}</small> </div><small style="display:block">${dateFmt(t.start)} – ${dateFmt(t.end)}</small><div style="margin-top:5px"><span class="pill ${past?'orange':''}">${active?'Aktive Reise':tripStatus(t)==='upcoming'?'Standby':past?'Beendet':'Standby · aktuell'}</span></div></div><div class="right">${euro(remaining)}<div class="small muted">übrig</div></div>${menuButton}</div>${memberRow}<div class="tc-foot"><span class="tc-hint">Klicke hier, um die Reise zu verwalten ›</span>${activateChip}</div></div>`
             }
+
+            function tripMenu(ev, id) {
+                ev.stopPropagation();
+                const had = document.getElementById('rowMenu');
+                closeRowMenu();
+                if (had && had.dataset.id === id) return;
+                const items = [];
+                if (canEditTrip(id)) items.push(`<button type="button" role="menuitem" onclick="closeRowMenu();editTrip('${id}')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>Bearbeiten</button>`);
+                if (canDeleteTrip(id)) items.push(`<button type="button" role="menuitem" class="del" onclick="closeRowMenu();deleteTrip('${id}')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m-11 0 1 14h12l1-14M10 10v6m4-6v6"/></svg>Löschen</button>`);
+                if (canLeaveTrip(id)) items.push(`<button type="button" role="menuitem" class="del" onclick="closeRowMenu();leaveTrip('${id}')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9"/></svg>Reise verlassen</button>`);
+                if (!items.length) return;
+                const r = ev.currentTarget.getBoundingClientRect();
+                const m = document.createElement('div');
+                m.id = 'rowMenu';
+                m.className = 'rowmenu';
+                m.dataset.id = id;
+                m.setAttribute('role', 'menu');
+                m.innerHTML = items.join('');
+                document.body.appendChild(m);
+                const h = m.offsetHeight,
+                    w = m.offsetWidth;
+                let top = r.bottom + 6;
+                if (top + h > window.innerHeight - 90) top = r.top - h - 6;
+                m.style.top = Math.max(8, top) + 'px';
+                m.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.right - w)) + 'px';
+            }
+            window.tripMenu = tripMenu;
 
             function renderHome() {
                 const active = tripBy(data.activeTripId);
@@ -4131,6 +4401,7 @@
                 if (detailTab === 'plan') openPlanModal();
                 else if (detailTab === 'exp') openExpenseModal({}, detailTripId);
                 else if (detailTab === 'wallet') openWalletModal();
+                else if (detailTab === 'tasks') openTaskModal({}, detailTripId);
                 else openAccountModal({}, detailTripId)
             }
 
@@ -4295,22 +4566,24 @@
                         pots: data.accounts.filter(a => a.tripId === t.id).length,
                         plan: data.plans.filter(p => p.tripId === t.id).length,
                         exp: data.expenses.filter(e => e.tripId === t.id).length,
+                        tasks: data.tasks.filter(x => x.tripId === t.id).length,
                         wallet: data.wallet.filter(w => w.tripId === t.id).length
                     },
                     nm = {
                         pots: ['1', 'Konten'],
                         plan: ['2', 'Plan'],
                         exp: ['3', 'Ausgaben'],
-                        wallet: ['3', 'Wallet']
+                        tasks: ['4', 'Checkliste'],
+                        wallet: ['5', 'Wallet']
                     };
                 document.querySelectorAll('#detailTabs button').forEach(b => {
                     const k = b.dataset.tab;
                     b.classList.toggle('active', k === detailTab);
-                    b.textContent = `${nm[k][1]} (${cnt[k]})`;
+                    b.innerHTML = `<span class="tl">${nm[k][1]}</span><span class="tn">${cnt[k]}</span>`;
                     b.classList.toggle('completed', cnt[k] > 0);
                     b.classList.toggle('pending', cnt[k] === 0)
                 });
-                $('detailAdd').textContent = detailTab === 'plan' ? '＋ Eintrag' : detailTab === 'exp' ? '＋ Ausgabe' : detailTab === 'wallet' ? '＋ Dokument' : '＋ Konto';
+                $('detailAdd').textContent = detailTab === 'plan' ? '＋ Eintrag' : detailTab === 'exp' ? '＋ Ausgabe' : detailTab === 'wallet' ? '＋ Dokument' : detailTab === 'tasks' ? '＋ Aufgabe' : '＋ Konto';
                 let sum = '',
                     list = '';
                 if (detailTab === 'plan') {
@@ -4328,11 +4601,16 @@
                         pl = L.filter(e => e.status !== 'Bezahlt').reduce((n, e) => n + Number(e.amount || 0), 0);
                     sum = (cnt.pots ? '' : '<div class="note" style="margin-bottom:12px">Tipp: Lege unter „Konten“ ein Budget an, damit das Reisebudget berechnet werden kann.</div>') + `<div class="grid stats" style="margin-bottom:14px"><div class="card"><div class="statlabel">Budget</div><div class="statval">${euro(bud)}</div></div><div class="card"><div class="statlabel">Ausgegeben</div><div class="statval">${euro(sp)}</div></div><div class="card"><div class="statlabel">Verbleibend</div><div class="statval">${euro(bud-sp)}</div></div><div class="card"><div class="statlabel">Geplant</div><div class="statval">${euro(pl)}</div></div></div>`;
                     list = L.length ? `<div class="card">${expenseGroups(L,'d')}</div>` : '<div class="empty"><strong>Noch keine Ausgaben erfasst</strong>Füge Ausgaben für diese Reise hinzu – auch für vergangene Reisen.</div>'
+                } else if (detailTab === 'tasks') {
+                    const L = data.tasks.filter(x => x.tripId === t.id);
+                    const done = L.filter(x => x.done).length;
+                    sum = `<div class="card minisum"><div class="ms-row"><span class="statlabel">Erledigt</span><strong>${done} von ${L.length}</strong></div><div class="progress"><span style="width:${L.length ? Math.round(done / L.length * 100) : 0}%"></span></div></div>`;
+                    list = L.length ? `<div class="card">${L.map(x => `<div class="checkrow ${x.done?'done':''}"><input type="checkbox" ${x.done?'checked':''} ${canEditTrip(x.tripId)?'':'disabled'} onchange="toggleTask('${x.id}',this.checked)" aria-label="Aufgabe erledigt"><span style="flex:1">${esc(x.title)}</span>${canEditTrip(x.tripId)?`<button class="iconbtn" onclick="editTask('${x.id}')">✎</button><button class="iconbtn del" onclick="deleteItem('tasks','${x.id}')">×</button>`:''}</div>`).join('')}</div>` : '<div class="empty"><strong>Alles im Griff</strong>Erstelle Aufgaben wie „Reisepass prüfen“ oder „Online-Check-in“.</div>'
                 } else if (detailTab === 'wallet') {
                     const L = data.wallet.filter(w => w.tripId === t.id);
                     list = L.length ? L.map(w => `<div class="trip"><div class="tripemoji">${({"Flug":"✈️","Hotel":"🏨","Mietwagen":"🚗","Ticket":"🎟️","Versicherung":"🛡️","Buchung":"📄","Sonstiges":"📎"}[w.kind]||"📄")}</div><div class="tripmain"><strong>${esc(w.title)}</strong><small>${esc(w.kind)}</small>${w.ref?`<div class="small muted">Referenz: ${esc(w.ref)}</div>`:''}${w.url?`<div><a href="${esc(w.url)}" target="_blank" rel="noopener noreferrer">Link öffnen ↗</a></div>`:''}${w.notes?`<div class="small muted">${esc(w.notes)}</div>`:''}</div>${canEditTrip(t.id)?`<button class="iconbtn" onclick="editWallet('${w.id}')">✎</button><button class="iconbtn del" onclick="deleteItem('wallet','${w.id}')">×</button>`:''}</div>`).join('') : '<div class="empty"><strong>Dein Wallet ist leer</strong>Füge Buchungsdetails, Bestätigungsnummern oder sichere Dokumentlinks hinzu.</div>'
                 } else {
-                    sum = `<div class="card" style="margin-bottom:14px"><div class="statlabel">Reisebudget (Summe der Konten)</div><div class="statval">${euro(tripBudget(t))}</div></div>`;
+                    sum = `<div class="card minisum"><div class="ms-row"><span class="statlabel">Reisebudget (Summe der Konten)</span><strong>${euro(tripBudget(t))}</strong></div></div>`;
                     list = accountRows(t.id)
                 }
                 $('detailSummary').innerHTML = sum;
@@ -4340,32 +4618,11 @@
                 $('detailStats').innerHTML = tripStatsHtml(t)
             }
 
-            let taskTripSel = '';
-
             function checklistTripId() {
-                return (taskTripSel && tripBy(taskTripSel)) ? taskTripSel : (data.activeTripId || '');
+                return detailTripId || data.activeTripId || '';
             }
 
-            function setTaskTrip(v) {
-                taskTripSel = v || '';
-                renderTasks();
-            }
-
-            function renderTasks() {
-                if (taskTripSel && !tripBy(taskTripSel)) taskTripSel = '';
-                const act = tripBy(data.activeTripId);
-                const sel = $('taskTripSelect');
-                if (sel) {
-                    sel.innerHTML = `<option value="">Aktive Reise${act ? ': ' + esc(act.name) : ' (keine)'}</option>` +
-                        data.trips.map(t => `<option value="${t.id}">${esc(t.name)}${t.destination ? ' · ' + esc(t.destination) : ''}</option>`).join('');
-                    sel.value = taskTripSel;
-                }
-                const a = tripBy(checklistTripId());
-                const m = $('page-checklist').querySelector('.sectionhead .muted');
-                if (m) m.textContent = a ? `Checkliste für: ${a.name} · ${a.destination}` : 'Keine Reise ausgewählt – wähle unten eine Reise oder lege eine an.';
-                const list = a ? data.tasks.filter(t => t.tripId === a.id).sort((x, y) => Number(x.done) - Number(y.done)) : [];
-                $('taskList').innerHTML = list.length ? list.map(t => `<div class="checkrow ${t.done?'done':''}"><input type="checkbox" ${t.done?'checked':''} ${canEditTrip(t.tripId)?'':'disabled'} onchange="toggleTask('${t.id}',this.checked)" aria-label="Aufgabe erledigt"><span style="flex:1">${esc(t.title)}</span>${canEditTrip(t.tripId)?`<button class="iconbtn" onclick="editTask('${t.id}')">✎</button><button class="iconbtn del" onclick="deleteItem('tasks','${t.id}')">×</button>`:''}</div>`).join('') : '<div class="empty"><strong>' + (a ? 'Alles im Griff' : 'Keine Reise ausgewählt') + '</strong>' + (a ? 'Erstelle Aufgaben wie „Reisepass prüfen“ oder „Online-Check-in“.' : 'Wähle oben eine Reise aus, um ihre Checkliste zu sehen.') + '</div>'
-            }
+            function renderTasks() {}
 
             function renderStats() {
                 const windowMode = $('statsWindow')?.value || 'all';
@@ -4414,7 +4671,21 @@
                 empty.style.display = filteredTrips.length ? 'none' : 'block';
             }
 
+            function fitStatVals() {
+                document.querySelectorAll('.grid.stats .statval, .minisum .ms-row strong').forEach(el => {
+                    el.style.fontSize = '';
+                    if (!el.clientWidth) return;
+                    let fs = parseFloat(getComputedStyle(el).fontSize);
+                    while (el.scrollWidth > el.clientWidth + 0.5 && fs > 9) {
+                        fs -= 0.5;
+                        el.style.fontSize = fs + 'px';
+                    }
+                });
+            }
+            window.addEventListener('resize', fitStatVals);
+
             function renderAll() {
+                requestAnimationFrame(fitStatVals);
                 renderHome();
                 renderTrips();
                 renderBudget();
@@ -4425,6 +4696,11 @@
                 renderUsers();
                 renderMembers();
                 if ($('signedInEmail')) $('signedInEmail').textContent = authUser?.email || 'Nicht angemeldet';
+                if ($('signedInUsernameRow')) {
+                    const un = myUsername || authUser?.user_metadata?.username || '';
+                    $('signedInUsernameRow').style.display = authUser && un ? '' : 'none';
+                    $('signedInUsername').textContent = un ? '@' + un : '';
+                }
                 if ($('accountBtn')) $('accountBtn').textContent = authUser ? 'Abmelden' : 'Anmelden';
                 if ($('themeSelect')) $('themeSelect').value = storage.getItem('budgora-theme') || 'light';
             }
@@ -4652,9 +4928,9 @@
                 });
             }
 
-            function openTaskModal(t = {}) {
+            function openTaskModal(t = {}, tripId) {
                 const editing = !!t.id;
-                const tid = editing ? t.tripId : checklistTripId();
+                const tid = editing ? t.tripId : (tripId || checklistTripId());
                 if (!requireTripPermission(tid)) return;
                 const a = tripBy(tid);
                 if (!a) {
@@ -5218,7 +5494,6 @@
             window.openPlanModal = openPlanModal;
             window.openWalletModal = openWalletModal;
             window.openTaskModal = openTaskModal;
-            window.setTaskTrip = setTaskTrip;
             window.editTrip = editTrip;
             window.editExpense = editExpense;
             window.editPlan = editPlan;
